@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 enum XmlNode {
     Element {
@@ -10,6 +11,7 @@ enum XmlNode {
     Text(String),
 }
 
+#[allow(dead_code)]
 #[derive(Debug, PartialEq)]
 enum Token<'a> {
     TagOpen(&'a str),      // <name
