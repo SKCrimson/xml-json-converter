@@ -29,6 +29,6 @@ pub fn convert(xml: &str) -> Result<String, &'static str> {
 
     println!("XML Content: {}", xml);
 
-    let json = r#"{"root":{"child":"value"}}"#.to_string(); // Заглушка для тестирования
+    let json = r#"{"root":{"child":"value"}}"#.to_string(); // Placeholder for testing
     Ok(json)
 }

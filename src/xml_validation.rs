@@ -1,25 +1,41 @@
 use std::fs;
 
-pub fn get_content(file_path: &str) -> Result<String, &'static str> {
+pub fn get_content(file_path: &str) -> Result<String, String> {
     let content = fs::read_to_string(file_path)
-        .map_err(|_| "Failed to read the file. Please provide a valid XML file.")?;
+        .map_err(|_| "Failed to read the file. Please provide a valid XML file.".to_string())?;
 
     if content.len() == 0 {
-        return Err("content is empty");
-    } else if !is_well_formed(&content) {
-        return Err("XML validation failed. Please provide a well-formed XML file.");
+        return Err("content is empty".to_string());
     }
+
+    match is_well_formed(&content) {
+        Ok(_) => (),
+        Err(err) => return Err(err),
+    };
 
     Ok(content)
 }
 
-fn is_well_formed(xml: &str) -> bool {
+fn is_well_formed(xml: &str) -> Result<(), String> {
     let mut stack = Vec::new();
     let mut root_count = 0;
     let mut chars = xml.chars().peekable();
 
+    let mut line = 1;
+    let mut col = 0;
+
     while let Some(c) = chars.next() {
+        if c == '\n' {
+            line += 1;
+            col = 0;
+        } else {
+            col += 1;
+        }
+
         if c == '<' {
+            let start_line = line;
+            let start_col = col;
+
             // Look ahead
             match chars.peek() {
                 Some('?') => {
@@ -31,10 +47,10 @@ fn is_well_formed(xml: &str) -> bool {
                     }
                 }
                 Some('!') => {
-                    // 1. Check that this is really the beginning of a comment
+                    // Check that this is really the beginning of a comment
                     while let Some(c) = chars.next() {
                         if c == '-' {
-                            // Look ahead: check if there's another '-' and '>'
+                            // Look ahead to check if there's another '-' and '>'
                             if let Some(&'-') = chars.peek() {
                                 // If we found the second '-', temporarily extract it
                                 chars.next();
@@ -43,7 +59,7 @@ fn is_well_formed(xml: &str) -> bool {
                                     chars.next();
                                     break;
                                 }
-                                // If there's no '>' after "--", continue the loop
+                                // If there's no '>' after '--', continue the loop
                             }
                         }
                     }
@@ -61,8 +77,21 @@ fn is_well_formed(xml: &str) -> bool {
                     }
                     chars.next(); // Skip '>'
 
-                    if stack.pop() != Some(tag_name.trim().to_string()) {
-                        return false;
+                    let expected = tag_name.trim();
+                    match stack.pop() {
+                        Some(last) if last == expected => {}
+                        Some(last) => {
+                            return Err(format!(
+                                "Error at {}:{}: Expected </{}>, but found </{}>",
+                                start_line, start_col, last, expected
+                            ));
+                        }
+                        None => {
+                            return Err(format!(
+                                "Error at {}:{}: Unexpected closing tag </{}>",
+                                start_line, start_col, expected
+                            ));
+                        }
                     }
                 }
                 _ => {
@@ -80,7 +109,7 @@ fn is_well_formed(xml: &str) -> bool {
 
                     if tag_content.ends_with('/') {
                         is_self_closing = true;
-                        tag_content.pop(); // Remove '/' from name
+                        tag_content.pop(); // Remove '/' from tag name
                     }
 
                     chars.next(); // Skip '>'
@@ -93,20 +122,26 @@ fn is_well_formed(xml: &str) -> bool {
 
                     if !is_self_closing {
                         if stack.is_empty() && root_count > 0 {
-                            return false;
+                            return Err(format!(
+                                "Error at {}:{}: Second root element </{}>",
+                                start_line, start_col, tag_name
+                            ));
                         }
                         if stack.is_empty() {
                             root_count += 1;
                         }
                         stack.push(tag_name.to_string());
                         // println!(
-                        //     "DEBUG: Found tag '{}', self-closing: {}, stack before: {:?}",
+                        //     "DEBUG: Found tag '{}', self-closing: {}, stack: {:?}",
                         //     tag_name, is_self_closing, stack
                         // );
                     } else {
-                        // For self-closing just check root structure
+                        // For self-closing tags, just check root structure
                         if stack.is_empty() && root_count > 0 {
-                            return false;
+                            return Err(format!(
+                                "Error at {}:{}: Second root element </{}>",
+                                start_line, start_col, tag_name
+                            ));
                         }
                         if stack.is_empty() {
                             root_count += 1;
@@ -116,5 +151,17 @@ fn is_well_formed(xml: &str) -> bool {
             }
         }
     }
-    stack.is_empty() && root_count == 1
+
+    if let Some(last) = stack.pop() {
+        return Err(format!(
+            "Error: Tag <{}> was not closed before end of file",
+            last
+        ));
+    }
+    
+    if root_count == 0 {
+        return Err("Error: Empty document".to_string());
+    }
+
+    Ok(())
 }

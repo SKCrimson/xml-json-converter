@@ -29,36 +29,44 @@ fn main() {
 
     match params.extension.as_str() {
         "xml" => {
-            let xml_content = match xml_validation::get_content(&params.file_path) {
-                Ok(content) => content,
-                Err(e) => {
-                    eprintln!("Error validating XML: {}", e);
-                    process::exit(1);
-                }
-            };
-
-            let json_content = match xml_to_json::convert(&xml_content) {
-                Ok(json) => json,
-                Err(e) => {
-                    eprintln!("Error converting XML to JSON: {}", e);
-                    process::exit(1);
-                }
-            };
+            get_json(&params);
         }
         "json" => {
-            let json_content = match json_validation::get_content(&params.file_path) {
-                Ok(content) => content,
-                Err(e) => {
-                    eprintln!("Error validating JSON: {}", e);
-                    process::exit(1);
-                }
-            };
-
-            println!("JSON Content: {}", json_content);
+            get_xml(&params);
         }
         _ => {
             eprintln!("Unsupported file type. Please provide XML or JSON file.");
             process::exit(1);
         }
     }
+}
+
+fn get_json(params: &params::Params) {
+    let xml_content = match xml_validation::get_content(&params.file_path) {
+        Ok(content) => content,
+        Err(e) => {
+            eprintln!("Error validating XML: {}", e);
+            process::exit(1);
+        }
+    };
+
+    let json_content = match xml_to_json::convert(&xml_content) {
+        Ok(json) => json,
+        Err(e) => {
+            eprintln!("Error converting XML to JSON: {}", e);
+            process::exit(1);
+        }
+    };
+}
+
+fn get_xml(params: &params::Params) {
+    let json_content = match json_validation::get_content(&params.file_path) {
+        Ok(content) => content,
+        Err(e) => {
+            eprintln!("Error validating JSON: {}", e);
+            process::exit(1);
+        }
+    };
+
+    println!("JSON Content: {}", json_content);
 }
