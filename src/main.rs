@@ -37,7 +37,13 @@ fn main() {
                 }
             };
 
-            println!("XML Content: {}", xml_content);
+            let json_content = match xml_to_json::convert(&xml_content) {
+                Ok(json) => json,
+                Err(e) => {
+                    eprintln!("Error converting XML to JSON: {}", e);
+                    process::exit(1);
+                }
+            };
         }
         "json" => {
             let json_content = match json_validation::get_content(&params.file_path) {

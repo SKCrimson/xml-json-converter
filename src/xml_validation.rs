@@ -7,88 +7,10 @@ pub fn get_content(file_path: &str) -> Result<String, &'static str> {
     if content.len() == 0 {
         return Err("content is empty");
     } else if !is_well_formed(&content) {
-        return Err("file is not well-formed");
+        return Err("XML validation failed. Please provide a well-formed XML file.");
     }
 
     Ok(content)
-}
-
-#[allow(dead_code)]
-fn is_well_formed_old(content: &str) -> bool {
-    let mut stack: Vec<&str> = Vec::new();
-    let mut root_count = 0;
-    let mut i = 0;
-
-    let chars: Vec<char> = content.chars().collect();
-    let lenght = chars.len();
-
-    while i < chars.len() {
-        if chars[i] == '<' {
-            // 1. Обработка декларации <?xml ... ?> (просто пропускаем)
-            if i + 1 < lenght && chars[i + 1] == '?' {
-                while i < lenght && chars[i] != '>' {
-                    i += 1;
-                }
-                i += 1;
-                continue;
-            }
-
-            // 2. Определяем, закрывающий это тег </ или нет
-            let is_closing = i + 1 < lenght && chars[i + 1] == '/';
-            let start = if is_closing { i + 2 } else { i + 1 };
-
-            // 3. Ищем конец тега
-            let mut end = start;
-            while end < lenght && chars[end] != '>' {
-                end += 1;
-            }
-            if end >= lenght {
-                return false;
-            }
-
-            // 4. Проверяем, не является ли тег самозакрывающимся <tag />
-            let is_self_closing = !is_closing && chars[end - 1] == '/';
-
-            // Извлекаем имя тега (до пробела или до /)
-            let tag_content = if is_self_closing {
-                &content[start..end - 1]
-            } else {
-                &content[start..end]
-            };
-
-            let tag_name = tag_content.split_whitespace().next().unwrap_or("").trim();
-
-            if is_closing {
-                match stack.pop() {
-                    Some(last_tag) if last_tag == tag_name => {}
-                    _ => return false,
-                }
-            } else if !is_self_closing {
-                // Только если тег НЕ самозакрывающийся, кладем его в стек
-                if stack.is_empty() && root_count > 0 {
-                    return false;
-                }
-                if stack.is_empty() {
-                    root_count += 1;
-                }
-                stack.push(tag_name);
-            } else {
-                // Самозакрывающийся тег: проверяем только корень
-                if stack.is_empty() && root_count > 0 {
-                    return false;
-                }
-                if stack.is_empty() {
-                    root_count += 1;
-                }
-                // В стек не кладем!
-            }
-            i = end + 1;
-        } else {
-            i += 1;
-        }
-    }
-
-    stack.is_empty() && root_count == 1
 }
 
 fn is_well_formed(xml: &str) -> bool {
@@ -98,19 +20,38 @@ fn is_well_formed(xml: &str) -> bool {
 
     while let Some(c) = chars.next() {
         if c == '<' {
-            // Заглядываем вперед
+            // Look ahead
             match chars.peek() {
                 Some('?') => {
-                    // Пропускаем декларацию <?...?>
+                    // Skip declaration <?...?>
                     while let Some(inner) = chars.next() {
                         if inner == '>' {
                             break;
                         }
                     }
                 }
+                Some('!') => {
+                    // 1. Check that this is really the beginning of a comment
+                    while let Some(c) = chars.next() {
+                        if c == '-' {
+                            // Look ahead: check if there's another '-' and '>'
+                            if let Some(&'-') = chars.peek() {
+                                // If we found the second '-', temporarily extract it
+                                chars.next();
+                                if let Some(&'>') = chars.peek() {
+                                    // Found '>', comment is finished
+                                    chars.next();
+                                    break;
+                                }
+                                // If there's no '>' after "--", continue the loop
+                            }
+                        }
+                    }
+                    continue; // Return to main parser loop
+                }
                 Some('/') => {
-                    // Обработка закрывающего тега </tag>
-                    chars.next(); // Скипаем '/'
+                    // Process closing tag </tag>
+                    chars.next(); // Skip '/'
                     let mut tag_name = String::new();
                     while let Some(&inner) = chars.peek() {
                         if inner == '>' {
@@ -118,14 +59,14 @@ fn is_well_formed(xml: &str) -> bool {
                         }
                         tag_name.push(chars.next().unwrap());
                     }
-                    chars.next(); // Скипаем '>'
+                    chars.next(); // Skip '>'
 
                     if stack.pop() != Some(tag_name.trim().to_string()) {
                         return false;
                     }
                 }
                 _ => {
-                    // Открывающий или самозакрывающийся тег
+                    // Opening or self-closing tag
                     let mut tag_content = String::new();
                     let mut is_self_closing = false;
 
@@ -139,10 +80,10 @@ fn is_well_formed(xml: &str) -> bool {
 
                     if tag_content.ends_with('/') {
                         is_self_closing = true;
-                        tag_content.pop(); // Убираем '/' из имени
+                        tag_content.pop(); // Remove '/' from name
                     }
 
-                    chars.next(); // Скипаем '>'
+                    chars.next(); // Skip '>'
 
                     let tag_name = tag_content
                         .split_whitespace()
@@ -157,9 +98,13 @@ fn is_well_formed(xml: &str) -> bool {
                         if stack.is_empty() {
                             root_count += 1;
                         }
-                        stack.push(tag_name);
+                        stack.push(tag_name.to_string());
+                        // println!(
+                        //     "DEBUG: Found tag '{}', self-closing: {}, stack before: {:?}",
+                        //     tag_name, is_self_closing, stack
+                        // );
                     } else {
-                        // Для самозакрывающегося просто проверяем структуру корня
+                        // For self-closing just check root structure
                         if stack.is_empty() && root_count > 0 {
                             return false;
                         }

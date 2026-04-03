@@ -19,5 +19,16 @@ enum Token<'a> {
     Attr(Option<&'a str>, &'a str, &'a str), // (namespace, key, value)
     TagEnd,                // >
     TagSelfClose,          // />
-    Text(&'a str),         // содержимое
+    Text(&'a str),         // content
+}
+
+pub fn convert(xml: &str) -> Result<String, &'static str> {
+    // let tokens = tokenize(xml)?;
+    // let root = parse(&tokens)?;
+    // let json = to_json(&root);
+
+    println!("XML Content: {}", xml);
+
+    let json = r#"{"root":{"child":"value"}}"#.to_string(); // Заглушка для тестирования
+    Ok(json)
 }
