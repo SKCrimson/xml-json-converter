@@ -1,4 +1,5 @@
 mod xml_lexer;
+mod xml_parser;
 
 use std::collections::HashMap;
 
@@ -28,8 +29,9 @@ pub fn convert(xml: &str) -> Result<String, &'static str> {
     let mut lexer = xml_lexer::Lexer::new(xml);
     let tokens = lexer.tokenize()?;
 
+    let root = xml_parser::Parser::new(tokens).parse()?;
+    println!("Parsed XML Node: {:#?}", root);
 
-    // let root = parse(&tokens)?;
     // let json = to_json(&root);
 
     //println!("XML Content: {}", xml);
