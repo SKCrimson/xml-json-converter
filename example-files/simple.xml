@@ -8,7 +8,6 @@
     <price currency="USD">15.99</price>
     <availability status="in-stock" />
   </book>
-
   <book id="b002" category="science">
     <title>A Brief History of Time</title>
     <author>Stephen Hawking</author>
@@ -17,7 +16,6 @@
     <price currency="EUR">12.50</price>
     <availability status="out-of-stock" />
   </book>
-
   <book id="b003" category="classic">
     <title>1984</title>
     <author>George Orwell</author>

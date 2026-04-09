@@ -7,6 +7,7 @@ pub enum Token<'a> {
     Attr(Option<&'a str>, &'a str, &'a str), // (namespace, key, value)
     TagEnd,                                  // >
     TagSelfClose,                            // />
+    EmptyTag,                               // 
     Text(&'a str),                           // content
 }
 

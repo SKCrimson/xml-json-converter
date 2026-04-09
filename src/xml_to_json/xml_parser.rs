@@ -49,7 +49,19 @@ impl<'a> Parser<'a> {
                 }
 
                 Token::TagSelfClose | Token::TagClose(_) => {
-                    let finished_node = stack.pop().ok_or("Unbalanced tags")?;
+                    let finished_node = {
+                        let this = stack.pop();
+                        match this {
+                            Some(v) => Ok(v),
+                            None => {
+                                println!(
+                                    "Stack is empty when trying to pop. Current token: {:?}",
+                                    token
+                                );
+                                Err("Unbalanced tags")
+                            }
+                        }
+                    }?;
 
                     if stack.is_empty() {
                         root = Some(finished_node);
@@ -58,6 +70,11 @@ impl<'a> Parser<'a> {
                             children.push(finished_node);
                         }
                     }
+                }
+
+                Token::EmptyTag => {
+                    // Пустой тег, например <br/> или комментарий <!-- ... -->
+                    // Мы уже обработали его в лексере, так что просто игнорируем
                 }
 
                 Token::TagEnd => { /* Просто продолжаем */ }
