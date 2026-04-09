@@ -8,13 +8,13 @@ mod xml_to_json;
 mod xml_validation;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    println!("Arguments: {:?}", args);
+    // let args: Vec<String> = env::args().collect();
+    // println!("Arguments: {:?}", args);
     //* Only for testing */
-    // let args: Vec<String> = vec![
-    //     "target\\debug\\xml-json-converter.exe".to_string(),
-    //     "C:\\Users\\krivo\\source\\rust\\xml-json-converter\\target\\no-valid.xml".to_string(),
-    // ];
+    let args: Vec<String> = vec![
+        "target\\debug\\xml-json-converter.exe".to_string(),
+        "C:\\Users\\krivosein\\source\\rust\\xml-json-converter\\example-files\\simple.xml".to_string(),
+    ];
 
     let params = match params::Params::new(&args) {
         Ok(p) => p,

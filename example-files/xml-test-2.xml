@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  For more information on how to configure your ASP.NET application, please visit
+  http://go.microsoft.com/fwlink/?LinkId=169433
+  -->
+<configuration>
+	<configSections>
+		<!-- For more information on Entity Framework configuration, visit http://go.microsoft.com/fwlink/?LinkID=237468 -->
+		<section name="entityFramework" type="System.Data.Entity.Internal.ConfigFile.EntityFrameworkSection, EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+	</configSections>
+	<appSettings>
+		<add key="ChartImageHandler" value="Storage=file;Timeout=20;Url=~/Account/Admin/tempImages/;" />
+		<add key="DatabaseName" value="ekonservissy" />
+		<!--<add key="host" value="smtp.ekonservis.cz" />-->
+		<add key="host" value="smtp.zoner.com" />
+		<add key="hostMail" value="robot@ekonservis.cz" />
+		<add key="hostPass" value="Mercedes63AMG1970!" />
+	</appSettings>
+	<!--<connectionStrings>
+		<add name="ApplicationServices" connectionString="Data Source=ekonservissy.dbaserver.net;Initial Catalog=ekonservissy;UID=ekonservissy;PWD=BvxBQ88p;" providerName="System.Data.SqlClient" />
+		<add name="MapEntities" connectionString="metadata=res://*/MapModel.MapEntities.csdl|res://*/MapModel.MapEntities.ssdl|res://*/MapModel.MapEntities.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=ekonservissy.dbaserver.net;initial catalog=ekonservissy;persist security info=True;user id=ekonservissy;password=BvxBQ88p;MultipleActiveResultSets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />
+	</connectionStrings>-->
+	<connectionStrings>
+		<add name="ApplicationServices" connectionString="Data Source=localhost\SQLEXPRESS;Initial Catalog=ekonservissy;persist security info=True;Integrated Security=SSPI;" providerName="System.Data.SqlClient" />
+	</connectionStrings>
+	<system.web>
+		<compilation targetFramework="4.8" debug="true">
+			<assemblies>
+				<add assembly="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089" />
+				<add assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" />
+			</assemblies>
+		</compilation>
+		<authentication mode="Forms">
+			<forms name=".EKONSYS" loginUrl="~/Account/Divarication.aspx" timeout="120" slidingExpiration="true" cookieless="UseCookies" protection="All" requireSSL="false" enableCrossAppRedirects="false" defaultUrl="~/Account/Divarication.aspx" path="/" />
+		</authentication>
+		<membership defaultProvider="InsuranceMembershipProvider">
+			<providers>
+				<add name="InsuranceMembershipProvider" applicationName="InsuranceWebAssistant" connectionStringName="ApplicationServices" passwordFormat="Hashed" enablePasswordRetrieval="false" enablePasswordReset="true" requiresQuestionAndAnswer="false" requiresUniqueEmail="false" minRequiredPasswordLength="6" minRequiredNonalphanumericCharacters="0" maxInvalidPasswordAttempts="6" passwordAttemptWindow="20" type="System.Web.Security.SqlMembershipProvider" />
+			</providers>
+		</membership>
+		<sessionState mode="InProc" timeout="30" cookieless="UseCookies" cookieName=".EKONSYS_ID" regenerateExpiredSessionId="true" />
+		<roleManager enabled="true">
+			<providers>
+				<clear />
+				<add connectionStringName="ApplicationServices" applicationName="InsuranceWebAssistant" name="AspNetSqlRoleProvider" type="System.Web.Security.SqlRoleProvider" />
+			</providers>
+		</roleManager>
+		<httpHandlers>
+			<add path="ChartImg.axd" verb="GET,HEAD,POST" type="System.Web.UI.DataVisualization.Charting.ChartHttpHandler, System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" validate="false" />
+		</httpHandlers>
+		<pages>
+			<controls>
+				<add tagPrefix="asp" namespace="System.Web.UI.DataVisualization.Charting" assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+				<add tagPrefix="ajaxToolkit" assembly="AjaxControlToolkit" namespace="AjaxControlToolkit" />
+			</controls>
+		</pages>
+		<httpRuntime maxRequestLength="14336" />
+		<customErrors mode="Off" />
+	</system.web>
+	<system.webServer>
+		<modules runAllManagedModulesForAllRequests="true" />
+		<validation validateIntegratedModeConfiguration="false" />
+		<handlers>
+			<remove name="ChartImageHandler" />
+			<add name="ChartImageHandler" preCondition="integratedMode" verb="GET,HEAD,POST" path="ChartImg.axd" type="System.Web.UI.DataVisualization.Charting.ChartHttpHandler, System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+		</handlers>
+	</system.webServer>
+	<system.serviceModel>
+		<services>
+			<service name="InsuranceWebAssistant.Services.SystemOnlineTestService" behaviorConfiguration="CommonBehaviors">
+				<endpoint name="SystemOnlineTestEndpoint" address="/Services/SystemOnlineTestService" binding="wsHttpBinding" bindingConfiguration="CommonBinding" contract="InsuranceWebAssistant.Services.ISystemOnlineTestService" />
+			</service>
+			<service name="InsuranceWebAssistant.Services.ErrorLogService" behaviorConfiguration="CommonBehaviors">
+				<endpoint name="ErrorLogEndpoint" address="/Services/ErrorLogService" binding="wsHttpBinding" bindingConfiguration="CommonBinding" contract="InsuranceWebAssistant.Services.IErrorLogService" />
+			</service>
+			<service name="InsuranceWebAssistant.Services.MapTasksService" behaviorConfiguration="CommonBehaviors">
+				<endpoint name="MapTasksEndpoint" address="/Services/MapTasksService" binding="wsHttpBinding" bindingConfiguration="CommonBinding" contract="InsuranceWebAssistant.Services.IMapTasksService" />
+			</service>
+			<service name="InsuranceWebAssistant.Services.CompanyExpensesService" behaviorConfiguration="CommonBehaviors">
+				<endpoint name="CompanyExpensesEndpoint" address="/Services/CompanyExpensesService" binding="wsHttpBinding" bindingConfiguration="CommonBinding" contract="InsuranceWebAssistant.Services.ICompanyExpensesService" />
+			</service>
+			<service name="InsuranceWebAssistant.Services.CompanyBillingService" behaviorConfiguration="CommonBehaviors">
+				<endpoint name="CompanyBillingEndpoint" address="/Services/CompanyBillingService" binding="wsHttpBinding" bindingConfiguration="CommonBinding" contract="InsuranceWebAssistant.Services.ICompanyBillingService" />
+			</service>
+		</services>
+		<bindings>
+			<wsHttpBinding>
+				<binding name="CommonBinding" maxReceivedMessageSize="2097152" maxBufferPoolSize="2097152">
+					<security mode="None" />
+				</binding>
+			</wsHttpBinding>
+		</bindings>
+		<behaviors>
+			<serviceBehaviors>
+				<behavior name="CommonBehaviors">
+					<serviceMetadata httpGetEnabled="true" httpsGetEnabled="true" />
+					<serviceDebug includeExceptionDetailInFaults="true" />
+				</behavior>
+			</serviceBehaviors>
+		</behaviors>
+		<serviceHostingEnvironment aspNetCompatibilityEnabled="true" multipleSiteBindingsEnabled="true" />
+	</system.serviceModel>
+	<entityFramework>
+		<defaultConnectionFactory type="System.Data.Entity.Infrastructure.SqlConnectionFactory, EntityFramework" />
+		<providers>
+			<provider invariantName="System.Data.SqlClient" type="System.Data.Entity.SqlServer.SqlProviderServices, EntityFramework.SqlServer" />
+		</providers>
+	</entityFramework>
+	<runtime>
+		<assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Data.Services" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-5.8.1.0" newVersion="5.8.1.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Data.Services.Client" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-5.8.1.0" newVersion="5.8.1.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Data.Edm" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-5.8.1.0" newVersion="5.8.1.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.Spatial" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-5.8.1.0" newVersion="5.8.1.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.AI.Agent.Intercept" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-2.0.7.0" newVersion="2.0.7.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-13.0.0.0" newVersion="13.0.0.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.Runtime.CompilerServices.Unsafe" publicKeyToken="b03f5f7f11d50a3a" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-6.0.3.0" newVersion="6.0.3.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.Memory" publicKeyToken="cc7b13ffcd2ddd51" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-4.0.1.2" newVersion="4.0.1.2" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.Numerics.Vectors" publicKeyToken="b03f5f7f11d50a3a" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-4.1.4.0" newVersion="4.1.4.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.Buffers" publicKeyToken="cc7b13ffcd2ddd51" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-4.0.3.0" newVersion="4.0.3.0" />
+			</dependentAssembly>
+		</assemblyBinding>
+	</runtime>
+</configuration>

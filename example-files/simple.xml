@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+  <book id="b001" category="fiction">
+    <title>The Great Gatsby</title>
+    <author>F. Scott Fitzgerald</author>
+    <year>1925</year>
+    <format>Hardcover</format>
+    <price currency="USD">15.99</price>
+    <availability status="in-stock" />
+  </book>
+
+  <book id="b002" category="science">
+    <title>A Brief History of Time</title>
+    <author>Stephen Hawking</author>
+    <year>1988</year>
+    <format>Paperback</format>
+    <price currency="EUR">12.50</price>
+    <availability status="out-of-stock" />
+  </book>
+
+  <book id="b003" category="classic">
+    <title>1984</title>
+    <author>George Orwell</author>
+    <year>1949</year>
+    <format>E-book</format>
+    <price currency="CZK">450.00</price>
+    <availability status="in-stock" />
+  </book>
+</library>
