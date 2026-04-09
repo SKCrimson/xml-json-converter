@@ -1,5 +1,5 @@
-use super::Token;
-use super::XmlNode;
+use crate::xml_to_json::xml_model::Token;
+use crate::xml_to_json::xml_model::XmlNode;
 use std::collections::HashMap;
 
 pub struct Parser<'a> {

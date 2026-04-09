@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<library>
+<library location="Central City" last_updated="2024-05-20">
   <book id="b001" category="fiction">
     <title>The Great Gatsby</title>
     <author>F. Scott Fitzgerald</author>

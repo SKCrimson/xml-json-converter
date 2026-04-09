@@ -14,11 +14,11 @@
 		<!--<add key="host" value="smtp.ekonservis.cz" />-->
 		<add key="host" value="smtp.zoner.com" />
 		<add key="hostMail" value="robot@ekonservis.cz" />
-		<add key="hostPass" value="Mercedes63AMG1970!" />
+		<add key="hostPass" value="balbalbla" />
 	</appSettings>
 	<!--<connectionStrings>
-		<add name="ApplicationServices" connectionString="Data Source=ekonservissy.dbaserver.net;Initial Catalog=ekonservissy;UID=ekonservissy;PWD=BvxBQ88p;" providerName="System.Data.SqlClient" />
-		<add name="MapEntities" connectionString="metadata=res://*/MapModel.MapEntities.csdl|res://*/MapModel.MapEntities.ssdl|res://*/MapModel.MapEntities.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=ekonservissy.dbaserver.net;initial catalog=ekonservissy;persist security info=True;user id=ekonservissy;password=BvxBQ88p;MultipleActiveResultSets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />
+		<add name="ApplicationServices" connectionString="Data Source=ekonservissy.dbaserver.net;Initial Catalog=ekonservissy;UID=ekonservissy;PWD=blablabla;" providerName="System.Data.SqlClient" />
+		<add name="MapEntities" connectionString="metadata=res://*/MapModel.MapEntities.csdl|res://*/MapModel.MapEntities.ssdl|res://*/MapModel.MapEntities.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=ekonservissy.dbaserver.net;initial catalog=ekonservissy;persist security info=True;user id=ekonservissy;password=Blabalbal;MultipleActiveResultSets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />
 	</connectionStrings>-->
 	<connectionStrings>
 		<add name="ApplicationServices" connectionString="Data Source=localhost\SQLEXPRESS;Initial Catalog=ekonservissy;persist security info=True;Integrated Security=SSPI;" providerName="System.Data.SqlClient" />

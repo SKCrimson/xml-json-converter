@@ -1,4 +1,4 @@
-use super::Token;
+use crate::xml_to_json::xml_model::Token;
 
 pub struct Lexer<'a> {
     input: &'a str,

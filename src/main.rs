@@ -1,4 +1,5 @@
 use std::env;
+use std::fs;
 use std::process;
 
 mod json_to_xml;
@@ -8,13 +9,14 @@ mod xml_to_json;
 mod xml_validation;
 
 fn main() {
-    // let args: Vec<String> = env::args().collect();
-    // println!("Arguments: {:?}", args);
+    let args: Vec<String> = env::args().collect();
+    println!("Arguments: {:?}", args);
     //* Only for testing */
-    let args: Vec<String> = vec![
-        "target\\debug\\xml-json-converter.exe".to_string(),
-        "C:\\Users\\krivosein\\source\\rust\\xml-json-converter\\example-files\\simple.xml".to_string(),
-    ];
+    // let args: Vec<String> = vec![
+    //     "target\\debug\\xml-json-converter.exe".to_string(),
+    //     "C:\\Users\\krivosein\\source\\rust\\xml-json-converter\\example-files\\simple.xml"
+    //         .to_string(),
+    // ];
 
     let params = match params::Params::new(&args) {
         Ok(p) => p,
@@ -57,6 +59,15 @@ fn get_json(params: &params::Params) {
             process::exit(1);
         }
     };
+
+    let save_file_path = format!("{}-result.json", params.file_path);
+
+    if let Err(e) = fs::write(&save_file_path, &json_content) {
+        eprintln!("Error writing file: {}", e);
+        process::exit(1);
+    }
+
+    println!("Successfully saved to: {}", save_file_path);
 }
 
 fn get_xml(params: &params::Params) {
