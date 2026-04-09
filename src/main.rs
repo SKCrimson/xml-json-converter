@@ -60,7 +60,7 @@ fn get_json(params: &params::Params) {
         }
     };
 
-    let save_file_path = format!("{}-result.json", params.file_path);
+    let save_file_path = format!("{}-result.json", params.file_path.trim_end_matches(".xml"));
 
     if let Err(e) = fs::write(&save_file_path, &json_content) {
         eprintln!("Error writing file: {}", e);

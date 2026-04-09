@@ -66,27 +66,24 @@ impl XmlNode {
 
                 // 4. Если есть только текст и нет атрибутов/детей, возвращаем просто строку
                 if parts.is_empty() && !text_content.is_empty() {
-                    return format!(
-                        "\"{}\"",
-                        text_content
-                            .iter()
-                            .map(|s| s.as_str())
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                            .replace('"', "\\\"")
-                    );
+                    let joined_text = text_content
+                        .iter()
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    return format!("\"{}\"", joined_text.replace('"', "\\\""));
                 }
 
                 // Если есть текст вместе с другими элементами, добавим его как специальное поле
                 if !text_content.is_empty() && !parts.is_empty() {
+                    let joined_text = text_content
+                        .iter()
+                        .map(|s| s.as_str())
+                        .collect::<Vec<_>>()
+                        .join(" ");
                     parts.push(format!(
                         "\"#text\": \"{}\"",
-                        text_content
-                            .iter()
-                            .map(|s| s.as_str())
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                            .replace('"', "\\\"")
+                        joined_text.replace('"', "\\\"")
                     ));
                 }
 

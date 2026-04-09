@@ -21,7 +21,7 @@ impl<'a> Lexer<'a> {
 
         while let Some(token) = self.next_token() {
             // Опционально: логгирование для отладки
-            println!("Token: {:?}", token);
+            //println!("Token: {:?}", token);
             tokens.push(token);
         }
 
