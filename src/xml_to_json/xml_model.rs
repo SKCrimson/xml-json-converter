@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 #[derive(Debug, PartialEq)]
 pub enum Token<'a> {
-    TagOpen(&'a str),                        // <name
-    TagClose(&'a str),                       // </name>
-    Attr(Option<&'a str>, &'a str, &'a str), // (namespace, key, value)
-    TagEnd,                                  // >
-    TagSelfClose,                            // />
-    EmptyTag,                                //
-    Text(&'a str),                           // content
+    TagOpen(&'a str),                         // <name
+    TagClose(&'a str),                        // </name>
+    Attr(Option<&'a str>, &'a str, &'a str),  // (namespace, key, value)
+    TagEnd,                                   // >
+    TagSelfClose,                             // />
+    EmptyTag,                                 //
+    Text(&'a str),                            // content
 }
 
 #[derive(Debug)]
