@@ -131,10 +131,6 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                             root_count += 1;
                         }
                         stack.push(tag_name.to_string());
-                        // println!(
-                        //     "DEBUG: Found tag '{}', self-closing: {}, stack: {:?}",
-                        //     tag_name, is_self_closing, stack
-                        // );
                     } else {
                         // For self-closing tags, just check root structure
                         if stack.is_empty() && root_count > 0 {
@@ -158,7 +154,7 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
             last
         ));
     }
-    
+
     if root_count == 0 {
         return Err("Error: Empty document".to_string());
     }

@@ -22,6 +22,11 @@ impl<'a> Lexer<'a> {
         while let Some(token) = self.next_token() {
             // Optional: logging for debugging
             // println!("Token: {:?}", token);
+            if token == Token::EmptyTag {
+                // Skip empty tags (like comments or declarations)
+                continue;
+            }
+
             tokens.push(token);
         }
 

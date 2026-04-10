@@ -7,6 +7,7 @@ mod xml_parser;
 pub fn convert(xml: &str) -> Result<String, &'static str> {
     let mut lexer = xml_lexer::Lexer::new(xml);
     let tokens = lexer.tokenize()?;
+    // println!("Tokens: {:?}", tokens);
 
     let root_node = xml_parser::Parser::new(tokens).parse()?;
 

@@ -31,7 +31,7 @@ fn main() {
 
     match params.extension.as_str() {
         "xml" => {
-            get_json(&params);
+            get_json(&params.file_path);
         }
         "json" => {
             get_xml(&params);
@@ -43,8 +43,8 @@ fn main() {
     }
 }
 
-fn get_json(params: &params::Params) {
-    let xml_content = match xml_validation::get_content(&params.file_path) {
+fn get_json(file_path: &str) {
+    let xml_content = match xml_validation::get_content(file_path) {
         Ok(content) => content,
         Err(e) => {
             eprintln!("Error validating XML: {}", e);
@@ -60,7 +60,7 @@ fn get_json(params: &params::Params) {
         }
     };
 
-    let save_file_path = format!("{}-result.json", params.file_path.trim_end_matches(".xml"));
+    let save_file_path = format!("{}-result.json", file_path.trim_end_matches(".xml"));
 
     if let Err(e) = fs::write(&save_file_path, &json_content) {
         eprintln!("Error writing file: {}", e);
