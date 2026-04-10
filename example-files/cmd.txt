@@ -1,5 +1,0 @@
-
-  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-files\xml-test-1.xml
-  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-files\xml-test-2.xml
-  
-  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-files\simple.xml

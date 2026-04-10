@@ -75,19 +75,18 @@ impl<'a> Lexer<'a> {
                 let name = &rest[1..end]; // оставим "?" в имени для отличия
                 self.advance(end);
                 Some(Token::TagOpen(name))
-            } else if rest.starts_with("<!-") {
+            } else if rest.starts_with("<!--") {
                 // Специальная обработка комментариев <!--
-                self.in_tag = true;
                 let end = rest.find("-->")?;
                 self.advance(end + 3);
                 Some(Token::EmptyTag)
             } else if rest.starts_with("<!") {
                 // Специальная обработка декларации <!DOCTYPE
-                self.in_tag = true;
                 let end = rest[2..]
                     .find(|c: char| c.is_whitespace() || c == '>')
                     .map(|i| i + 2)
                     .unwrap_or(rest.len());
+                self.advance(end + 3);
                 Some(Token::EmptyTag)
             } else if rest.starts_with('<') {
                 self.in_tag = true;
