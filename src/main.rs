@@ -10,7 +10,7 @@ mod xml_validation;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("Arguments: {:?}", args);
+    //println!("Arguments: {:?}", args);
     //* Only for testing */
     // let args: Vec<String> = vec![
     //     "target\\debug\\xml-json-converter.exe".to_string(),
@@ -26,8 +26,8 @@ fn main() {
         }
     };
 
-    println!("File Path: {}", params.file_path);
-    println!("File Extension: {}", params.extension);
+    // println!("File Path: {}", params.file_path);
+    // println!("File Extension: {}", params.extension);
 
     match params.extension.as_str() {
         "xml" => {

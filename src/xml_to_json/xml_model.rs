@@ -7,7 +7,7 @@ pub enum Token<'a> {
     Attr(Option<&'a str>, &'a str, &'a str), // (namespace, key, value)
     TagEnd,                                  // >
     TagSelfClose,                            // />
-    EmptyTag,                               // 
+    EmptyTag,                                //
     Text(&'a str),                           // content
 }
 
@@ -24,7 +24,7 @@ pub enum XmlNode {
 impl XmlNode {
     pub fn to_json(&self) -> String {
         match self {
-            XmlNode::Text(s) => format!("\"{}\"", s.replace('"', "\\\"")),
+            XmlNode::Text(s) => format!("\"{}\"", Self::escape_json(s)),
             XmlNode::Element {
                 name: _,
                 attributes,
@@ -32,12 +32,12 @@ impl XmlNode {
             } => {
                 let mut parts = Vec::new();
 
-                // 1. Обрабатываем атрибуты
+                // 1. Process attributes
                 for (key, value) in attributes {
-                    parts.push(format!("\"@{}\": \"{}\"", key, value.replace('"', "\\\"")));
+                    parts.push(format!("\"@{}\": \"{}\"", key, Self::escape_json(value)));
                 }
 
-                // 2. Группируем детей по именам, чтобы найти дубликаты (массивы)
+                // 2. Group child nodes by name to find duplicates (arrays)
                 let mut grouped_children: HashMap<String, Vec<&XmlNode>> = HashMap::new();
                 let mut text_content = Vec::new();
 
@@ -53,29 +53,29 @@ impl XmlNode {
                     }
                 }
 
-                // 3. Обрабатываем сгруппированных детей
+                // 3. Process grouped child nodes
                 for (name, nodes) in grouped_children {
                     if nodes.len() > 1 {
-                        // Массив элементов
+                        // Array of elements
                         let items: Vec<String> = nodes.iter().map(|n| n.to_json()).collect();
                         parts.push(format!("\"{}\": [{}]", name, items.join(", ")));
                     } else {
-                        // Одиночный элемент
+                        // Single element
                         parts.push(format!("\"{}\": {}", name, nodes[0].to_json()));
                     }
                 }
 
-                // 4. Если есть только текст и нет атрибутов/детей, возвращаем просто строку
+                // 4. If there is only text and no attributes/children, return just a string
                 if parts.is_empty() && !text_content.is_empty() {
                     let joined_text = text_content
                         .iter()
                         .map(|s| s.as_str())
                         .collect::<Vec<_>>()
                         .join(" ");
-                    return format!("\"{}\"", joined_text.replace('"', "\\\""));
+                    return format!("\"{}\"", Self::escape_json(&joined_text));
                 }
 
-                // Если есть текст вместе с другими элементами, добавим его как специальное поле
+                // If there is text along with other elements, add it as a special field
                 if !text_content.is_empty() && !parts.is_empty() {
                     let joined_text = text_content
                         .iter()
@@ -84,12 +84,21 @@ impl XmlNode {
                         .join(" ");
                     parts.push(format!(
                         "\"#text\": \"{}\"",
-                        joined_text.replace('"', "\\\"")
+                        Self::escape_json(&joined_text)
                     ));
                 }
 
                 format!("{{ {} }}", parts.join(", "))
             }
         }
+    }
+
+    // Helper function for safely building JSON strings
+    fn escape_json(s: &str) -> String {
+        s.replace('\\', "\\\\") // First escape the backslash itself
+            .replace('"', "\\\"") // Then escape quotes
+            .replace('\n', "\\n") // (Optional) line breaks
+            .replace('\r', "\\r")
+            .replace('\t', "\\t")
     }
 }

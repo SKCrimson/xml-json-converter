@@ -3,7 +3,7 @@ use crate::xml_to_json::xml_model::Token;
 pub struct Lexer<'a> {
     input: &'a str,
     cursor: usize,
-    in_tag: bool, // Состояние: находимся ли мы внутри угловых скобок
+    in_tag: bool, // State: whether we are inside angle brackets
 }
 
 impl<'a> Lexer<'a> {
@@ -15,18 +15,18 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    /// Проходит по всей строке и собирает вектор токенов
+    /// Walks through the entire string and collects a vector of tokens
     pub fn tokenize(&mut self) -> Result<Vec<Token<'a>>, &'static str> {
         let mut tokens = Vec::new();
 
         while let Some(token) = self.next_token() {
-            // Опционально: логгирование для отладки
-            println!("Token: {:?}", token);
+            // Optional: logging for debugging
+            // println!("Token: {:?}", token);
             tokens.push(token);
         }
 
-        // Базовая проверка: если мы закончили, но остались "внутри тега",
-        // значит XML оборван (например, "<root ")
+        // Basic check: if we reached the end but are still "inside a tag",
+        // then the XML is truncated (for example, "<root ")
         if self.in_tag {
             return Err("Unexpected end of input: tag not closed");
         }
@@ -34,7 +34,7 @@ impl<'a> Lexer<'a> {
         Ok(tokens)
     }
 
-    // Вспомогательный метод для получения оставшейся части строки
+    // Helper method to get the remaining part of the string
     fn remaining(&self) -> &'a str {
         if self.cursor >= self.input.len() {
             ""
@@ -43,7 +43,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    // Продвигает курсор вперед
+    // Moves the cursor forward
     fn advance(&mut self, n: usize) {
         self.cursor += n;
     }
@@ -60,28 +60,28 @@ impl<'a> Lexer<'a> {
 
         if !self.in_tag {
             if rest.starts_with("</") {
-                // ... (логика закрывающего тега без изменений)
+                // ... (closing tag logic unchanged)
                 let end = rest.find('>')?;
                 let name = &rest[2..end];
                 self.advance(end + 1);
                 Some(Token::TagClose(name))
             } else if rest.starts_with("<?") {
-                // Специальная обработка декларации <?xml
+                // Special handling for the <?xml declaration
                 self.in_tag = true;
                 let end = rest[2..]
                     .find(|c: char| c.is_whitespace() || c == '?')
                     .map(|i| i + 2)
                     .unwrap_or(rest.len());
-                let name = &rest[1..end]; // оставим "?" в имени для отличия
+                let name = &rest[1..end]; // keep "?" in the name for distinction
                 self.advance(end);
                 Some(Token::TagOpen(name))
             } else if rest.starts_with("<!--") {
-                // Специальная обработка комментариев <!--
+                // Special handling for comments <!--
                 let end = rest.find("-->")?;
                 self.advance(end + 3);
                 Some(Token::EmptyTag)
             } else if rest.starts_with("<!") {
-                // Специальная обработка декларации <!DOCTYPE
+                // Special handling for the <!DOCTYPE declaration
                 let end = rest[2..]
                     .find(|c: char| c.is_whitespace() || c == '>')
                     .map(|i| i + 2)
@@ -98,7 +98,7 @@ impl<'a> Lexer<'a> {
                 self.advance(end);
                 Some(Token::TagOpen(name))
             } else {
-                // ... (логика текста без изменений)
+                // ... (text logic unchanged)
                 let end = rest.find('<').unwrap_or(rest.len());
                 let text = &rest[..end];
                 self.advance(end);
@@ -110,9 +110,9 @@ impl<'a> Lexer<'a> {
                 }
             }
         } else {
-            // Внутри тега
+            // Inside a tag
             if rest.starts_with("?>") {
-                // Закрытие декларации
+                // Closing the declaration
                 self.in_tag = false;
                 self.advance(2);
                 Some(Token::TagEnd)
@@ -131,7 +131,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn parse_attribute(&mut self, rest: &'a str) -> Option<Token<'a>> {
-        // Проверка: если мы наткнулись на конец тега перед парсингом атрибута
+        // Check: if we reached the end of the tag before parsing an attribute
         if rest.starts_with('>') || rest.starts_with("/>") || rest.starts_with("?>") {
             return None;
         }
@@ -139,8 +139,8 @@ impl<'a> Lexer<'a> {
         let eq_pos = rest.find('=')?;
         let full_key = rest[..eq_pos].trim();
 
-        // Важно: если ключ содержит '?', значит мы ошибочно парсим конец декларации
-        // Но с новой логикой в next_token мы должны это проскакивать.
+        // Important: if the key contains '?', we are mistakenly parsing the end of the declaration
+        // But with the new logic in next_token, this should be skipped.
 
         let (ns, key) = if let Some(colon_pos) = full_key.find(':') {
             (Some(&full_key[..colon_pos]), &full_key[colon_pos + 1..])
