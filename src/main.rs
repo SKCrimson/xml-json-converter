@@ -63,7 +63,7 @@ fn get_json(file_path: &str) {
     let save_file_path = format!("{}-result.json", file_path.trim_end_matches(".xml"));
 
     if let Err(e) = fs::write(&save_file_path, &json_content) {
-        eprintln!("Error writing file: {}", e);
+        eprintln!("Error writing JSON file: {}", e);
         process::exit(1);
     }
 
@@ -79,5 +79,20 @@ fn get_xml(params: &params::Params) {
         }
     };
 
-    println!("JSON Content: {}", json_content);
+    let xml_content = match json_to_xml::convert(&json_content) {
+        Ok(xml) => xml,
+        Err(e) => {
+            eprintln!("Error converting JSON to XML: {}", e);
+            process::exit(1);
+        }
+    };
+
+    let save_file_path = format!("{}-result.xml", params.file_path.trim_end_matches(".json"));
+
+    if let Err(e) = fs::write(&save_file_path, &xml_content) {
+        eprintln!("Error writing XML file: {}", e);
+        process::exit(1);
+    }
+
+    println!("Successfully saved to: {}", save_file_path);
 }

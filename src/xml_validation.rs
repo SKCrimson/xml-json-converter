@@ -5,7 +5,7 @@ pub fn get_content(file_path: &str) -> Result<String, String> {
         .map_err(|_| "Failed to read the file. Please provide a valid XML file.".to_string())?;
 
     if content.len() == 0 {
-        return Err("content is empty".to_string());
+        return Err("Content is empty".to_string());
     }
 
     match is_well_formed(&content) {

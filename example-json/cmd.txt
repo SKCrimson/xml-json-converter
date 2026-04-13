@@ -1,0 +1,9 @@
+
+  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-json\test-1.json
+  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-json\test-1.json
+
+  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-json\test-2.json
+  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-json\test-2.json
+
+  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-json\simple.json
+  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-json\simple.json
