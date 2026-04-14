@@ -27,13 +27,38 @@ pub fn get_content(file_path: &str) -> Result<String, String> {
     Ok(content)
 }
 
-fn is_well_formed(json: &str) -> Result<(), String> {
-    let mut stack: Vec<char> = Vec::new();
-    let mut chars = json.chars().enumerate().peekable();
+struct PosTracker<I: Iterator<Item = char>> {
+    inner: I,
+    line: usize,
+    col: usize,
+}
+impl<I: Iterator<Item = char>> Iterator for PosTracker<I> {
+    type Item = (char, usize, usize); // Возвращаем символ вместе с его позицией
 
+    fn next(&mut self) -> Option<Self::Item> {
+        let c = self.inner.next()?;
+        if c == '\n' {
+            self.line += 1;
+            self.col = 0;
+        } else {
+            self.col += 1;
+        }
+        Some((c, self.line, self.col))
+    }
+}
+
+fn is_well_formed(json: &str) -> Result<(), String> {
+    let tracker = PosTracker {
+        inner: json.chars(),
+        line: 1,
+        col: 0,
+    };
+    let mut chars = tracker.peekable();
+    let mut stack: Vec<char> = Vec::new();
     let mut expect = Expect::Any;
 
-    while let Some((_idx, c)) = chars.next() {
+    // Теперь c — это (char, line, col)
+    while let Some((c, l, c_pos)) = chars.next() {
         if c.is_whitespace() {
             continue;
         }
@@ -41,35 +66,54 @@ fn is_well_formed(json: &str) -> Result<(), String> {
         match c {
             '{' => {
                 stack.push('{');
-                expect = Expect::Key; // В пустом объекте {} это изменится ниже
+                expect = Expect::Key;
+                if let Some(&(nc, _, _)) = chars.peek() {
+                    if nc == '}' {
+                        expect = Expect::CommaOrClose;
+                    }
+                }
             }
             '[' => {
                 stack.push('[');
                 expect = Expect::Value;
-            }
-            '}' => {
-                if stack.pop() != Some('{') {
-                    return Err("Unexpected '}'".into());
+                if let Some(&(nc, _, _)) = chars.peek() {
+                    if nc == ']' {
+                        expect = Expect::CommaOrClose;
+                    }
                 }
-                expect = Expect::CommaOrClose;
             }
-            ']' => {
-                if stack.pop() != Some('[') {
-                    return Err("Unexpected ']'".into());
+            '}' | ']' => {
+                // Проверка: можем ли мы закрыться сейчас?
+                // Мы можем закрыться, если ждали CommaOrClose ИЛИ если это пустой контейнер (Value/Key)
+                if expect != Expect::CommaOrClose
+                    && expect != Expect::Value
+                    && expect != Expect::Key
+                {
+                    return Err(format!(
+                        "Unexpected closing '{}' at line {}, col {}",
+                        c, l, c_pos
+                    ));
+                }
+
+                let open = if c == '}' { '{' } else { '[' };
+                if stack.pop() != Some(open) {
+                    return Err(format!(
+                        "Mismatched closing '{}' at line {}, col {}",
+                        c, l, c_pos
+                    ));
                 }
                 expect = Expect::CommaOrClose;
             }
             ':' => {
                 if expect != Expect::Colon {
-                    return Err("Unexpected ':'".into());
+                    return Err(format!("Unexpected ':' at line {}, col {}", l, c_pos));
                 }
                 expect = Expect::Value;
             }
             ',' => {
                 if expect != Expect::CommaOrClose {
-                    return Err("Unexpected ','".into());
+                    return Err(format!("Unexpected ',' at line {}, col {}", l, c_pos));
                 }
-                // После запятой в объекте ждем ключ, в массиве - значение
                 expect = if stack.last() == Some(&'{') {
                     Expect::Key
                 } else {
@@ -77,76 +121,69 @@ fn is_well_formed(json: &str) -> Result<(), String> {
                 };
             }
             '"' => {
-                // Логика пропуска строки...
-                consume_string(&mut chars)?;
+                // Передаем итератор в consume_string
+                consume_string(&mut chars)
+                    .map_err(|e| format!("{} near line {}, col {}", e, l, c_pos))?;
 
                 if expect == Expect::Key {
                     expect = Expect::Colon;
-                } else if expect == Expect::Value {
-                    expect = Expect::CommaOrClose;
                 } else {
-                    return Err("Unexpected string".into());
+                    expect = Expect::CommaOrClose;
                 }
             }
             _ => {
-                // Обработка чисел, true, false, null
                 if expect == Expect::Value {
-                    consume_literal(c, &mut chars)?;
+                    consume_literal(c, &mut chars)
+                        .map_err(|e| format!("{} near line {}, col {}", e, l, c_pos))?;
                     expect = Expect::CommaOrClose;
+                } else {
+                    return Err(format!(
+                        "Unexpected character '{}' at line {}, col {}",
+                        c, l, c_pos
+                    ));
                 }
             }
         }
     }
 
     if !stack.is_empty() {
-        return Err("Unclosed braces".into());
+        return Err("Unexpected EOF: unclosed structures".into());
     }
     Ok(())
 }
 
 fn consume_string<I>(chars: &mut std::iter::Peekable<I>) -> Result<String, String>
 where
-    I: Iterator<Item = (usize, char)>,
+    I: Iterator<Item = (char, usize, usize)>,
 {
     let mut s = String::new();
     let mut escaped = false;
 
-    while let Some((_, c)) = chars.next() {
+    while let Some((c, _, _)) = chars.next() {
         if escaped {
             s.push(c);
             escaped = false;
         } else if c == '\\' {
             escaped = true;
         } else if c == '"' {
-            return Ok(s); // Строка успешно завершена
+            return Ok(s);
         } else {
             s.push(c);
         }
     }
-    Err("Unexpected end of input in string".to_string())
+    Err("Unclosed string".into())
 }
 
-fn consume_literal<I>(
-    first_char: char,
-    chars: &mut std::iter::Peekable<I>,
-) -> Result<String, String>
+fn consume_literal<I>(first_c: char, chars: &mut std::iter::Peekable<I>) -> Result<String, String>
 where
-    I: Iterator<Item = (usize, char)>,
+    I: Iterator<Item = (char, usize, usize)>,
 {
-    let mut literal = String::from(first_char);
-
-    // Читаем, пока не встретим разделитель JSON
-    while let Some(&(_, c)) = chars.peek() {
+    let mut lit = String::from(first_c);
+    while let Some(&(c, _, _)) = chars.peek() {
         if c.is_whitespace() || c == ',' || c == '}' || c == ']' || c == ':' {
             break;
         }
-        literal.push(chars.next().unwrap().1);
+        lit.push(chars.next().unwrap().0);
     }
-
-    // Простая валидация типов (опционально)
-    match literal.as_str() {
-        "true" | "false" | "null" => Ok(literal),
-        _ if literal.parse::<f64>().is_ok() => Ok(literal),
-        _ => Err(format!("Invalid literal: {}", literal)),
-    }
+    Ok(lit)
 }
