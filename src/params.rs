@@ -8,7 +8,7 @@ pub struct Params {
 
 impl Params {
     pub fn new(args: &[String]) -> Result<Self, &'static str> {
-        if args.len() < 2 || args[1].is_empty() {
+        if args[1].is_empty() {
             return Err(
                 "Not enough arguments provided. Please provide the file path as an argument.",
             );
