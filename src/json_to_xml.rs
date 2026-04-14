@@ -1,12 +1,12 @@
-
 mod json_lexer;
+mod json_model;
+mod json_parser;
 
-pub fn convert(_json: &str) -> Result<String, &'static str> {
-    // let mut lexer = json_lexer::Lexer::new(json);
-    // let tokens = lexer.tokenize()?;
-    // println!("Tokens: {:?}", tokens);
+pub fn convert(json: &str) -> Result<String, &'static str> {
+    let mut lexer = json_lexer::Lexer::new(json);
+    let tokens = lexer.tokenize()?;
 
-    
-    //Ok(xml_output)
-    Ok("XML output".to_string() /* Placeholder for actual XML output */ )
+    let root_node = json_parser::Parser::new(tokens).parse()?;
+
+    Ok(root_node.to_xml())
 }
