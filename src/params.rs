@@ -40,7 +40,11 @@ impl Params {
         }
 
         if args.len() == 3 && !args[2].is_empty() {
-            command = args[2].clone();
+            let c = args[2].to_lowercase();
+
+            if c == "--pretty" || c == "-p" {
+                command = "pretty".to_string();
+            }
         }
 
         Ok(Params {
