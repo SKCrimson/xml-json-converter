@@ -6,7 +6,7 @@ pub enum Token<'a> {
     BracketClose,
     Colon,
     Comma,
-    StringVal(&'a str), // Храним ссылку, а не копию
+    StringVal(&'a str), // Store a reference, not a copy
     Number(f64),
     BoolVal(bool),
     Null,
@@ -23,29 +23,27 @@ pub enum JsonNode<'a> {
 }
 
 impl<'a> JsonNode<'a> {
-    /// Публичный метод для преобразования в XML строку.
-    /// Использует "root" как имя корневого элемента.
-    #[allow(dead_code)]
+    /// Public method to convert to an XML string.
+    /// Uses "root" as the root element name.
     pub fn to_xml(&self) -> String {
         self.to_xml_internal("root")
     }
 
-    /// Публичный метод для красивого вывода
+    /// Public method for pretty output
     pub fn to_pretty_xml(&self, indent_size: usize) -> String {
         self.to_xml_recursive("root", 0, indent_size)
     }
 
-    /// Внутренний рекурсивный метод
-    #[allow(dead_code)]
+    /// Internal recursive method
     fn to_xml_internal(&self, label: &str) -> String {
-        // Очищаем имя тега (XML не любит пробелы и спецсимволы в именах)
+        // Sanitize the tag name (XML does not allow spaces and special chars in names)
         let safe_label = self.sanitize_tag_name(label);
 
         match self {
             JsonNode::Object(pairs) => {
                 let mut inner = String::new();
                 for (key, val) in pairs {
-                    // Ключи объекта становятся именами вложенных тегов
+                    // Object keys become names of nested tags
                     inner.push_str(&val.to_xml_internal(key));
                 }
                 format!("<{}>{}</{}>", safe_label, inner, safe_label)
@@ -53,8 +51,8 @@ impl<'a> JsonNode<'a> {
             JsonNode::Array(elements) => {
                 let mut inner = String::new();
                 for el in elements {
-                    // Элементы массива получают имя родителя или "item"
-                    // В XML принято использовать либо имя в единственном числе, либо <item>
+                    // Array elements use the parent name or "item"
+                    // In XML, it is common to use either a singular name or <item>
                     inner.push_str(&el.to_xml_internal("item"));
                 }
                 format!("<{}>{}</{}>", safe_label, inner, safe_label)
@@ -74,7 +72,7 @@ impl<'a> JsonNode<'a> {
                 format!("<{}>{}</{}>", safe_label, b, safe_label)
             }
             JsonNode::Null => {
-                format!("<{} />", safe_label) // Самозакрывающийся тег для null
+                format!("<{} />", safe_label) // Self-closing tag for null
             }
         }
     }
@@ -127,7 +125,7 @@ impl<'a> JsonNode<'a> {
         }
     }
 
-    /// Вспомогательная функция для экранирования спецсимволов в тексте XML
+    /// Helper function to escape special characters in XML text
     fn escape_xml_text(&self, text: &str) -> String {
         text.replace('&', "&amp;")
             .replace('<', "&lt;")
@@ -136,12 +134,12 @@ impl<'a> JsonNode<'a> {
             .replace('\'', "&apos;")
     }
 
-    /// Вспомогательная функция для валидации имен тегов
+    /// Helper function to validate tag names
     fn sanitize_tag_name(&self, name: &str) -> String {
         let mut sanitized =
             name.replace(|c: char| !c.is_alphanumeric() && c != '_' && c != '-', "_");
 
-        // XML тег не может начинаться с цифры
+        // An XML tag cannot start with a digit
         if let Some(first) = sanitized.chars().next() {
             if first.is_numeric() {
                 sanitized.insert(0, '_');

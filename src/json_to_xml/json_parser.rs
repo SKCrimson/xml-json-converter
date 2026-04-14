@@ -16,15 +16,15 @@ impl<'a> Parser<'a> {
         match token {
             Token::BraceOpen => self.parse_object(),
             Token::BracketOpen => self.parse_array(),
-            Token::StringVal(s) => Ok(JsonNode::StringVal(*s)), // Добавляем *
-            Token::Number(n) => Ok(JsonNode::Number(*n)),       // Добавляем *
-            Token::BoolVal(b) => Ok(JsonNode::BoolVal(*b)),     // Добавляем *
+            Token::StringVal(s) => Ok(JsonNode::StringVal(*s)), // Dereference with *
+            Token::Number(n) => Ok(JsonNode::Number(*n)),        // Dereference with *
+            Token::BoolVal(b) => Ok(JsonNode::BoolVal(*b)),     // Dereference with *
             Token::Null => Ok(JsonNode::Null),
             _ => Err("Invalid start of JSON"),
         }
     }
 
-    // Вспомогательные методы для навигации
+    // Helper methods for navigation
     fn peek(&self) -> Option<&Token<'a>> {
         self.tokens.get(self.pos)
     }
@@ -56,7 +56,7 @@ impl<'a> Parser<'a> {
                 _ => return Err("Expected string key in object"),
             };
 
-            // ВМЕСТО match self.consume() { ... }
+            // INSTEAD OF: match self.consume() { ... }
             self.expect(Token::Colon)?;
 
             let value = self.parse()?;

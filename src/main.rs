@@ -10,13 +10,6 @@ mod xml_validation;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    //println!("Arguments: {:?}", args);
-    //* Only for testing */
-    // let args: Vec<String> = vec![
-    //     "target\\debug\\xml-json-converter.exe".to_string(),
-    //     "C:\\Users\\krivosein\\source\\rust\\xml-json-converter\\example-files\\simple.xml"
-    //         .to_string(),
-    // ];
 
     let params = match params::Params::new(&args) {
         Ok(p) => p,
@@ -26,15 +19,12 @@ fn main() {
         }
     };
 
-    // println!("File Path: {}", params.file_path);
-    // println!("File Extension: {}", params.extension);
-
     match params.extension.as_str() {
         "xml" => {
-            get_json(&params.file_path);
+            get_json(&params.file_path, params.command == "pretty");
         }
         "json" => {
-            get_xml(&params);
+            get_xml(&params.file_path, params.command == "pretty");
         }
         _ => {
             eprintln!("Unsupported file type. Please provide XML or JSON file.");
@@ -43,7 +33,7 @@ fn main() {
     }
 }
 
-fn get_json(file_path: &str) {
+fn get_json(file_path: &str, pretty: bool) {
     let xml_content = match xml_validation::get_content(file_path) {
         Ok(content) => content,
         Err(e) => {
@@ -52,7 +42,7 @@ fn get_json(file_path: &str) {
         }
     };
 
-    let json_content = match xml_to_json::convert(&xml_content) {
+    let json_content = match xml_to_json::convert(&xml_content, pretty) {
         Ok(json) => json,
         Err(e) => {
             eprintln!("Error converting XML to JSON: {}", e);
@@ -70,8 +60,8 @@ fn get_json(file_path: &str) {
     println!("Successfully saved to: {}", save_file_path);
 }
 
-fn get_xml(params: &params::Params) {
-    let json_content = match json_validation::get_content(&params.file_path) {
+fn get_xml(file_path: &str, pretty: bool) {
+    let json_content = match json_validation::get_content(file_path) {
         Ok(content) => content,
         Err(e) => {
             eprintln!("Error validating JSON: {}", e);
@@ -79,7 +69,7 @@ fn get_xml(params: &params::Params) {
         }
     };
 
-    let xml_content = match json_to_xml::convert(&json_content) {
+    let xml_content = match json_to_xml::convert(&json_content, pretty) {
         Ok(xml) => xml,
         Err(e) => {
             eprintln!("Error converting JSON to XML: {}", e);
@@ -87,7 +77,7 @@ fn get_xml(params: &params::Params) {
         }
     };
 
-    let save_file_path = format!("{}-result.xml", params.file_path.trim_end_matches(".json"));
+    let save_file_path = format!("{}-result.xml", file_path.trim_end_matches(".json"));
 
     if let Err(e) = fs::write(&save_file_path, &xml_content) {
         eprintln!("Error writing XML file: {}", e);

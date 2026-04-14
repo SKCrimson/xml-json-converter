@@ -3,6 +3,7 @@ use std::path::Path;
 pub struct Params {
     pub file_path: String,
     pub extension: String,
+    pub command: String,
 }
 
 impl Params {
@@ -16,6 +17,7 @@ impl Params {
         let file_path: String = args[1].clone();
         let path = Path::new(&file_path);
         let mut extension: String = "".to_string();
+        let mut command: String = "".to_string();
 
         if path.exists() && path.is_file() {
             if let Some(ext) = path.extension() {
@@ -37,9 +39,14 @@ impl Params {
             }
         }
 
+        if args.len() == 3 && !args[2].is_empty() {
+            command = args[2].clone();
+        }
+
         Ok(Params {
             file_path,
-            extension
+            extension,
+            command,
         })
     }
 }

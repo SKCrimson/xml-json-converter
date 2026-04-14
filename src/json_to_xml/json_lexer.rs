@@ -3,7 +3,7 @@ use std::iter::Peekable;
 use std::str::CharIndices;
 
 pub struct Lexer<'a> {
-    input: &'a str, // Храним исходную строку для создания срезов
+    input: &'a str, // Keep the original string for slice creation
     chars: Peekable<CharIndices<'a>>,
     line: usize,
     col: usize,
@@ -72,12 +72,12 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_string(&mut self, start_quote_idx: usize) -> Result<&'a str, &'static str> {
-        // Мы ищем закрывающую кавычку, чтобы вернуть срез
+        // Look for the closing quote to return a slice
         while let Some((idx, c)) = self.consume() {
             if c == '\\' {
-                self.consume(); // Пропускаем следующий символ (escape)
+                self.consume(); // Skip the next character (escape)
             } else if c == '"' {
-                // Возвращаем срез строки БЕЗ кавычек
+                // Return the string slice WITHOUT quotes
                 return Ok(&self.input[start_quote_idx + 1..idx]);
             }
         }
@@ -99,7 +99,7 @@ impl<'a> Lexer<'a> {
             end_idx = i;
         }
 
-        // Получаем срез всего литерала
+        // Get a slice of the whole literal
         let s = &self.input[start_idx..=end_idx];
 
         match s {

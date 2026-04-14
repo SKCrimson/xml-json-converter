@@ -1,5 +1,5 @@
 
-  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-xml\simple.xml
+  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-xml\simple.xml pretty
   xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\simple.xml
   
   cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-1.xml

@@ -22,7 +22,6 @@ pub enum XmlNode {
 }
 
 impl XmlNode {
-    #[allow(dead_code)]
     pub fn to_json(&self) -> String {
         match self {
             XmlNode::Text(s) => format!("\"{}\"", Self::escape_json(s)),
@@ -112,12 +111,12 @@ impl XmlNode {
             } => {
                 let mut parts = Vec::new();
 
-                // 1. Атрибуты
+                // 1. Attributes
                 for (key, value) in attributes {
                     parts.push(format!("\"@{}\": \"{}\"", key, Self::escape_json(value)));
                 }
 
-                // 2. Группировка детей
+                // 2. Group child nodes
                 let mut grouped_children: std::collections::HashMap<String, Vec<&XmlNode>> =
                     std::collections::HashMap::new();
                 let mut text_content = Vec::new();
@@ -134,10 +133,10 @@ impl XmlNode {
                     }
                 }
 
-                // 3. Обработка сгруппированных детей
+                // 3. Process grouped child nodes
                 for (name, nodes) in grouped_children {
                     if nodes.len() > 1 {
-                        // Массив элементов
+                        // Array of elements
                         let items: Vec<String> = nodes
                             .iter()
                             .map(|n| n.to_json_recursive(depth + 2, indent_size))
@@ -153,7 +152,7 @@ impl XmlNode {
                             next_indent
                         ));
                     } else {
-                        // Одиночный элемент
+                        // Single element
                         parts.push(format!(
                             "\"{}\": {}",
                             name,
@@ -162,19 +161,19 @@ impl XmlNode {
                     }
                 }
 
-                // 4. Текстовое содержимое
+                // 4. Text content
                 let joined_text = text_content
                     .iter()
-                    .map(|s| s.as_str()) // Превращаем &String в &str
+                    .map(|s| s.as_str()) // Convert &String to &str
                     .collect::<Vec<_>>()
                     .join(" ");
 
-                // Если только текст (нет атрибутов и вложенных элементов)
+                // If there is only text (no attributes and no nested elements)
                 if parts.is_empty() && !text_content.is_empty() {
                     return format!("\"{}\"", Self::escape_json(&joined_text));
                 }
 
-                // Если текст вперемешку с элементами
+                // If text is mixed with elements
                 if !text_content.is_empty() {
                     parts.push(format!(
                         "\"#text\": \"{}\"",
@@ -182,7 +181,7 @@ impl XmlNode {
                     ));
                 }
 
-                // Сборка финального объекта с отступами
+                // Build the final object with indentation
                 let mut result = String::from("{\n");
                 for (i, part) in parts.iter().enumerate() {
                     result.push_str(&next_indent);
