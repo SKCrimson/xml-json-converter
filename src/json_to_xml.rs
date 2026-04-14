@@ -8,5 +8,5 @@ pub fn convert(json: &str) -> Result<String, &'static str> {
 
     let root_node = json_parser::Parser::new(tokens).parse()?;
 
-    Ok(root_node.to_xml())
+    Ok(root_node.to_pretty_xml(4))
 }

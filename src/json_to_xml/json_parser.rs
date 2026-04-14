@@ -35,12 +35,10 @@ impl<'a> Parser<'a> {
         token
     }
 
-    fn expect(&mut self, token: Token<'a>) -> Result<(), &'static str> {
-        if self.peek() == Some(&token) {
-            self.consume();
-            Ok(())
-        } else {
-            Err("Unexpected token")
+    fn expect(&mut self, expected: Token<'a>) -> Result<(), &'static str> {
+        match self.consume() {
+            Some(t) if t == &expected => Ok(()),
+            _ => Err("Unexpected token: missing expected delimiter"),
         }
     }
 
@@ -53,31 +51,23 @@ impl<'a> Parser<'a> {
         }
 
         loop {
-            // Извлекаем ключ.
-            // ВАЖНО: используем match, чтобы вытащить именно ссылку &'a str
             let key = match self.consume() {
-                Some(Token::StringVal(s)) => *s, // s здесь это &&'a str, разыменовываем до &'a str
+                Some(Token::StringVal(s)) => *s,
                 _ => return Err("Expected string key in object"),
             };
 
-            // Ожидаем двоеточие
-            match self.consume() {
-                Some(Token::Colon) => (),
-                _ => return Err("Expected ':' after key"),
-            };
+            // ВМЕСТО match self.consume() { ... }
+            self.expect(Token::Colon)?;
 
-            // Рекурсивно парсим значение
             let value = self.parse()?;
             pairs.push((key, value));
 
-            // Проверяем разделитель или конец
             match self.consume() {
                 Some(Token::BraceClose) => break,
                 Some(Token::Comma) => continue,
                 _ => return Err("Expected ',' or '}' in object"),
             }
         }
-
         Ok(JsonNode::Object(pairs))
     }
 

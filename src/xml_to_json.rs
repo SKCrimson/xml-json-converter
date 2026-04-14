@@ -12,9 +12,9 @@ pub fn convert(xml: &str) -> Result<String, &'static str> {
     let root_node = xml_parser::Parser::new(tokens).parse()?;
 
     let json_output = if let XmlNode::Element { name, .. } = &root_node {
-        format!("{{ \"{}\": {} }}", name, root_node.to_json())
+        format!("{{ \"{}\": {} }}", name, root_node.to_pretty_json(4))
     } else {
-        root_node.to_json()
+        root_node.to_pretty_json(4)
     };
 
     Ok(json_output)

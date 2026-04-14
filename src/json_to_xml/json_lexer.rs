@@ -1,6 +1,6 @@
+use crate::json_to_xml::json_model::Token;
 use std::iter::Peekable;
 use std::str::CharIndices;
-use crate::json_to_xml::json_model::Token;
 
 pub struct Lexer<'a> {
     input: &'a str, // Храним исходную строку для создания срезов
@@ -91,7 +91,7 @@ impl<'a> Lexer<'a> {
     ) -> Result<Option<Token<'a>>, &'static str> {
         let mut end_idx = start_idx;
 
-        while let Some(&(idx, c)) = self.chars.peek() {
+        while let Some(&(_, c)) = self.chars.peek() {
             if c.is_whitespace() || ",}] :".contains(c) {
                 break;
             }
