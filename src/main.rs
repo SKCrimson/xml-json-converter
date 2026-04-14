@@ -109,7 +109,7 @@ ARGUMENTS:
 OPTIONS:
     --pretty 
        or 
-    --p            Enable human-readable output with proper indentation 
+    -p             Enable human-readable output with proper indentation 
                    and line breaks. If omitted, the output will be minified.
 
 EXAMPLES:
@@ -118,6 +118,8 @@ EXAMPLES:
 
     2. Pretty-print conversion (human-readable):
        xml-json-converter.exe C:\data\example.json --pretty
+    or
+       xml-json-converter.exe C:\data\example.json -p
 
 NOTES:
     - XML to JSON: Attributes are prefixed with '@' and text nodes with '#text'.
