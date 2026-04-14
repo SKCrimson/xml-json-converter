@@ -1,6 +1,6 @@
 use std::fs;
 
-// Состояние: чего мы ждем?
+// State: what are we expecting?
 // Value, Key, Colon, CommaOrEnd
 #[derive(PartialEq)]
 enum Expect {
@@ -33,7 +33,7 @@ struct PosTracker<I: Iterator<Item = char>> {
     col: usize,
 }
 impl<I: Iterator<Item = char>> Iterator for PosTracker<I> {
-    type Item = (char, usize, usize); // Возвращаем символ вместе с его позицией
+    type Item = (char, usize, usize); // Return the character along with its position
 
     fn next(&mut self) -> Option<Self::Item> {
         let c = self.inner.next()?;
@@ -57,7 +57,7 @@ fn is_well_formed(json: &str) -> Result<(), String> {
     let mut stack: Vec<char> = Vec::new();
     let mut expect = Expect::Any;
 
-    // Теперь c — это (char, line, col)
+    // Now c is (char, line, col)
     while let Some((c, l, c_pos)) = chars.next() {
         if c.is_whitespace() {
             continue;
@@ -83,8 +83,8 @@ fn is_well_formed(json: &str) -> Result<(), String> {
                 }
             }
             '}' | ']' => {
-                // Проверка: можем ли мы закрыться сейчас?
-                // Мы можем закрыться, если ждали CommaOrClose ИЛИ если это пустой контейнер (Value/Key)
+                // Check: can we close now?
+                // We can close if we expected CommaOrClose OR if this is an empty container (Value/Key)
                 if expect != Expect::CommaOrClose
                     && expect != Expect::Value
                     && expect != Expect::Key
@@ -121,7 +121,7 @@ fn is_well_formed(json: &str) -> Result<(), String> {
                 };
             }
             '"' => {
-                // Передаем итератор в consume_string
+                // Pass the iterator to consume_string
                 consume_string(&mut chars)
                     .map_err(|e| format!("{} near line {}, col {}", e, l, c_pos))?;
 

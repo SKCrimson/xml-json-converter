@@ -22,7 +22,7 @@ impl<'a> Parser<'a> {
 
             match token {
                 Token::TagOpen(name) => {
-                    // Игнорируем декларации типа <?xml ... ?>
+                    // Ignore declarations like <?xml ... ?>
                     if name.starts_with('?') {
                         self.skip_until_tag_end();
                         continue;
@@ -73,11 +73,11 @@ impl<'a> Parser<'a> {
                 }
 
                 Token::EmptyTag => {
-                    // Пустой тег, например <br/> или комментарий <!-- ... -->
-                    // Мы уже обработали его в лексере, так что просто игнорируем
+                    // An empty tag, such as <br/> or a comment <!-- ... -->
+                    // It has already been handled in the lexer, so we just ignore it
                 }
 
-                Token::TagEnd => { /* Просто продолжаем */ }
+                Token::TagEnd => { /* Just continue */ }
             }
         }
 
