@@ -7,3 +7,6 @@
 
   cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-2.xml
   xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-2.xml --pretty
+
+  cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-3.xml
+  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-3.xml --pretty
