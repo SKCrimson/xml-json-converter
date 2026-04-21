@@ -47,7 +47,8 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                     }
                 }
                 Some('!') => {
-                    // Check that this is really the beginning of a comment
+                    // Check that this is really the beginning of a comment <!--
+                    chars.next(); // Skip '!'
                     while let Some(c) = chars.next() {
                         if c == '-' {
                             // Look ahead to check if there's another '-' and '>'
