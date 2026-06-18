@@ -11,7 +11,7 @@ impl<'a> Parser<'a> {
         Parser { tokens, pos: 0 }
     }
 
-    pub fn parse(&mut self) -> Result<XmlNode, &'static str> {
+    pub fn parse(&mut self) -> Result<XmlNode, String> {
         let mut stack: Vec<XmlNode> = Vec::new();
         let mut root: Option<XmlNode> = None;
 
@@ -48,7 +48,7 @@ impl<'a> Parser<'a> {
                 }
 
                 Token::TagSelfClose => {
-                    let finished_node = stack.pop().ok_or("Unbalanced tags")?;
+                    let finished_node = stack.pop().ok_or_else(|| "Unbalanced tags".to_string())?;
                     if stack.is_empty() {
                         root = Some(finished_node);
                     } else if let Some(XmlNode::Element { children, .. }) = stack.last_mut() {
@@ -57,10 +57,10 @@ impl<'a> Parser<'a> {
                 }
 
                 Token::TagClose(close_name) => {
-                    let finished_node = stack.pop().ok_or("Unbalanced tags")?;
+                    let finished_node = stack.pop().ok_or_else(|| "Unbalanced tags".to_string())?;
                     if let XmlNode::Element { ref name, .. } = finished_node {
                         if name != close_name.trim() {
-                            return Err("Mismatched closing tag");
+                            return Err("Mismatched closing tag".to_string());
                         }
                     }
                     if stack.is_empty() {
@@ -79,7 +79,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        root.ok_or("Empty XML document")
+        root.ok_or_else(|| "Empty XML document".to_string())
     }
 
     fn skip_until_tag_end(&mut self) {

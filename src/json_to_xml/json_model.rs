@@ -25,17 +25,17 @@ pub enum JsonNode<'a> {
 }
 
 impl<'a> JsonNode<'a> {
-    pub fn to_xml(&self) -> Result<String, &'static str> {
+    pub fn to_xml(&self) -> Result<String, String> {
         self.to_xml_internal("root", 0)
     }
 
-    pub fn to_pretty_xml(&self, indent_size: usize) -> Result<String, &'static str> {
+    pub fn to_pretty_xml(&self, indent_size: usize) -> Result<String, String> {
         self.to_xml_recursive("root", 0, indent_size)
     }
 
-    fn to_xml_internal(&self, label: &str, depth: usize) -> Result<String, &'static str> {
+    fn to_xml_internal(&self, label: &str, depth: usize) -> Result<String, String> {
         if depth >= MAX_DEPTH {
-            return Err("Nesting depth limit exceeded");
+            return Err("Nesting depth limit exceeded".to_string());
         }
         let safe_label = self.sanitize_tag_name(label);
 
@@ -71,9 +71,9 @@ impl<'a> JsonNode<'a> {
         label: &str,
         depth: usize,
         indent_size: usize,
-    ) -> Result<String, &'static str> {
+    ) -> Result<String, String> {
         if depth >= MAX_DEPTH {
-            return Err("Nesting depth limit exceeded");
+            return Err("Nesting depth limit exceeded".to_string());
         }
         let safe_label = self.sanitize_tag_name(label);
         let indent = " ".repeat(depth * indent_size);

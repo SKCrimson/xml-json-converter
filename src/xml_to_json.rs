@@ -4,7 +4,7 @@ mod xml_lexer;
 mod xml_model;
 mod xml_parser;
 
-pub fn convert(xml: &str, pretty: bool) -> Result<String, &'static str> {
+pub fn convert(xml: &str, pretty: bool) -> Result<String, String> {
     let mut lexer = xml_lexer::Lexer::new(xml);
     let tokens = lexer.tokenize()?;
     // println!("Tokens: {:?}", tokens);

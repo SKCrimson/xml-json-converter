@@ -13,15 +13,15 @@ impl<'a> Parser<'a> {
         Parser { tokens, pos: 0 }
     }
 
-    pub fn parse(&mut self) -> Result<JsonNode<'a>, &'static str> {
+    pub fn parse(&mut self) -> Result<JsonNode<'a>, String> {
         self.parse_value(0)
     }
 
-    fn parse_value(&mut self, depth: usize) -> Result<JsonNode<'a>, &'static str> {
+    fn parse_value(&mut self, depth: usize) -> Result<JsonNode<'a>, String> {
         if depth >= MAX_DEPTH {
-            return Err("Nesting depth limit exceeded");
+            return Err("Nesting depth limit exceeded".to_string());
         }
-        let token = self.consume().ok_or("Empty token stream")?;
+        let token = self.consume().ok_or_else(|| "Empty token stream".to_string())?;
 
         match token {
             Token::BraceOpen => self.parse_object(depth + 1),
@@ -30,7 +30,7 @@ impl<'a> Parser<'a> {
             Token::Number(n) => Ok(JsonNode::Number(*n)),
             Token::BoolVal(b) => Ok(JsonNode::BoolVal(*b)),
             Token::Null => Ok(JsonNode::Null),
-            _ => Err("Invalid start of JSON"),
+            _ => Err("Invalid start of JSON".to_string()),
         }
     }
 
@@ -44,14 +44,14 @@ impl<'a> Parser<'a> {
         token
     }
 
-    fn expect(&mut self, expected: Token<'a>, error_msg: &'static str) -> Result<(), &'static str> {
+    fn expect(&mut self, expected: Token<'a>, error_msg: &'static str) -> Result<(), String> {
         match self.consume() {
             Some(t) if t == &expected => Ok(()),
-            _ => Err(error_msg),
+            _ => Err(error_msg.to_string()),
         }
     }
 
-    fn parse_object(&mut self, depth: usize) -> Result<JsonNode<'a>, &'static str> {
+    fn parse_object(&mut self, depth: usize) -> Result<JsonNode<'a>, String> {
         let mut pairs = Vec::new();
 
         if let Some(Token::BraceClose) = self.peek() {
@@ -62,7 +62,7 @@ impl<'a> Parser<'a> {
         loop {
             let key = match self.consume() {
                 Some(Token::StringVal(s)) => *s,
-                _ => return Err("Expected string key in object"),
+                _ => return Err("Expected string key in object".to_string()),
             };
 
             self.expect(Token::Colon, "Expected ':' after object key")?;
@@ -73,13 +73,13 @@ impl<'a> Parser<'a> {
             match self.consume() {
                 Some(Token::BraceClose) => break,
                 Some(Token::Comma) => continue,
-                _ => return Err("Expected ',' or '}' in object"),
+                _ => return Err("Expected ',' or '}' in object".to_string()),
             }
         }
         Ok(JsonNode::Object(pairs))
     }
 
-    fn parse_array(&mut self, depth: usize) -> Result<JsonNode<'a>, &'static str> {
+    fn parse_array(&mut self, depth: usize) -> Result<JsonNode<'a>, String> {
         let mut elements = Vec::new();
 
         if let Some(Token::BracketClose) = self.peek() {
@@ -93,7 +93,7 @@ impl<'a> Parser<'a> {
             match self.consume() {
                 Some(Token::BracketClose) => break,
                 Some(Token::Comma) => continue,
-                _ => return Err("Expected ',' or ']' in array"),
+                _ => return Err("Expected ',' or ']' in array".to_string()),
             }
         }
 

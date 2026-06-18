@@ -4,7 +4,7 @@ pub struct Lexer<'a> {
     input: &'a str,
     cursor: usize,
     in_tag: bool,
-    error: Option<&'static str>,
+    error: Option<String>,
 }
 
 impl<'a> Lexer<'a> {
@@ -18,7 +18,7 @@ impl<'a> Lexer<'a> {
     }
 
     /// Walks through the entire string and collects a vector of tokens
-    pub fn tokenize(&mut self) -> Result<Vec<Token<'a>>, &'static str> {
+    pub fn tokenize(&mut self) -> Result<Vec<Token<'a>>, String> {
         let mut tokens = Vec::new();
 
         while let Some(token) = self.next_token() {
@@ -32,12 +32,12 @@ impl<'a> Lexer<'a> {
             tokens.push(token);
         }
 
-        if let Some(err) = self.error {
+        if let Some(err) = self.error.take() {
             return Err(err);
         }
 
         if self.in_tag {
-            return Err("Unexpected end of input: tag not closed");
+            return Err("Unexpected end of input: tag not closed".to_string());
         }
 
         Ok(tokens)
@@ -91,7 +91,7 @@ impl<'a> Lexer<'a> {
                             return Some(Token::EmptyTag);
                         }
                         None => {
-                            self.error = Some("Unclosed comment");
+                            self.error = Some("Unclosed comment".to_string());
                             return None;
                         }
                     }

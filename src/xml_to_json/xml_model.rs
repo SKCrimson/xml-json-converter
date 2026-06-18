@@ -24,21 +24,21 @@ pub enum XmlNode {
 }
 
 impl XmlNode {
-    pub fn to_json(&self) -> Result<String, &'static str> {
+    pub fn to_json(&self) -> Result<String, String> {
         self.to_json_at_depth(0)
     }
 
-    pub fn to_pretty_json(&self, indent_size: usize) -> Result<String, &'static str> {
+    pub fn to_pretty_json(&self, indent_size: usize) -> Result<String, String> {
         self.to_json_recursive(0, indent_size)
     }
 
-    pub fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> Result<String, &'static str> {
+    pub fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> Result<String, String> {
         self.to_json_recursive(depth, indent_size)
     }
 
-    fn to_json_at_depth(&self, depth: usize) -> Result<String, &'static str> {
+    fn to_json_at_depth(&self, depth: usize) -> Result<String, String> {
         if depth >= MAX_DEPTH {
-            return Err("Nesting depth limit exceeded");
+            return Err("Nesting depth limit exceeded".to_string());
         }
         match self {
             XmlNode::Text(s) => Ok(format!("\"{}\"", Self::escape_json(s))),
@@ -120,9 +120,9 @@ impl XmlNode {
         }
     }
 
-    fn to_json_recursive(&self, depth: usize, indent_size: usize) -> Result<String, &'static str> {
+    fn to_json_recursive(&self, depth: usize, indent_size: usize) -> Result<String, String> {
         if depth >= MAX_DEPTH {
-            return Err("Nesting depth limit exceeded");
+            return Err("Nesting depth limit exceeded".to_string());
         }
         let current_indent = " ".repeat(depth * indent_size);
         let next_indent = " ".repeat((depth + 1) * indent_size);
