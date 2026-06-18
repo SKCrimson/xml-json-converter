@@ -4,6 +4,7 @@ pub struct Params {
     pub file_path: String,
     pub extension: String,
     pub command: String,
+    pub output_name: Option<String>,
 }
 
 impl Params {
@@ -18,6 +19,7 @@ impl Params {
         let path = Path::new(&file_path);
         let mut extension: String = "".to_string();
         let mut command: String = "".to_string();
+        let mut output_name: Option<String> = None;
 
         if path.exists() && path.is_file() {
             if let Some(ext) = path.extension() {
@@ -39,11 +41,24 @@ impl Params {
             }
         }
 
-        if args.len() == 3 && !args[2].is_empty() {
-            let c = args[2].to_lowercase();
-
-            if c == "--pretty" || c == "-p" {
-                command = "pretty".to_string();
+        let mut i = 2;
+        while i < args.len() {
+            match args[i].to_lowercase().as_str() {
+                "--pretty" | "-p" => {
+                    command = "pretty".to_string();
+                    i += 1;
+                }
+                "--name" | "-n" => {
+                    if i + 1 < args.len() && !args[i + 1].starts_with('-') {
+                        output_name = Some(args[i + 1].clone());
+                        i += 2;
+                    } else {
+                        return Err("Missing value for -n/--name option.");
+                    }
+                }
+                _ => {
+                    i += 1;
+                }
             }
         }
 
@@ -51,6 +66,7 @@ impl Params {
             file_path,
             extension,
             command,
+            output_name,
         })
     }
 }

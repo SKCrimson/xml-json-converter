@@ -3,7 +3,9 @@
   xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\simple.xml
   
   cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-1.xml
-  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-1.xml -p
+  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-1.xml --pretty --name big-doc-1
+  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-1.xml -p -n big-doc-2
+  xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-1.xml -n big-doc-3
 
   cargo run C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-2.xml
   xml-json-converter.exe C:\Users\krivosein\source\rust\xml-json-converter\example-xml\test-2.xml --pretty
