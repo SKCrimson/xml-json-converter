@@ -3,7 +3,7 @@ use std::path::Path;
 pub struct Params {
     pub file_path: String,
     pub extension: String,
-    pub command: String,
+    pub pretty: bool,
     pub output_name: Option<String>,
 }
 
@@ -18,7 +18,7 @@ impl Params {
         let file_path: String = args[1].clone();
         let path = Path::new(&file_path);
         let extension: String;
-        let mut command: String = "".to_string();
+        let mut pretty = false;
         let mut output_name: Option<String> = None;
 
         if !path.exists() || !path.is_file() {
@@ -43,7 +43,7 @@ impl Params {
         while i < args.len() {
             match args[i].to_lowercase().as_str() {
                 "--pretty" | "-p" => {
-                    command = "pretty".to_string();
+                    pretty = true;
                     i += 1;
                 }
                 "--name" | "-n" => {
@@ -63,7 +63,7 @@ impl Params {
         Ok(Params {
             file_path,
             extension,
-            command,
+            pretty,
             output_name,
         })
     }

@@ -7,7 +7,7 @@ pub enum Token<'a> {
     Colon,
     Comma,
     StringVal(&'a str), // Store a reference, not a copy
-    Number(f64),
+    Number(&'a str),
     BoolVal(bool),
     Null,
 }
@@ -17,7 +17,7 @@ pub enum JsonNode<'a> {
     Object(Vec<(&'a str, JsonNode<'a>)>),
     Array(Vec<JsonNode<'a>>),
     StringVal(&'a str),
-    Number(f64),
+    Number(&'a str),
     BoolVal(bool),
     Null,
 }
@@ -161,9 +161,15 @@ mod tests {
 
     #[test]
     fn number_to_xml() {
-        let node = JsonNode::Number(42.0);
+        let node = JsonNode::Number("42");
         let xml = node.to_xml();
         assert!(xml.contains("<root>") && xml.contains("42") && xml.contains("</root>"));
+    }
+
+    #[test]
+    fn large_integer_preserved_exactly() {
+        let node = JsonNode::Number("9007199254740993");
+        assert!(node.to_xml().contains("9007199254740993"));
     }
 
     #[test]

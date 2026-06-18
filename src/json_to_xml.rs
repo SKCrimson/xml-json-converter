@@ -90,6 +90,12 @@ mod tests {
     }
 
     #[test]
+    fn large_integer_not_rounded() {
+        let result = convert("{\"id\": 9007199254740993}", false).unwrap();
+        assert!(result.contains("<id>9007199254740993</id>"));
+    }
+
+    #[test]
     fn output_has_xml_declaration() {
         let result = convert("{\"a\": \"b\"}", false).unwrap();
         assert!(result.starts_with("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));

@@ -108,8 +108,8 @@ impl<'a> Lexer<'a> {
             "false" => Ok(Some(Token::BoolVal(false))),
             "null" => Ok(Some(Token::Null)),
             _ => {
-                if let Ok(num) = s.parse::<f64>() {
-                    Ok(Some(Token::Number(num)))
+                if s.parse::<f64>().is_ok() {
+                    Ok(Some(Token::Number(s)))
                 } else {
                     Err("Invalid numeric or keyword literal")
                 }

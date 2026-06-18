@@ -223,6 +223,16 @@ mod tests {
     fn trailing_comma_in_object_fails() {
         assert!(validate("{\"a\": 1,}").is_err());
     }
+
+    #[test]
+    fn invalid_keyword_literal_fails() {
+        assert!(validate("{\"x\": treu}").is_err());
+    }
+
+    #[test]
+    fn invalid_number_literal_fails() {
+        assert!(validate("{\"x\": 1.2.3}").is_err());
+    }
 }
 
 fn consume_string<I>(chars: &mut std::iter::Peekable<I>) -> Result<String, String>
@@ -260,5 +270,9 @@ where
             lit.push(c);
         }
     }
-    Ok(lit)
+    match lit.as_str() {
+        "true" | "false" | "null" => Ok(lit),
+        _ if lit.parse::<f64>().is_ok() => Ok(lit),
+        _ => Err(format!("Invalid literal '{}'", lit)),
+    }
 }

@@ -13,16 +13,14 @@ pub fn convert(xml: &str, pretty: bool) -> Result<String, &'static str> {
 
     let json_output = if let XmlNode::Element { name, .. } = &root_node {
         if pretty {
-            format!("{{ \"{}\": {} }}", name, root_node.to_pretty_json(4))
+            format!("{{\n    \"{}\": {}\n}}", name, root_node.to_pretty_json_at(1, 4))
         } else {
             format!("{{ \"{}\": {} }}", name, root_node.to_json())
         }
+    } else if pretty {
+        root_node.to_pretty_json(4)
     } else {
-        if pretty {
-            root_node.to_pretty_json(4)
-        } else {
-            root_node.to_json()
-        }
+        root_node.to_json()
     };
 
     Ok(json_output)
@@ -80,6 +78,14 @@ mod tests {
     fn pretty_mode_contains_newlines() {
         let result = convert("<root><child>text</child></root>", true).unwrap();
         assert!(result.contains('\n'));
+    }
+
+    #[test]
+    fn pretty_mode_root_indentation() {
+        let result = convert("<root><child>text</child></root>", true).unwrap();
+        assert!(result.starts_with("{\n    \"root\":"));
+        assert!(result.contains("\n        \"child\":"));
+        assert!(result.ends_with("\n}"));
     }
 
     #[test]

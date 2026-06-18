@@ -32,10 +32,10 @@ fn main() {
 
     match params.extension.as_str() {
         "xml" => {
-            get_json(&params.file_path, params.command == "pretty", params.output_name.as_deref());
+            get_json(&params.file_path, params.pretty, params.output_name.as_deref());
         }
         "json" => {
-            get_xml(&params.file_path, params.command == "pretty", params.output_name.as_deref());
+            get_xml(&params.file_path, params.pretty, params.output_name.as_deref());
         }
         _ => {
             eprintln!("Unsupported file type. Please provide XML or JSON file.");

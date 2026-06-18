@@ -100,6 +100,10 @@ impl XmlNode {
         self.to_json_recursive(0, indent_size)
     }
 
+    pub fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> String {
+        self.to_json_recursive(depth, indent_size)
+    }
+
     fn to_json_recursive(&self, depth: usize, indent_size: usize) -> String {
         let current_indent = " ".repeat(depth * indent_size);
         let next_indent = " ".repeat((depth + 1) * indent_size);
