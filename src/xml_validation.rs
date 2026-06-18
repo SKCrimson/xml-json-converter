@@ -48,24 +48,28 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                     }
                 }
                 Some('!') => {
-                    // Check that this is really the beginning of a comment <!--
                     chars.next(); // Skip '!'
-                    while let Some(c) = chars.next() {
-                        if c == '-' {
-                            // Look ahead to check if there's another '-' and '>'
-                            if let Some(&'-') = chars.peek() {
-                                // If we found the second '-', temporarily extract it
-                                chars.next();
-                                if let Some(&'>') = chars.peek() {
-                                    // Found '>', comment is finished
+                    let first = chars.next();
+                    if first == Some('-') && chars.peek() == Some(&'-') {
+                        chars.next(); // consume second '-', now inside <!-- -->
+                        while let Some(c) = chars.next() {
+                            if c == '-' {
+                                if let Some(&'-') = chars.peek() {
                                     chars.next();
-                                    break;
+                                    if let Some(&'>') = chars.peek() {
+                                        chars.next();
+                                        break;
+                                    }
                                 }
-                                // If there's no '>' after '--', continue the loop
                             }
                         }
+                    } else {
+                        // <!DOCTYPE> or other declaration — skip to closing >
+                        while let Some(c) = chars.next() {
+                            if c == '>' { break; }
+                        }
                     }
-                    continue; // Return to main parser loop
+                    continue;
                 }
                 Some('/') => {
                     // Process closing tag </tag>
@@ -224,5 +228,15 @@ mod tests {
     #[test]
     fn tag_not_closed_at_eof_fails() {
         assert!(validate("<root><child>text</child>").is_err());
+    }
+
+    #[test]
+    fn valid_with_doctype() {
+        assert!(validate("<!DOCTYPE root><root/>").is_ok());
+    }
+
+    #[test]
+    fn valid_doctype_before_content() {
+        assert!(validate("<!DOCTYPE root><root><child>text</child></root>").is_ok());
     }
 }

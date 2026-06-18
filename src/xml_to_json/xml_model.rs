@@ -267,6 +267,16 @@ mod tests {
     }
 
     #[test]
+    fn attribute_order_preserved() {
+        let node = elem_attr("root", &[("first", "1"), ("second", "2"), ("third", "3")]);
+        let json = node.to_json();
+        let pos_first = json.find("\"@first\"").unwrap();
+        let pos_second = json.find("\"@second\"").unwrap();
+        let pos_third = json.find("\"@third\"").unwrap();
+        assert!(pos_first < pos_second && pos_second < pos_third);
+    }
+
+    #[test]
     fn repeated_children_produce_array() {
         let node = elem(
             "root",

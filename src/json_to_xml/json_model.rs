@@ -244,4 +244,10 @@ mod tests {
         let node = JsonNode::Object(vec![("a", JsonNode::StringVal("b"))]);
         assert!(node.to_pretty_xml(4).contains('\n'));
     }
+
+    #[test]
+    fn pretty_xml_no_trailing_space_before_newline() {
+        let node = JsonNode::Object(vec![("a", JsonNode::StringVal("b"))]);
+        assert!(!node.to_pretty_xml(4).contains(" \n"));
+    }
 }

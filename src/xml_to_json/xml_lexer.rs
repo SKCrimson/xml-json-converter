@@ -86,12 +86,9 @@ impl<'a> Lexer<'a> {
                 self.advance(end + 3);
                 Some(Token::EmptyTag)
             } else if rest.starts_with("<!") {
-                // Special handling for the <!DOCTYPE declaration
-                let end = rest[2..]
-                    .find(|c: char| c.is_whitespace() || c == '>')
-                    .map(|i| i + 2)
-                    .unwrap_or(rest.len());
-                self.advance(end + 3);
+                // Skip <!DOCTYPE> and similar declarations to the closing >
+                let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
+                self.advance(end);
                 Some(Token::EmptyTag)
             } else if rest.starts_with('<') {
                 self.in_tag = true;

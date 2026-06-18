@@ -88,4 +88,17 @@ mod tests {
     fn invalid_json_returns_error() {
         assert!(convert("{unclosed", false).is_err());
     }
+
+    #[test]
+    fn output_has_xml_declaration() {
+        let result = convert("{\"a\": \"b\"}", false).unwrap();
+        assert!(result.starts_with("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+    }
+
+    #[test]
+    fn pretty_output_has_xml_declaration_on_first_line() {
+        let result = convert("{\"a\": \"b\"}", true).unwrap();
+        let first_line = result.lines().next().unwrap();
+        assert_eq!(first_line, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    }
 }

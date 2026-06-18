@@ -66,7 +66,10 @@ fn get_json(file_path: &str, pretty: bool, output_name: Option<&str>) {
             let dir = Path::new(file_path).parent().unwrap_or(Path::new("."));
             dir.join(format!("{}.json", name)).to_string_lossy().into_owned()
         }
-        None => format!("{}-result.json", file_path.trim_end_matches(".xml")),
+        None => {
+            let stem = Path::new(file_path).with_extension("").to_string_lossy().into_owned();
+            format!("{}-result.json", stem)
+        }
     };
 
     if let Err(e) = fs::write(&save_file_path, &json_content) {
@@ -99,7 +102,10 @@ fn get_xml(file_path: &str, pretty: bool, output_name: Option<&str>) {
             let dir = Path::new(file_path).parent().unwrap_or(Path::new("."));
             dir.join(format!("{}.xml", name)).to_string_lossy().into_owned()
         }
-        None => format!("{}-result.xml", file_path.trim_end_matches(".json")),
+        None => {
+            let stem = Path::new(file_path).with_extension("").to_string_lossy().into_owned();
+            format!("{}-result.xml", stem)
+        }
     };
 
     if let Err(e) = fs::write(&save_file_path, &xml_content) {

@@ -28,7 +28,7 @@ impl Params {
         if let Some(ext) = path.extension() {
             if let Some(ext_str) = ext.to_str() {
                 if ext_str.eq_ignore_ascii_case("xml") || ext_str.eq_ignore_ascii_case("json") {
-                    extension = ext_str.to_string();
+                    extension = ext_str.to_ascii_lowercase();
                 } else {
                     return Err("Unsupported file type. Please provide XML or JSON file.");
                 }

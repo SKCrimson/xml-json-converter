@@ -93,4 +93,12 @@ mod tests {
         let result = convert(xml, false).unwrap();
         assert!(result.contains("root"));
     }
+
+    #[test]
+    fn xml_with_doctype_is_converted() {
+        let xml = "<!DOCTYPE root><root><name>test</name></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"name\""));
+        assert!(result.contains("\"test\""));
+    }
 }
