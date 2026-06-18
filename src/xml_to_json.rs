@@ -94,6 +94,16 @@ mod tests {
     }
 
     #[test]
+    fn mismatched_closing_tag_returns_error() {
+        assert!(convert("<root><a></b></a></root>", false).is_err());
+    }
+
+    #[test]
+    fn swapped_closing_tags_return_error() {
+        assert!(convert("<root><a><b></a></b></root>", false).is_err());
+    }
+
+    #[test]
     fn unclosed_comment_returns_error() {
         assert!(convert("<root><!-- no close</root>", false).is_err());
     }

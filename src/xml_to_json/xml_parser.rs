@@ -47,27 +47,26 @@ impl<'a> Parser<'a> {
                     }
                 }
 
-                Token::TagSelfClose | Token::TagClose(_) => {
-                    let finished_node = {
-                        let this = stack.pop();
-                        match this {
-                            Some(v) => Ok(v),
-                            None => {
-                                eprintln!(
-                                    "Stack is empty when trying to pop. Current token: {:?}",
-                                    token
-                                );
-                                Err("Unbalanced tags")
-                            }
-                        }
-                    }?;
-
+                Token::TagSelfClose => {
+                    let finished_node = stack.pop().ok_or("Unbalanced tags")?;
                     if stack.is_empty() {
                         root = Some(finished_node);
-                    } else {
-                        if let Some(XmlNode::Element { children, .. }) = stack.last_mut() {
-                            children.push(finished_node);
+                    } else if let Some(XmlNode::Element { children, .. }) = stack.last_mut() {
+                        children.push(finished_node);
+                    }
+                }
+
+                Token::TagClose(close_name) => {
+                    let finished_node = stack.pop().ok_or("Unbalanced tags")?;
+                    if let XmlNode::Element { ref name, .. } = finished_node {
+                        if name != close_name.trim() {
+                            return Err("Mismatched closing tag");
                         }
+                    }
+                    if stack.is_empty() {
+                        root = Some(finished_node);
+                    } else if let Some(XmlNode::Element { children, .. }) = stack.last_mut() {
+                        children.push(finished_node);
                     }
                 }
 

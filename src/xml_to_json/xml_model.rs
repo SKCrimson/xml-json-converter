@@ -224,11 +224,21 @@ impl XmlNode {
     }
 
     fn escape_json(s: &str) -> String {
-        s.replace('\\', "\\\\")
-            .replace('"', "\\\"")
-            .replace('\n', "\\n")
-            .replace('\r', "\\r")
-            .replace('\t', "\\t")
+        let mut out = String::with_capacity(s.len());
+        for c in s.chars() {
+            match c {
+                '\\' => out.push_str("\\\\"),
+                '"' => out.push_str("\\\""),
+                '\n' => out.push_str("\\n"),
+                '\r' => out.push_str("\\r"),
+                '\t' => out.push_str("\\t"),
+                c if (c as u32) < 0x20 => {
+                    out.push_str(&format!("\\u{:04X}", c as u32));
+                }
+                c => out.push(c),
+            }
+        }
+        out
     }
 }
 
@@ -373,6 +383,26 @@ mod tests {
         let json = node.to_json().unwrap();
         assert!(json.contains('{'));
         assert!(json.contains('}'));
+    }
+
+    #[test]
+    fn control_chars_are_escaped_as_unicode() {
+        let node = XmlNode::Text("\x01\x1F".to_string());
+        let json = node.to_json().unwrap();
+        assert!(json.contains("\\u0001"), "got: {}", json);
+        assert!(json.contains("\\u001F"), "got: {}", json);
+    }
+
+    #[test]
+    fn tab_newline_carriage_use_short_escapes() {
+        let node = XmlNode::Text("\t\n\r".to_string());
+        let json = node.to_json().unwrap();
+        assert!(json.contains("\\t"));
+        assert!(json.contains("\\n"));
+        assert!(json.contains("\\r"));
+        assert!(!json.contains("\\u0009"));
+        assert!(!json.contains("\\u000A"));
+        assert!(!json.contains("\\u000D"));
     }
 
     #[test]
