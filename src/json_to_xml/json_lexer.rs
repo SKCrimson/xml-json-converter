@@ -46,7 +46,7 @@ impl<'a> Lexer<'a> {
             ':' => Ok(Some(Token::Colon)),
             ',' => Ok(Some(Token::Comma)),
             '"' => self
-                .read_string(start_idx, token_line, token_col)
+                .read_string(token_line, token_col)
                 .map(|s| Some(Token::StringVal(s))),
             'n' | 't' | 'f' | '-' | '0'..='9' => {
                 self.read_literal(start_idx, token_line, token_col)
@@ -79,17 +79,51 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn read_string(
-        &mut self,
-        start_quote_idx: usize,
-        line: usize,
-        col: usize,
-    ) -> Result<&'a str, String> {
-        while let Some((idx, c)) = self.consume() {
+    fn read_string(&mut self, line: usize, col: usize) -> Result<String, String> {
+        let mut out = String::new();
+        while let Some((_, c)) = self.consume() {
             if c == '\\' {
-                self.consume();
+                match self.consume() {
+                    Some((_, '"')) => out.push('"'),
+                    Some((_, '\\')) => out.push('\\'),
+                    Some((_, '/')) => out.push('/'),
+                    Some((_, 'n')) => out.push('\n'),
+                    Some((_, 'r')) => out.push('\r'),
+                    Some((_, 't')) => out.push('\t'),
+                    Some((_, 'b')) => out.push('\x08'),
+                    Some((_, 'f')) => out.push('\x0C'),
+                    Some((_, 'u')) => {
+                        let mut hex = String::with_capacity(4);
+                        for _ in 0..4 {
+                            match self.consume() {
+                                Some((_, h)) => hex.push(h),
+                                None => return Err(format!(
+                                    "Unexpected end in unicode escape at line {}, col {}",
+                                    line, col
+                                )),
+                            }
+                        }
+                        let code = u32::from_str_radix(&hex, 16).map_err(|_| {
+                            format!("Invalid unicode escape \\u{} at line {}, col {}", hex, line, col)
+                        })?;
+                        let ch = char::from_u32(code).ok_or_else(|| {
+                            format!("Invalid unicode codepoint U+{} at line {}, col {}", hex, line, col)
+                        })?;
+                        out.push(ch);
+                    }
+                    Some((_, c)) => return Err(format!(
+                        "Invalid escape '\\{}' at line {}, col {}",
+                        c, line, col
+                    )),
+                    None => return Err(format!(
+                        "Unexpected end after '\\' at line {}, col {}",
+                        line, col
+                    )),
+                }
             } else if c == '"' {
-                return Ok(&self.input[start_quote_idx + 1..idx]);
+                return Ok(out);
+            } else {
+                out.push(c);
             }
         }
         Err(format!(

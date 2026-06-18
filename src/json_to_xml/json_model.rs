@@ -8,7 +8,7 @@ pub enum Token<'a> {
     BracketClose,
     Colon,
     Comma,
-    StringVal(&'a str), // Store a reference, not a copy
+    StringVal(String),
     Number(&'a str),
     BoolVal(bool),
     Null,
@@ -16,9 +16,9 @@ pub enum Token<'a> {
 
 #[derive(Debug)]
 pub enum JsonNode<'a> {
-    Object(Vec<(&'a str, JsonNode<'a>)>),
+    Object(Vec<(String, JsonNode<'a>)>),
     Array(Vec<JsonNode<'a>>),
-    StringVal(&'a str),
+    StringVal(String),
     Number(&'a str),
     BoolVal(bool),
     Null,
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn string_val_to_xml() {
-        let node = JsonNode::StringVal("hello");
+        let node = JsonNode::StringVal("hello".to_string());
         assert_eq!(node.to_xml().unwrap(), "<root>hello</root>");
     }
 
@@ -187,7 +187,7 @@ mod tests {
 
     #[test]
     fn object_key_becomes_tag() {
-        let node = JsonNode::Object(vec![("name", JsonNode::StringVal("Alice"))]);
+        let node = JsonNode::Object(vec![("name".to_string(), JsonNode::StringVal("Alice".to_string()))]);
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<name>Alice</name>"));
         assert!(xml.starts_with("<root>"));
@@ -196,7 +196,10 @@ mod tests {
 
     #[test]
     fn array_elements_use_item_tag() {
-        let node = JsonNode::Array(vec![JsonNode::StringVal("x"), JsonNode::StringVal("y")]);
+        let node = JsonNode::Array(vec![
+            JsonNode::StringVal("x".to_string()),
+            JsonNode::StringVal("y".to_string()),
+        ]);
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<item>x</item>"));
         assert!(xml.contains("<item>y</item>"));
@@ -204,51 +207,51 @@ mod tests {
 
     #[test]
     fn ampersand_is_escaped() {
-        let node = JsonNode::StringVal("a & b");
+        let node = JsonNode::StringVal("a & b".to_string());
         assert!(node.to_xml().unwrap().contains("&amp;"));
     }
 
     #[test]
     fn less_than_is_escaped() {
-        let node = JsonNode::StringVal("a < b");
+        let node = JsonNode::StringVal("a < b".to_string());
         assert!(node.to_xml().unwrap().contains("&lt;"));
     }
 
     #[test]
     fn greater_than_is_escaped() {
-        let node = JsonNode::StringVal("a > b");
+        let node = JsonNode::StringVal("a > b".to_string());
         assert!(node.to_xml().unwrap().contains("&gt;"));
     }
 
     #[test]
     fn quotes_are_escaped() {
-        let node = JsonNode::StringVal("say \"hi\"");
+        let node = JsonNode::StringVal("say \"hi\"".to_string());
         assert!(node.to_xml().unwrap().contains("&quot;"));
     }
 
     #[test]
     fn tag_name_spaces_replaced_with_underscore() {
-        let node = JsonNode::Object(vec![("my key", JsonNode::StringVal("v"))]);
+        let node = JsonNode::Object(vec![("my key".to_string(), JsonNode::StringVal("v".to_string()))]);
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<my_key>"));
     }
 
     #[test]
     fn tag_name_starting_with_digit_gets_underscore_prefix() {
-        let node = JsonNode::Object(vec![("1key", JsonNode::StringVal("v"))]);
+        let node = JsonNode::Object(vec![("1key".to_string(), JsonNode::StringVal("v".to_string()))]);
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<_1key>"));
     }
 
     #[test]
     fn pretty_xml_contains_newlines() {
-        let node = JsonNode::Object(vec![("a", JsonNode::StringVal("b"))]);
+        let node = JsonNode::Object(vec![("a".to_string(), JsonNode::StringVal("b".to_string()))]);
         assert!(node.to_pretty_xml(4).unwrap().contains('\n'));
     }
 
     #[test]
     fn pretty_xml_no_trailing_space_before_newline() {
-        let node = JsonNode::Object(vec![("a", JsonNode::StringVal("b"))]);
+        let node = JsonNode::Object(vec![("a".to_string(), JsonNode::StringVal("b".to_string()))]);
         assert!(!node.to_pretty_xml(4).unwrap().contains(" \n"));
     }
 
@@ -256,21 +259,21 @@ mod tests {
     fn exceeds_max_depth_returns_error() {
         let mut node = JsonNode::Object(vec![]);
         for _ in 0..(MAX_DEPTH + 1) {
-            node = JsonNode::Object(vec![("a", node)]);
+            node = JsonNode::Object(vec![("a".to_string(), node)]);
         }
         assert!(node.to_xml().is_err());
     }
 
     #[test]
     fn empty_key_becomes_underscore_tag() {
-        let node = JsonNode::Object(vec![("", JsonNode::StringVal("v"))]);
+        let node = JsonNode::Object(vec![("".to_string(), JsonNode::StringVal("v".to_string()))]);
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<_>v</_>"), "got: {}", xml);
     }
 
     #[test]
     fn empty_key_is_valid_xml_structure() {
-        let node = JsonNode::Object(vec![("", JsonNode::Null)]);
+        let node = JsonNode::Object(vec![("".to_string(), JsonNode::Null)]);
         let xml = node.to_xml().unwrap();
         assert!(!xml.contains("<>"), "empty tag name leaked: {}", xml);
     }

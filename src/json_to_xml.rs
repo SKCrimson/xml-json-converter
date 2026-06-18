@@ -107,4 +107,44 @@ mod tests {
         let first_line = result.lines().next().unwrap();
         assert_eq!(first_line, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     }
+
+    #[test]
+    fn escaped_quote_in_string_decoded() {
+        let result = convert(r#"{"msg": "say \"hi\""}"#, false).unwrap();
+        assert!(result.contains("<msg>say &quot;hi&quot;</msg>"), "got: {}", result);
+    }
+
+    #[test]
+    fn escaped_backslash_in_string_decoded() {
+        let result = convert(r#"{"path": "C:\\Users"}"#, false).unwrap();
+        assert!(result.contains(r"<path>C:\Users</path>"), "got: {}", result);
+    }
+
+    #[test]
+    fn escaped_newline_in_string_decoded() {
+        let result = convert("{\"text\": \"line1\\nline2\"}", false).unwrap();
+        assert!(result.contains("<text>line1\nline2</text>"), "got: {}", result);
+    }
+
+    #[test]
+    fn escaped_tab_in_string_decoded() {
+        let result = convert("{\"text\": \"col1\\tcol2\"}", false).unwrap();
+        assert!(result.contains("<text>col1\tcol2</text>"), "got: {}", result);
+    }
+
+    #[test]
+    fn unicode_escape_latin_decoded() {
+        // JSON A decodes to 'A'
+        let json = "{\"char\": \"\\u0041\"}";
+        let result = convert(json, false).unwrap();
+        assert!(result.contains("<char>A</char>"), "got: {}", result);
+    }
+
+    #[test]
+    fn unicode_escape_cyrillic_decoded() {
+        // JSON Р decodes to 'Р' (cyrillic capital R)
+        let json = "{\"letter\": \"\\u0420\"}";
+        let result = convert(json, false).unwrap();
+        assert!(result.contains("<letter>\u{0420}</letter>"), "got: {}", result);
+    }
 }

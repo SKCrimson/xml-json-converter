@@ -26,7 +26,7 @@ impl<'a> Parser<'a> {
         match token {
             Token::BraceOpen => self.parse_object(depth + 1),
             Token::BracketOpen => self.parse_array(depth + 1),
-            Token::StringVal(s) => Ok(JsonNode::StringVal(*s)),
+            Token::StringVal(s) => Ok(JsonNode::StringVal(s.clone())),
             Token::Number(n) => Ok(JsonNode::Number(*n)),
             Token::BoolVal(b) => Ok(JsonNode::BoolVal(*b)),
             Token::Null => Ok(JsonNode::Null),
@@ -61,7 +61,7 @@ impl<'a> Parser<'a> {
 
         loop {
             let key = match self.consume() {
-                Some(Token::StringVal(s)) => *s,
+                Some(Token::StringVal(s)) => s.clone(),
                 _ => return Err("Expected string key in object".to_string()),
             };
 
