@@ -3,7 +3,7 @@ use std::iter::Peekable;
 use std::str::CharIndices;
 
 pub struct Lexer<'a> {
-    input: &'a str, // Keep the original string for slice creation
+    input: &'a str,
     chars: Peekable<CharIndices<'a>>,
     line: usize,
     col: usize,
@@ -19,7 +19,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn tokenize(&mut self) -> Result<Vec<Token<'a>>, &'static str> {
+    pub fn tokenize(&mut self) -> Result<Vec<Token<'a>>, String> {
         let mut tokens = Vec::new();
         while let Some(token) = self.next_token()? {
             tokens.push(token);
@@ -27,13 +27,16 @@ impl<'a> Lexer<'a> {
         Ok(tokens)
     }
 
-    fn next_token(&mut self) -> Result<Option<Token<'a>>, &'static str> {
+    fn next_token(&mut self) -> Result<Option<Token<'a>>, String> {
         self.skip_whitespace();
 
         let (start_idx, c) = match self.consume() {
             Some(pair) => pair,
             None => return Ok(None),
         };
+
+        let token_line = self.line;
+        let token_col = self.col;
 
         match c {
             '{' => Ok(Some(Token::BraceOpen)),
@@ -43,10 +46,15 @@ impl<'a> Lexer<'a> {
             ':' => Ok(Some(Token::Colon)),
             ',' => Ok(Some(Token::Comma)),
             '"' => self
-                .read_string(start_idx)
+                .read_string(start_idx, token_line, token_col)
                 .map(|s| Some(Token::StringVal(s))),
-            'n' | 't' | 'f' | '-' | '0'..='9' => self.read_literal(start_idx, c),
-            _ => Err("Unexpected character encountered"),
+            'n' | 't' | 'f' | '-' | '0'..='9' => {
+                self.read_literal(start_idx, token_line, token_col)
+            }
+            _ => Err(format!(
+                "Unexpected character '{}' at line {}, col {}",
+                c, token_line, token_col
+            )),
         }
     }
 
@@ -71,24 +79,31 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn read_string(&mut self, start_quote_idx: usize) -> Result<&'a str, &'static str> {
-        // Look for the closing quote to return a slice
+    fn read_string(
+        &mut self,
+        start_quote_idx: usize,
+        line: usize,
+        col: usize,
+    ) -> Result<&'a str, String> {
         while let Some((idx, c)) = self.consume() {
             if c == '\\' {
-                self.consume(); // Skip the next character (escape)
+                self.consume();
             } else if c == '"' {
-                // Return the string slice WITHOUT quotes
                 return Ok(&self.input[start_quote_idx + 1..idx]);
             }
         }
-        Err("Unterminated string literal")
+        Err(format!(
+            "Unterminated string literal at line {}, col {}",
+            line, col
+        ))
     }
 
     fn read_literal(
         &mut self,
         start_idx: usize,
-        _first_char: char,
-    ) -> Result<Option<Token<'a>>, &'static str> {
+        line: usize,
+        col: usize,
+    ) -> Result<Option<Token<'a>>, String> {
         let mut end_idx = start_idx;
 
         while let Some(&(_, c)) = self.chars.peek() {
@@ -100,7 +115,6 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        // Get a slice of the whole literal
         let s = &self.input[start_idx..=end_idx];
 
         match s {
@@ -111,7 +125,10 @@ impl<'a> Lexer<'a> {
                 if s.parse::<f64>().is_ok() {
                     Ok(Some(Token::Number(s)))
                 } else {
-                    Err("Invalid numeric or keyword literal")
+                    Err(format!(
+                        "Invalid literal '{}' at line {}, col {}",
+                        s, line, col
+                    ))
                 }
             }
         }

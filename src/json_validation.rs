@@ -235,23 +235,19 @@ mod tests {
     }
 }
 
-fn consume_string<I>(chars: &mut std::iter::Peekable<I>) -> Result<String, String>
+fn consume_string<I>(chars: &mut std::iter::Peekable<I>) -> Result<(), String>
 where
     I: Iterator<Item = (char, usize, usize)>,
 {
-    let mut s = String::new();
     let mut escaped = false;
 
     while let Some((c, _, _)) = chars.next() {
         if escaped {
-            s.push(c);
             escaped = false;
         } else if c == '\\' {
             escaped = true;
         } else if c == '"' {
-            return Ok(s);
-        } else {
-            s.push(c);
+            return Ok(());
         }
     }
     Err("Unclosed string".into())

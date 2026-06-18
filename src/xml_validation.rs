@@ -52,16 +52,24 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                     let first = chars.next();
                     if first == Some('-') && chars.peek() == Some(&'-') {
                         chars.next(); // consume second '-', now inside <!-- -->
+                        let mut closed = false;
                         while let Some(c) = chars.next() {
                             if c == '-' {
                                 if let Some(&'-') = chars.peek() {
                                     chars.next();
                                     if let Some(&'>') = chars.peek() {
                                         chars.next();
+                                        closed = true;
                                         break;
                                     }
                                 }
                             }
+                        }
+                        if !closed {
+                            return Err(format!(
+                                "Error at {}:{}: Unclosed comment",
+                                start_line, start_col
+                            ));
                         }
                     } else {
                         // <!DOCTYPE> or other declaration — skip to closing >
@@ -200,6 +208,16 @@ mod tests {
     #[test]
     fn valid_comment_inside() {
         assert!(validate("<root><!-- comment --><child/></root>").is_ok());
+    }
+
+    #[test]
+    fn unclosed_comment_inside_root_fails() {
+        assert!(validate("<root><!-- unclosed</root>").is_err());
+    }
+
+    #[test]
+    fn unclosed_comment_after_root_fails() {
+        assert!(validate("<root><child/></root><!-- unclosed").is_err());
     }
 
     #[test]

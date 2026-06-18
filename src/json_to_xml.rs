@@ -2,7 +2,7 @@ mod json_lexer;
 mod json_model;
 mod json_parser;
 
-pub fn convert(json: &str, pretty: bool) -> Result<String, &'static str> {
+pub fn convert(json: &str, pretty: bool) -> Result<String, String> {
     let mut lexer = json_lexer::Lexer::new(json);
     let tokens = lexer.tokenize()?;
 

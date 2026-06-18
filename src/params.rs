@@ -8,10 +8,11 @@ pub struct Params {
 }
 
 impl Params {
-    pub fn new(args: &[String]) -> Result<Self, &'static str> {
+    pub fn new(args: &[String]) -> Result<Self, String> {
         if args.len() < 2 || args[1].is_empty() {
             return Err(
-                "Not enough arguments provided. Please provide the file path as an argument.",
+                "Not enough arguments provided. Please provide the file path as an argument."
+                    .into(),
             );
         }
 
@@ -22,7 +23,7 @@ impl Params {
         let mut output_name: Option<String> = None;
 
         if !path.exists() || !path.is_file() {
-            return Err("File not found. Please provide a valid file path.");
+            return Err("File not found. Please provide a valid file path.".into());
         }
 
         if let Some(ext) = path.extension() {
@@ -30,13 +31,15 @@ impl Params {
                 if ext_str.eq_ignore_ascii_case("xml") || ext_str.eq_ignore_ascii_case("json") {
                     extension = ext_str.to_ascii_lowercase();
                 } else {
-                    return Err("Unsupported file type. Please provide XML or JSON file.");
+                    return Err("Unsupported file type. Please provide XML or JSON file.".into());
                 }
             } else {
-                return Err("Failed to read the file extension. Please provide a valid file.");
+                return Err(
+                    "Failed to read the file extension. Please provide a valid file.".into(),
+                );
             }
         } else {
-            return Err("File has no extension. Please provide an XML or JSON file.");
+            return Err("File has no extension. Please provide an XML or JSON file.".into());
         }
 
         let mut i = 2;
@@ -51,11 +54,14 @@ impl Params {
                         output_name = Some(args[i + 1].clone());
                         i += 2;
                     } else {
-                        return Err("Missing value for -n/--name option.");
+                        return Err("Missing value for -n/--name option.".into());
                     }
                 }
                 _ => {
-                    i += 1;
+                    return Err(format!(
+                        "Unknown option: '{}'. Use --help to see available options.",
+                        args[i]
+                    ));
                 }
             }
         }
