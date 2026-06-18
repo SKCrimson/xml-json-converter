@@ -35,10 +35,10 @@ impl<'a> Parser<'a> {
         token
     }
 
-    fn expect(&mut self, expected: Token<'a>) -> Result<(), &'static str> {
+    fn expect(&mut self, expected: Token<'a>, error_msg: &'static str) -> Result<(), &'static str> {
         match self.consume() {
             Some(t) if t == &expected => Ok(()),
-            _ => Err("Unexpected token: missing expected delimiter"),
+            _ => Err(error_msg),
         }
     }
 
@@ -57,7 +57,7 @@ impl<'a> Parser<'a> {
             };
 
             // INSTEAD OF: match self.consume() { ... }
-            self.expect(Token::Colon)?;
+            self.expect(Token::Colon, "Expected ':' after object key")?;
 
             let value = self.parse()?;
             pairs.push((key, value));

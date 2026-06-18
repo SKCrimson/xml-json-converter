@@ -54,7 +54,7 @@ impl<'a> Parser<'a> {
                         match this {
                             Some(v) => Ok(v),
                             None => {
-                                println!(
+                                eprintln!(
                                     "Stack is empty when trying to pop. Current token: {:?}",
                                     token
                                 );

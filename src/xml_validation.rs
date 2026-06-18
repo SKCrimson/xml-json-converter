@@ -4,16 +4,17 @@ pub fn get_content(file_path: &str) -> Result<String, String> {
     let content = fs::read_to_string(file_path)
         .map_err(|_| "Failed to read the file. Please provide a valid XML file.".to_string())?;
 
-    if content.len() == 0 {
+    if content.is_empty() {
         return Err("Content is empty".to_string());
     }
 
-    match is_well_formed(&content) {
-        Ok(_) => (),
-        Err(err) => return Err(err),
-    };
+    validate(&content)?;
 
     Ok(content)
+}
+
+pub fn validate(xml: &str) -> Result<(), String> {
+    is_well_formed(xml)
 }
 
 fn is_well_formed(xml: &str) -> Result<(), String> {
@@ -74,7 +75,9 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                         if inner == '>' {
                             break;
                         }
-                        tag_name.push(chars.next().unwrap());
+                        if let Some(c) = chars.next() {
+                            tag_name.push(c);
+                        }
                     }
                     chars.next(); // Skip '>'
 
@@ -104,8 +107,9 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                         if inner == '>' {
                             break;
                         }
-                        let current = chars.next().unwrap();
-                        tag_content.push(current);
+                        if let Some(current) = chars.next() {
+                            tag_content.push(current);
+                        }
                     }
 
                     if tag_content.ends_with('/') {

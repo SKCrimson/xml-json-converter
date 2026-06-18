@@ -95,8 +95,9 @@ impl<'a> Lexer<'a> {
             if c.is_whitespace() || ",}] :".contains(c) {
                 break;
             }
-            let (i, _) = self.consume().unwrap();
-            end_idx = i;
+            if let Some((i, _)) = self.consume() {
+                end_idx = i;
+            }
         }
 
         // Get a slice of the whole literal

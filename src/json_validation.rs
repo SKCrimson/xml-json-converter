@@ -15,16 +15,17 @@ pub fn get_content(file_path: &str) -> Result<String, String> {
     let content = fs::read_to_string(file_path)
         .map_err(|_| "Failed to read the file. Please provide a valid JSON file.".to_string())?;
 
-    if content.len() == 0 {
+    if content.is_empty() {
         return Err("Content is empty".to_string());
     }
 
-    match is_well_formed(&content) {
-        Ok(_) => (),
-        Err(err) => return Err(err),
-    };
+    validate(&content)?;
 
     Ok(content)
+}
+
+pub fn validate(json: &str) -> Result<(), String> {
+    is_well_formed(json)
 }
 
 struct PosTracker<I: Iterator<Item = char>> {
@@ -183,7 +184,9 @@ where
         if c.is_whitespace() || c == ',' || c == '}' || c == ']' || c == ':' {
             break;
         }
-        lit.push(chars.next().unwrap().0);
+        if let Some((c, _, _)) = chars.next() {
+            lit.push(c);
+        }
     }
     Ok(lit)
 }

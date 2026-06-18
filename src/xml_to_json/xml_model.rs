@@ -38,14 +38,14 @@ impl XmlNode {
                 }
 
                 // 2. Group child nodes by name to find duplicates (arrays)
-                let mut grouped_children: HashMap<String, Vec<&XmlNode>> = HashMap::new();
+                let mut grouped_children: HashMap<&str, Vec<&XmlNode>> = HashMap::new();
                 let mut text_content = Vec::new();
 
                 for child in children {
                     match child {
                         XmlNode::Element { name, .. } => {
                             grouped_children
-                                .entry(name.clone())
+                                .entry(name.as_str())
                                 .or_default()
                                 .push(child);
                         }
@@ -117,7 +117,7 @@ impl XmlNode {
                 }
 
                 // 2. Group child nodes
-                let mut grouped_children: std::collections::HashMap<String, Vec<&XmlNode>> =
+                let mut grouped_children: std::collections::HashMap<&str, Vec<&XmlNode>> =
                     std::collections::HashMap::new();
                 let mut text_content = Vec::new();
 
@@ -125,7 +125,7 @@ impl XmlNode {
                     match child {
                         XmlNode::Element { name, .. } => {
                             grouped_children
-                                .entry(name.clone())
+                                .entry(name.as_str())
                                 .or_default()
                                 .push(child);
                         }
