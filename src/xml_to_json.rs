@@ -13,14 +13,14 @@ pub fn convert(xml: &str, pretty: bool) -> Result<String, &'static str> {
 
     let json_output = if let XmlNode::Element { name, .. } = &root_node {
         if pretty {
-            format!("{{\n    \"{}\": {}\n}}", name, root_node.to_pretty_json_at(1, 4))
+            format!("{{\n    \"{}\": {}\n}}", name, root_node.to_pretty_json_at(1, 4)?)
         } else {
-            format!("{{ \"{}\": {} }}", name, root_node.to_json())
+            format!("{{ \"{}\": {} }}", name, root_node.to_json()?)
         }
     } else if pretty {
-        root_node.to_pretty_json(4)
+        root_node.to_pretty_json(4)?
     } else {
-        root_node.to_json()
+        root_node.to_json()?
     };
 
     Ok(json_output)
@@ -106,5 +106,27 @@ mod tests {
         let result = convert(xml, false).unwrap();
         assert!(result.contains("\"name\""));
         assert!(result.contains("\"test\""));
+    }
+
+    #[test]
+    fn multibyte_utf8_text_content() {
+        let xml = "<root>Привет мир</root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("Привет мир"));
+    }
+
+    #[test]
+    fn multibyte_utf8_attribute_value() {
+        let xml = "<root lang=\"日本語\"/>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("日本語"));
+    }
+
+    #[test]
+    fn multibyte_utf8_in_child_text() {
+        let xml = "<root><item>Ñoño</item><item>中文</item></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("Ñoño"));
+        assert!(result.contains("中文"));
     }
 }

@@ -1,30 +1,39 @@
 use crate::json_to_xml::json_model::JsonNode;
 use crate::json_to_xml::json_model::Token;
 
+const MAX_DEPTH: usize = 512;
+
 pub struct Parser<'a> {
     tokens: Vec<Token<'a>>,
     pos: usize,
 }
+
 impl<'a> Parser<'a> {
     pub fn new(tokens: Vec<Token<'a>>) -> Self {
         Parser { tokens, pos: 0 }
     }
 
     pub fn parse(&mut self) -> Result<JsonNode<'a>, &'static str> {
+        self.parse_value(0)
+    }
+
+    fn parse_value(&mut self, depth: usize) -> Result<JsonNode<'a>, &'static str> {
+        if depth >= MAX_DEPTH {
+            return Err("Nesting depth limit exceeded");
+        }
         let token = self.consume().ok_or("Empty token stream")?;
 
         match token {
-            Token::BraceOpen => self.parse_object(),
-            Token::BracketOpen => self.parse_array(),
-            Token::StringVal(s) => Ok(JsonNode::StringVal(*s)), // Dereference with *
-            Token::Number(n) => Ok(JsonNode::Number(*n)),        // Dereference with *
-            Token::BoolVal(b) => Ok(JsonNode::BoolVal(*b)),     // Dereference with *
+            Token::BraceOpen => self.parse_object(depth + 1),
+            Token::BracketOpen => self.parse_array(depth + 1),
+            Token::StringVal(s) => Ok(JsonNode::StringVal(*s)),
+            Token::Number(n) => Ok(JsonNode::Number(*n)),
+            Token::BoolVal(b) => Ok(JsonNode::BoolVal(*b)),
             Token::Null => Ok(JsonNode::Null),
             _ => Err("Invalid start of JSON"),
         }
     }
 
-    // Helper methods for navigation
     fn peek(&self) -> Option<&Token<'a>> {
         self.tokens.get(self.pos)
     }
@@ -42,7 +51,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_object(&mut self) -> Result<JsonNode<'a>, &'static str> {
+    fn parse_object(&mut self, depth: usize) -> Result<JsonNode<'a>, &'static str> {
         let mut pairs = Vec::new();
 
         if let Some(Token::BraceClose) = self.peek() {
@@ -56,10 +65,9 @@ impl<'a> Parser<'a> {
                 _ => return Err("Expected string key in object"),
             };
 
-            // INSTEAD OF: match self.consume() { ... }
             self.expect(Token::Colon, "Expected ':' after object key")?;
 
-            let value = self.parse()?;
+            let value = self.parse_value(depth)?;
             pairs.push((key, value));
 
             match self.consume() {
@@ -71,7 +79,7 @@ impl<'a> Parser<'a> {
         Ok(JsonNode::Object(pairs))
     }
 
-    fn parse_array(&mut self) -> Result<JsonNode<'a>, &'static str> {
+    fn parse_array(&mut self, depth: usize) -> Result<JsonNode<'a>, &'static str> {
         let mut elements = Vec::new();
 
         if let Some(Token::BracketClose) = self.peek() {
@@ -80,7 +88,7 @@ impl<'a> Parser<'a> {
         }
 
         loop {
-            elements.push(self.parse()?);
+            elements.push(self.parse_value(depth)?);
 
             match self.consume() {
                 Some(Token::BracketClose) => break,

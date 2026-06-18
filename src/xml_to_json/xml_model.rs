@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+const MAX_DEPTH: usize = 512;
+
 #[derive(Debug, PartialEq)]
 pub enum Token<'a> {
     TagOpen(&'a str),                        // <name
@@ -22,9 +24,24 @@ pub enum XmlNode {
 }
 
 impl XmlNode {
-    pub fn to_json(&self) -> String {
+    pub fn to_json(&self) -> Result<String, &'static str> {
+        self.to_json_at_depth(0)
+    }
+
+    pub fn to_pretty_json(&self, indent_size: usize) -> Result<String, &'static str> {
+        self.to_json_recursive(0, indent_size)
+    }
+
+    pub fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> Result<String, &'static str> {
+        self.to_json_recursive(depth, indent_size)
+    }
+
+    fn to_json_at_depth(&self, depth: usize) -> Result<String, &'static str> {
+        if depth >= MAX_DEPTH {
+            return Err("Nesting depth limit exceeded");
+        }
         match self {
-            XmlNode::Text(s) => format!("\"{}\"", Self::escape_json(s)),
+            XmlNode::Text(s) => Ok(format!("\"{}\"", Self::escape_json(s))),
             XmlNode::Element {
                 name: _,
                 attributes,
@@ -61,10 +78,17 @@ impl XmlNode {
                 for name in &seen_order {
                     let nodes = &grouped_children[name];
                     if nodes.len() > 1 {
-                        let items: Vec<String> = nodes.iter().map(|n| n.to_json()).collect();
+                        let items: Vec<String> = nodes
+                            .iter()
+                            .map(|n| n.to_json_at_depth(depth + 1))
+                            .collect::<Result<Vec<_>, _>>()?;
                         parts.push(format!("\"{}\": [{}]", name, items.join(", ")));
                     } else {
-                        parts.push(format!("\"{}\": {}", name, nodes[0].to_json()));
+                        parts.push(format!(
+                            "\"{}\": {}",
+                            name,
+                            nodes[0].to_json_at_depth(depth + 1)?
+                        ));
                     }
                 }
 
@@ -75,7 +99,7 @@ impl XmlNode {
                         .map(|s| s.as_str())
                         .collect::<Vec<_>>()
                         .join(" ");
-                    return format!("\"{}\"", Self::escape_json(&joined_text));
+                    return Ok(format!("\"{}\"", Self::escape_json(&joined_text)));
                 }
 
                 // If there is text along with other elements, add it as a special field
@@ -91,25 +115,20 @@ impl XmlNode {
                     ));
                 }
 
-                format!("{{ {} }}", parts.join(", "))
+                Ok(format!("{{ {} }}", parts.join(", ")))
             }
         }
     }
 
-    pub fn to_pretty_json(&self, indent_size: usize) -> String {
-        self.to_json_recursive(0, indent_size)
-    }
-
-    pub fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> String {
-        self.to_json_recursive(depth, indent_size)
-    }
-
-    fn to_json_recursive(&self, depth: usize, indent_size: usize) -> String {
+    fn to_json_recursive(&self, depth: usize, indent_size: usize) -> Result<String, &'static str> {
+        if depth >= MAX_DEPTH {
+            return Err("Nesting depth limit exceeded");
+        }
         let current_indent = " ".repeat(depth * indent_size);
         let next_indent = " ".repeat((depth + 1) * indent_size);
 
         match self {
-            XmlNode::Text(s) => format!("\"{}\"", Self::escape_json(s)),
+            XmlNode::Text(s) => Ok(format!("\"{}\"", Self::escape_json(s))),
 
             XmlNode::Element {
                 attributes,
@@ -150,7 +169,7 @@ impl XmlNode {
                         let items: Vec<String> = nodes
                             .iter()
                             .map(|n| n.to_json_recursive(depth + 2, indent_size))
-                            .collect();
+                            .collect::<Result<Vec<_>, _>>()?;
 
                         let array_body =
                             items.join(&format!(",\n{}", " ".repeat((depth + 2) * indent_size)));
@@ -165,7 +184,7 @@ impl XmlNode {
                         parts.push(format!(
                             "\"{}\": {}",
                             name,
-                            nodes[0].to_json_recursive(depth + 1, indent_size)
+                            nodes[0].to_json_recursive(depth + 1, indent_size)?
                         ));
                     }
                 }
@@ -178,7 +197,7 @@ impl XmlNode {
                     .join(" ");
 
                 if parts.is_empty() && !text_content.is_empty() {
-                    return format!("\"{}\"", Self::escape_json(&joined_text));
+                    return Ok(format!("\"{}\"", Self::escape_json(&joined_text)));
                 }
 
                 if !text_content.is_empty() {
@@ -199,7 +218,7 @@ impl XmlNode {
                 }
                 result.push_str(&current_indent);
                 result.push('}');
-                result
+                Ok(result)
             }
         }
     }
@@ -240,40 +259,40 @@ mod tests {
     #[test]
     fn text_node_to_json() {
         let node = XmlNode::Text("hello".to_string());
-        assert_eq!(node.to_json(), "\"hello\"");
+        assert_eq!(node.to_json().unwrap(), "\"hello\"");
     }
 
     #[test]
     fn text_node_escapes_quotes() {
         let node = XmlNode::Text("say \"hi\"".to_string());
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         assert!(json.contains("\\\""));
     }
 
     #[test]
     fn text_node_escapes_backslash() {
         let node = XmlNode::Text("C:\\path".to_string());
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         assert!(json.contains("\\\\"));
     }
 
     #[test]
     fn element_with_only_text_returns_string() {
         let node = elem("root", vec![XmlNode::Text("value".to_string())]);
-        assert_eq!(node.to_json(), "\"value\"");
+        assert_eq!(node.to_json().unwrap(), "\"value\"");
     }
 
     #[test]
     fn element_with_attribute_has_at_prefix() {
         let node = elem_attr("root", &[("id", "1")]);
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         assert!(json.contains("\"@id\": \"1\""));
     }
 
     #[test]
     fn attribute_order_preserved() {
         let node = elem_attr("root", &[("first", "1"), ("second", "2"), ("third", "3")]);
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         let pos_first = json.find("\"@first\"").unwrap();
         let pos_second = json.find("\"@second\"").unwrap();
         let pos_third = json.find("\"@third\"").unwrap();
@@ -289,7 +308,7 @@ mod tests {
                 elem("item", vec![XmlNode::Text("b".to_string())]),
             ],
         );
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         assert!(json.contains('['));
         assert!(json.contains("\"item\""));
     }
@@ -303,7 +322,7 @@ mod tests {
                 elem("b", vec![XmlNode::Text("2".to_string())]),
             ],
         );
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         assert!(json.contains("\"a\""));
         assert!(json.contains("\"b\""));
         assert!(!json.contains('['));
@@ -319,7 +338,7 @@ mod tests {
                 elem("c", vec![XmlNode::Text("3".to_string())]),
             ],
         );
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         let pos_a = json.find("\"a\"").unwrap();
         let pos_b = json.find("\"b\"").unwrap();
         let pos_c = json.find("\"c\"").unwrap();
@@ -336,7 +355,7 @@ mod tests {
                 elem("child", vec![]),
             ],
         };
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         assert!(json.contains("\"#text\""));
         assert!(json.contains("\"note\""));
     }
@@ -344,15 +363,32 @@ mod tests {
     #[test]
     fn pretty_json_contains_newlines() {
         let node = elem("root", vec![elem("child", vec![XmlNode::Text("x".to_string())])]);
-        let pretty = node.to_pretty_json(4);
+        let pretty = node.to_pretty_json(4).unwrap();
         assert!(pretty.contains('\n'));
     }
 
     #[test]
     fn empty_element_produces_empty_object() {
         let node = elem("root", vec![]);
-        let json = node.to_json();
+        let json = node.to_json().unwrap();
         assert!(json.contains('{'));
         assert!(json.contains('}'));
+    }
+
+    #[test]
+    fn exceeds_max_depth_returns_error() {
+        let mut node = XmlNode::Element {
+            name: "a".to_string(),
+            attributes: vec![],
+            children: vec![],
+        };
+        for _ in 0..(MAX_DEPTH + 1) {
+            node = XmlNode::Element {
+                name: "a".to_string(),
+                attributes: vec![],
+                children: vec![node],
+            };
+        }
+        assert!(node.to_json().is_err());
     }
 }

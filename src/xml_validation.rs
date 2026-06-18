@@ -106,9 +106,16 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                     // Opening or self-closing tag
                     let mut tag_content = String::new();
                     let mut is_self_closing = false;
+                    let mut inside_quote: Option<char> = None;
 
                     while let Some(&inner) = chars.peek() {
-                        if inner == '>' {
+                        if let Some(q) = inside_quote {
+                            if inner == q {
+                                inside_quote = None;
+                            }
+                        } else if inner == '"' || inner == '\'' {
+                            inside_quote = Some(inner);
+                        } else if inner == '>' {
                             break;
                         }
                         if let Some(current) = chars.next() {
@@ -132,7 +139,7 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                     if !is_self_closing {
                         if stack.is_empty() && root_count > 0 {
                             return Err(format!(
-                                "Error at {}:{}: Second root element </{}>",
+                                "Error at {}:{}: Second root element <{}>",
                                 start_line, start_col, tag_name
                             ));
                         }
@@ -144,7 +151,7 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                         // For self-closing tags, just check root structure
                         if stack.is_empty() && root_count > 0 {
                             return Err(format!(
-                                "Error at {}:{}: Second root element </{}>",
+                                "Error at {}:{}: Second root element <{}>",
                                 start_line, start_col, tag_name
                             ));
                         }
@@ -238,5 +245,25 @@ mod tests {
     #[test]
     fn valid_doctype_before_content() {
         assert!(validate("<!DOCTYPE root><root><child>text</child></root>").is_ok());
+    }
+
+    #[test]
+    fn greater_than_in_double_quoted_attr_is_valid() {
+        assert!(validate("<root attr=\"1>0\"/>").is_ok());
+    }
+
+    #[test]
+    fn greater_than_in_single_quoted_attr_is_valid() {
+        assert!(validate("<root attr='1>0'/>").is_ok());
+    }
+
+    #[test]
+    fn greater_than_in_attr_with_children_is_valid() {
+        assert!(validate("<root><item href=\"a>b\"/></root>").is_ok());
+    }
+
+    #[test]
+    fn multiple_attrs_with_greater_than_is_valid() {
+        assert!(validate("<root x=\"1>2\" y=\"3>4\"/>").is_ok());
     }
 }

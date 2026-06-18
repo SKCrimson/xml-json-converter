@@ -152,11 +152,11 @@ impl<'a> Lexer<'a> {
 
         let after_eq = rest[eq_pos + 1..].trim_start();
         let quote = after_eq.chars().next()?;
-        let val_start = 1;
+        let val_start = quote.len_utf8();
         let val_end = after_eq[val_start..].find(quote)? + val_start;
         let value = &after_eq[val_start..val_end];
 
-        let total_consumed = rest.len() - after_eq[val_end + 1..].len();
+        let total_consumed = rest.len() - after_eq[val_end + quote.len_utf8()..].len();
         self.advance(total_consumed);
 
         Some(Token::Attr(ns, key, value))

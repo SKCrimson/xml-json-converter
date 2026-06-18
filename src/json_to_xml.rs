@@ -11,9 +11,9 @@ pub fn convert(json: &str, pretty: bool) -> Result<String, &'static str> {
     const DECLARATION: &str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
     if pretty {
-        Ok(format!("{}\n{}", DECLARATION, root_node.to_pretty_xml(4)))
+        Ok(format!("{}\n{}", DECLARATION, root_node.to_pretty_xml(4)?))
     } else {
-        Ok(format!("{}{}", DECLARATION, root_node.to_xml()))
+        Ok(format!("{}{}", DECLARATION, root_node.to_xml()?))
     }
 }
 
