@@ -15,7 +15,7 @@ pub enum Token<'a> {
 pub enum XmlNode {
     Element {
         name: String,
-        attributes: HashMap<String, String>,
+        attributes: Vec<(String, String)>,
         children: Vec<XmlNode>,
     },
     Text(String),
@@ -32,18 +32,22 @@ impl XmlNode {
             } => {
                 let mut parts = Vec::new();
 
-                // 1. Process attributes
+                // 1. Attributes (order preserved from document)
                 for (key, value) in attributes {
                     parts.push(format!("\"@{}\": \"{}\"", key, Self::escape_json(value)));
                 }
 
-                // 2. Group child nodes by name to find duplicates (arrays)
+                // 2. Group children by name, preserving order of first appearance
+                let mut seen_order: Vec<&str> = Vec::new();
                 let mut grouped_children: HashMap<&str, Vec<&XmlNode>> = HashMap::new();
                 let mut text_content = Vec::new();
 
                 for child in children {
                     match child {
                         XmlNode::Element { name, .. } => {
+                            if !grouped_children.contains_key(name.as_str()) {
+                                seen_order.push(name.as_str());
+                            }
                             grouped_children
                                 .entry(name.as_str())
                                 .or_default()
@@ -53,14 +57,13 @@ impl XmlNode {
                     }
                 }
 
-                // 3. Process grouped child nodes
-                for (name, nodes) in grouped_children {
+                // 3. Process grouped child nodes in document order
+                for name in &seen_order {
+                    let nodes = &grouped_children[name];
                     if nodes.len() > 1 {
-                        // Array of elements
                         let items: Vec<String> = nodes.iter().map(|n| n.to_json()).collect();
                         parts.push(format!("\"{}\": [{}]", name, items.join(", ")));
                     } else {
-                        // Single element
                         parts.push(format!("\"{}\": {}", name, nodes[0].to_json()));
                     }
                 }
@@ -111,19 +114,22 @@ impl XmlNode {
             } => {
                 let mut parts = Vec::new();
 
-                // 1. Attributes
+                // 1. Attributes (order preserved from document)
                 for (key, value) in attributes {
                     parts.push(format!("\"@{}\": \"{}\"", key, Self::escape_json(value)));
                 }
 
-                // 2. Group child nodes
-                let mut grouped_children: std::collections::HashMap<&str, Vec<&XmlNode>> =
-                    std::collections::HashMap::new();
+                // 2. Group children by name, preserving order of first appearance
+                let mut seen_order: Vec<&str> = Vec::new();
+                let mut grouped_children: HashMap<&str, Vec<&XmlNode>> = HashMap::new();
                 let mut text_content = Vec::new();
 
                 for child in children {
                     match child {
                         XmlNode::Element { name, .. } => {
+                            if !grouped_children.contains_key(name.as_str()) {
+                                seen_order.push(name.as_str());
+                            }
                             grouped_children
                                 .entry(name.as_str())
                                 .or_default()
@@ -133,10 +139,10 @@ impl XmlNode {
                     }
                 }
 
-                // 3. Process grouped child nodes
-                for (name, nodes) in grouped_children {
+                // 3. Process grouped child nodes in document order
+                for name in &seen_order {
+                    let nodes = &grouped_children[name];
                     if nodes.len() > 1 {
-                        // Array of elements
                         let items: Vec<String> = nodes
                             .iter()
                             .map(|n| n.to_json_recursive(depth + 2, indent_size))
@@ -152,7 +158,6 @@ impl XmlNode {
                             next_indent
                         ));
                     } else {
-                        // Single element
                         parts.push(format!(
                             "\"{}\": {}",
                             name,
@@ -164,16 +169,14 @@ impl XmlNode {
                 // 4. Text content
                 let joined_text = text_content
                     .iter()
-                    .map(|s| s.as_str()) // Convert &String to &str
+                    .map(|s| s.as_str())
                     .collect::<Vec<_>>()
                     .join(" ");
 
-                // If there is only text (no attributes and no nested elements)
                 if parts.is_empty() && !text_content.is_empty() {
                     return format!("\"{}\"", Self::escape_json(&joined_text));
                 }
 
-                // If text is mixed with elements
                 if !text_content.is_empty() {
                     parts.push(format!(
                         "\"#text\": \"{}\"",
@@ -181,7 +184,6 @@ impl XmlNode {
                     ));
                 }
 
-                // Build the final object with indentation
                 let mut result = String::from("{\n");
                 for (i, part) in parts.iter().enumerate() {
                     result.push_str(&next_indent);
@@ -198,11 +200,10 @@ impl XmlNode {
         }
     }
 
-    // Helper function for safely building JSON strings
     fn escape_json(s: &str) -> String {
-        s.replace('\\', "\\\\") // First escape the backslash itself
-            .replace('"', "\\\"") // Then escape quotes
-            .replace('\n', "\\n") // (Optional) line breaks
+        s.replace('\\', "\\\\")
+            .replace('"', "\\\"")
+            .replace('\n', "\\n")
             .replace('\r', "\\r")
             .replace('\t', "\\t")
     }
@@ -211,12 +212,11 @@ impl XmlNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
 
     fn elem(name: &str, children: Vec<XmlNode>) -> XmlNode {
         XmlNode::Element {
             name: name.to_string(),
-            attributes: HashMap::new(),
+            attributes: Vec::new(),
             children,
         }
     }
@@ -296,10 +296,27 @@ mod tests {
     }
 
     #[test]
+    fn child_order_preserved() {
+        let node = elem(
+            "root",
+            vec![
+                elem("a", vec![XmlNode::Text("1".to_string())]),
+                elem("b", vec![XmlNode::Text("2".to_string())]),
+                elem("c", vec![XmlNode::Text("3".to_string())]),
+            ],
+        );
+        let json = node.to_json();
+        let pos_a = json.find("\"a\"").unwrap();
+        let pos_b = json.find("\"b\"").unwrap();
+        let pos_c = json.find("\"c\"").unwrap();
+        assert!(pos_a < pos_b && pos_b < pos_c);
+    }
+
+    #[test]
     fn mixed_text_and_children_adds_hash_text() {
         let node = XmlNode::Element {
             name: "root".to_string(),
-            attributes: HashMap::new(),
+            attributes: Vec::new(),
             children: vec![
                 XmlNode::Text("note".to_string()),
                 elem("child", vec![]),

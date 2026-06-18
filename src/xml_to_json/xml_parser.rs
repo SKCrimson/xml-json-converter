@@ -1,6 +1,5 @@
 use crate::xml_to_json::xml_model::Token;
 use crate::xml_to_json::xml_model::XmlNode;
-use std::collections::HashMap;
 
 pub struct Parser<'a> {
     tokens: Vec<Token<'a>>,
@@ -30,7 +29,7 @@ impl<'a> Parser<'a> {
 
                     let new_node = XmlNode::Element {
                         name: name.to_string(),
-                        attributes: HashMap::new(),
+                        attributes: Vec::new(),
                         children: Vec::new(),
                     };
                     stack.push(new_node);
@@ -38,7 +37,7 @@ impl<'a> Parser<'a> {
 
                 Token::Attr(_ns, key, value) => {
                     if let Some(XmlNode::Element { attributes, .. }) = stack.last_mut() {
-                        attributes.insert(key.to_string(), value.to_string());
+                        attributes.push((key.to_string(), value.to_string()));
                     }
                 }
 
