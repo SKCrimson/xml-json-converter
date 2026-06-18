@@ -27,3 +27,70 @@ pub fn convert(xml: &str, pretty: bool) -> Result<String, &'static str> {
 
     Ok(json_output)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn simple_text_element() {
+        let result = convert("<root>hello</root>", false).unwrap();
+        assert!(result.contains("\"root\""));
+        assert!(result.contains("\"hello\""));
+    }
+
+    #[test]
+    fn element_with_attribute() {
+        let result = convert("<root id=\"42\"/>", false).unwrap();
+        assert!(result.contains("\"@id\""));
+        assert!(result.contains("\"42\""));
+    }
+
+    #[test]
+    fn nested_elements() {
+        let xml = "<root><child><value>x</value></child></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"child\""));
+        assert!(result.contains("\"value\""));
+    }
+
+    #[test]
+    fn repeated_elements_produce_array() {
+        let xml = "<root><item>a</item><item>b</item></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains('['));
+        assert!(result.contains("\"item\""));
+    }
+
+    #[test]
+    fn self_closing_child_element() {
+        let result = convert("<root><br/></root>", false).unwrap();
+        assert!(result.contains("\"br\""));
+    }
+
+    #[test]
+    fn xml_with_declaration() {
+        let xml = "<?xml version=\"1.0\"?><root><name>test</name></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"name\""));
+        assert!(result.contains("\"test\""));
+    }
+
+    #[test]
+    fn pretty_mode_contains_newlines() {
+        let result = convert("<root><child>text</child></root>", true).unwrap();
+        assert!(result.contains('\n'));
+    }
+
+    #[test]
+    fn invalid_xml_returns_error() {
+        assert!(convert("<root><unclosed>", false).is_err());
+    }
+
+    #[test]
+    fn special_chars_in_text_are_escaped_in_json() {
+        let xml = "<root>say &quot;hi&quot;</root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("root"));
+    }
+}

@@ -166,3 +166,63 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn valid_simple_xml() {
+        assert!(validate("<root><child>text</child></root>").is_ok());
+    }
+
+    #[test]
+    fn valid_with_declaration() {
+        assert!(validate("<?xml version=\"1.0\"?><root/>").is_ok());
+    }
+
+    #[test]
+    fn valid_self_closing_child() {
+        assert!(validate("<root><br/></root>").is_ok());
+    }
+
+    #[test]
+    fn valid_comment_inside() {
+        assert!(validate("<root><!-- comment --><child/></root>").is_ok());
+    }
+
+    #[test]
+    fn valid_with_attributes() {
+        assert!(validate("<root id=\"1\"><child name=\"x\"/></root>").is_ok());
+    }
+
+    #[test]
+    fn empty_document_fails() {
+        assert!(validate("").is_err());
+    }
+
+    #[test]
+    fn unclosed_tag_fails() {
+        assert!(validate("<root><child></root>").is_err());
+    }
+
+    #[test]
+    fn mismatched_closing_tag_fails() {
+        assert!(validate("<root><a></b></root>").is_err());
+    }
+
+    #[test]
+    fn unexpected_closing_tag_fails() {
+        assert!(validate("</root>").is_err());
+    }
+
+    #[test]
+    fn multiple_root_elements_fail() {
+        assert!(validate("<a/><b/>").is_err());
+    }
+
+    #[test]
+    fn tag_not_closed_at_eof_fails() {
+        assert!(validate("<root><child>text</child>").is_err());
+    }
+}

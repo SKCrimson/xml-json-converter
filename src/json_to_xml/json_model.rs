@@ -148,3 +148,100 @@ impl<'a> JsonNode<'a> {
         sanitized
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn string_val_to_xml() {
+        let node = JsonNode::StringVal("hello");
+        assert_eq!(node.to_xml(), "<root>hello</root>");
+    }
+
+    #[test]
+    fn number_to_xml() {
+        let node = JsonNode::Number(42.0);
+        let xml = node.to_xml();
+        assert!(xml.contains("<root>") && xml.contains("42") && xml.contains("</root>"));
+    }
+
+    #[test]
+    fn bool_true_to_xml() {
+        let node = JsonNode::BoolVal(true);
+        assert_eq!(node.to_xml(), "<root>true</root>");
+    }
+
+    #[test]
+    fn bool_false_to_xml() {
+        let node = JsonNode::BoolVal(false);
+        assert_eq!(node.to_xml(), "<root>false</root>");
+    }
+
+    #[test]
+    fn null_to_xml_is_self_closing() {
+        let node = JsonNode::Null;
+        assert_eq!(node.to_xml(), "<root />");
+    }
+
+    #[test]
+    fn object_key_becomes_tag() {
+        let node = JsonNode::Object(vec![("name", JsonNode::StringVal("Alice"))]);
+        let xml = node.to_xml();
+        assert!(xml.contains("<name>Alice</name>"));
+        assert!(xml.starts_with("<root>"));
+        assert!(xml.ends_with("</root>"));
+    }
+
+    #[test]
+    fn array_elements_use_item_tag() {
+        let node = JsonNode::Array(vec![JsonNode::StringVal("x"), JsonNode::StringVal("y")]);
+        let xml = node.to_xml();
+        assert!(xml.contains("<item>x</item>"));
+        assert!(xml.contains("<item>y</item>"));
+    }
+
+    #[test]
+    fn ampersand_is_escaped() {
+        let node = JsonNode::StringVal("a & b");
+        assert!(node.to_xml().contains("&amp;"));
+    }
+
+    #[test]
+    fn less_than_is_escaped() {
+        let node = JsonNode::StringVal("a < b");
+        assert!(node.to_xml().contains("&lt;"));
+    }
+
+    #[test]
+    fn greater_than_is_escaped() {
+        let node = JsonNode::StringVal("a > b");
+        assert!(node.to_xml().contains("&gt;"));
+    }
+
+    #[test]
+    fn quotes_are_escaped() {
+        let node = JsonNode::StringVal("say \"hi\"");
+        assert!(node.to_xml().contains("&quot;"));
+    }
+
+    #[test]
+    fn tag_name_spaces_replaced_with_underscore() {
+        let node = JsonNode::Object(vec![("my key", JsonNode::StringVal("v"))]);
+        let xml = node.to_xml();
+        assert!(xml.contains("<my_key>"));
+    }
+
+    #[test]
+    fn tag_name_starting_with_digit_gets_underscore_prefix() {
+        let node = JsonNode::Object(vec![("1key", JsonNode::StringVal("v"))]);
+        let xml = node.to_xml();
+        assert!(xml.contains("<_1key>"));
+    }
+
+    #[test]
+    fn pretty_xml_contains_newlines() {
+        let node = JsonNode::Object(vec![("a", JsonNode::StringVal("b"))]);
+        assert!(node.to_pretty_xml(4).contains('\n'));
+    }
+}

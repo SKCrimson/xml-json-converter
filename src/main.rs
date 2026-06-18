@@ -1,7 +1,7 @@
 use std::env;
 use std::fs;
+use std::path::Path;
 use std::process;
-use std::io::{self, Read};
 
 mod json_to_xml;
 mod json_validation;
@@ -12,8 +12,13 @@ mod xml_validation;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
+    let exe_name = Path::new(&args[0])
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("xml-json-converter");
+
     if args.len() < 2 || args.contains(&"--help".to_string()) || args.contains(&"-h".to_string()) {
-        print_help();
+        print_help(exe_name);
         return;
     }
 
@@ -93,41 +98,32 @@ fn get_xml(file_path: &str, pretty: bool) {
     println!("Successfully saved to: {}", save_file_path);
 }
 
-fn print_help() {
-    let help_text = r#"
-XML-JSON Converter CLI
-A high-performance, zero-copy tool for converting between XML and JSON formats.
-
-USAGE:
-    xml-json-converter.exe <FILE_PATH> [OPTIONS]
-
-ARGUMENTS:
-    <FILE_PATH>    Path to the source file (.xml or .json).
-                   The application automatically detects the format based 
-                   on the file extension.
-
-OPTIONS:
-    --pretty 
-       or 
-    -p             Enable human-readable output with proper indentation 
-                   and line breaks. If omitted, the output will be minified.
-
-EXAMPLES:
-    1. Basic conversion (minified):
-       xml-json-converter.exe C:\data\example.xml
-
-    2. Pretty-print conversion (human-readable):
-       xml-json-converter.exe C:\data\example.json --pretty
-    or
-       xml-json-converter.exe C:\data\example.json -p
-
-NOTES:
-    - XML to JSON: Attributes are prefixed with '@' and text nodes with '#text'.
-    - JSON to XML: The root object is wrapped in a <root> tag by default.
-"#;
-
-    println!("{}", help_text);
-
-    println!("Press any key...");
-    let _ = io::stdin().read(&mut [0u8]);
+fn print_help(exe_name: &str) {
+    println!("XML-JSON Converter");
+    println!("Converts between XML and JSON formats.");
+    println!();
+    println!("USAGE:");
+    println!("    {} <FILE_PATH> [OPTIONS]", exe_name);
+    println!();
+    println!("ARGUMENTS:");
+    println!("    <FILE_PATH>    Path to the source file (.xml or .json).");
+    println!("                   Format is detected automatically from the extension.");
+    println!();
+    println!("OPTIONS:");
+    println!("    -p, --pretty   Format output with indentation and line breaks.");
+    println!("    -h, --help     Print this help message.");
+    println!();
+    println!("OUTPUT:");
+    println!("    The result is written next to the source file:");
+    println!("      input.xml   ->  input-result.json");
+    println!("      input.json  ->  input-result.xml");
+    println!();
+    println!("EXAMPLES:");
+    println!("    {} C:\\data\\example.xml", exe_name);
+    println!("    {} C:\\data\\example.json --pretty", exe_name);
+    println!("    {} C:\\data\\example.json -p", exe_name);
+    println!();
+    println!("NOTES:");
+    println!("    XML -> JSON: attributes are prefixed with '@', text nodes with '#text'.");
+    println!("    JSON -> XML: the root object becomes the <root> element.");
 }

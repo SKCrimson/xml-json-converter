@@ -1,12 +1,13 @@
 use std::fs;
 
 // State: what are we expecting?
-// Value, Key, Colon, CommaOrEnd
 #[derive(PartialEq)]
 enum Expect {
     Any,
-    Key,
-    Value,
+    Key,           // Just after '{' — empty object is OK
+    Value,         // Just after '[' or ':' — empty array is OK
+    KeyAfterComma, // After ',' in object — must have a key (trailing comma not OK)
+    ValueAfterComma, // After ',' in array — must have a value (trailing comma not OK)
     Colon,
     CommaOrClose,
 }
@@ -67,28 +68,20 @@ fn is_well_formed(json: &str) -> Result<(), String> {
         match c {
             '{' => {
                 stack.push('{');
+                // Key = fresh open, empty object is allowed
                 expect = Expect::Key;
-                if let Some(&(nc, _, _)) = chars.peek() {
-                    if nc == '}' {
-                        expect = Expect::CommaOrClose;
-                    }
-                }
             }
             '[' => {
                 stack.push('[');
+                // Value = fresh open, empty array is allowed
                 expect = Expect::Value;
-                if let Some(&(nc, _, _)) = chars.peek() {
-                    if nc == ']' {
-                        expect = Expect::CommaOrClose;
-                    }
-                }
             }
             '}' | ']' => {
-                // Check: can we close now?
-                // We can close if we expected CommaOrClose OR if this is an empty container (Value/Key)
+                // Allowed after fresh open (Key/Value) or after a value (CommaOrClose).
+                // NOT allowed after comma (KeyAfterComma/ValueAfterComma = trailing comma).
                 if expect != Expect::CommaOrClose
-                    && expect != Expect::Value
                     && expect != Expect::Key
+                    && expect != Expect::Value
                 {
                     return Err(format!(
                         "Unexpected closing '{}' at line {}, col {}",
@@ -115,25 +108,39 @@ fn is_well_formed(json: &str) -> Result<(), String> {
                 if expect != Expect::CommaOrClose {
                     return Err(format!("Unexpected ',' at line {}, col {}", l, c_pos));
                 }
+                // After comma: require a real key or value (closing bracket not allowed)
                 expect = if stack.last() == Some(&'{') {
-                    Expect::Key
+                    Expect::KeyAfterComma
                 } else {
-                    Expect::Value
+                    Expect::ValueAfterComma
                 };
             }
             '"' => {
+                let is_key = expect == Expect::Key || expect == Expect::KeyAfterComma;
+                let is_value = expect == Expect::Value
+                    || expect == Expect::ValueAfterComma
+                    || expect == Expect::Any;
+                if !is_key && !is_value {
+                    return Err(format!(
+                        "Unexpected string at line {}, col {}",
+                        l, c_pos
+                    ));
+                }
                 // Pass the iterator to consume_string
                 consume_string(&mut chars)
                     .map_err(|e| format!("{} near line {}, col {}", e, l, c_pos))?;
 
-                if expect == Expect::Key {
+                if is_key {
                     expect = Expect::Colon;
                 } else {
                     expect = Expect::CommaOrClose;
                 }
             }
             _ => {
-                if expect == Expect::Value {
+                if expect == Expect::Value
+                    || expect == Expect::ValueAfterComma
+                    || expect == Expect::Any
+                {
                     consume_literal(c, &mut chars)
                         .map_err(|e| format!("{} near line {}, col {}", e, l, c_pos))?;
                     expect = Expect::CommaOrClose;
@@ -151,6 +158,71 @@ fn is_well_formed(json: &str) -> Result<(), String> {
         return Err("Unexpected EOF: unclosed structures".into());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn valid_object() {
+        assert!(validate("{\"key\": \"value\"}").is_ok());
+    }
+
+    #[test]
+    fn valid_array() {
+        assert!(validate("[1, 2, 3]").is_ok());
+    }
+
+    #[test]
+    fn valid_empty_object() {
+        assert!(validate("{}").is_ok());
+    }
+
+    #[test]
+    fn valid_empty_array() {
+        assert!(validate("[]").is_ok());
+    }
+
+    #[test]
+    fn valid_nested_structures() {
+        assert!(validate("{\"a\": {\"b\": [1, true, null]}}").is_ok());
+    }
+
+    #[test]
+    fn valid_all_scalar_types() {
+        assert!(validate("{\"s\": \"str\", \"n\": 42, \"b\": true, \"f\": false, \"z\": null}").is_ok());
+    }
+
+    #[test]
+    fn unclosed_brace_fails() {
+        assert!(validate("{\"key\": \"value\"").is_err());
+    }
+
+    #[test]
+    fn unclosed_bracket_fails() {
+        assert!(validate("[1, 2").is_err());
+    }
+
+    #[test]
+    fn missing_colon_fails() {
+        assert!(validate("{\"key\" \"value\"}").is_err());
+    }
+
+    #[test]
+    fn double_comma_fails() {
+        assert!(validate("[1,, 2]").is_err());
+    }
+
+    #[test]
+    fn mismatched_brackets_fail() {
+        assert!(validate("[1, 2}").is_err());
+    }
+
+    #[test]
+    fn trailing_comma_in_object_fails() {
+        assert!(validate("{\"a\": 1,}").is_err());
+    }
 }
 
 fn consume_string<I>(chars: &mut std::iter::Peekable<I>) -> Result<String, String>

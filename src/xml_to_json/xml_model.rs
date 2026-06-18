@@ -207,3 +207,121 @@ impl XmlNode {
             .replace('\t', "\\t")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    fn elem(name: &str, children: Vec<XmlNode>) -> XmlNode {
+        XmlNode::Element {
+            name: name.to_string(),
+            attributes: HashMap::new(),
+            children,
+        }
+    }
+
+    fn elem_attr(name: &str, attrs: &[(&str, &str)]) -> XmlNode {
+        let attributes = attrs
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
+        XmlNode::Element {
+            name: name.to_string(),
+            attributes,
+            children: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn text_node_to_json() {
+        let node = XmlNode::Text("hello".to_string());
+        assert_eq!(node.to_json(), "\"hello\"");
+    }
+
+    #[test]
+    fn text_node_escapes_quotes() {
+        let node = XmlNode::Text("say \"hi\"".to_string());
+        let json = node.to_json();
+        assert!(json.contains("\\\""));
+    }
+
+    #[test]
+    fn text_node_escapes_backslash() {
+        let node = XmlNode::Text("C:\\path".to_string());
+        let json = node.to_json();
+        assert!(json.contains("\\\\"));
+    }
+
+    #[test]
+    fn element_with_only_text_returns_string() {
+        let node = elem("root", vec![XmlNode::Text("value".to_string())]);
+        assert_eq!(node.to_json(), "\"value\"");
+    }
+
+    #[test]
+    fn element_with_attribute_has_at_prefix() {
+        let node = elem_attr("root", &[("id", "1")]);
+        let json = node.to_json();
+        assert!(json.contains("\"@id\": \"1\""));
+    }
+
+    #[test]
+    fn repeated_children_produce_array() {
+        let node = elem(
+            "root",
+            vec![
+                elem("item", vec![XmlNode::Text("a".to_string())]),
+                elem("item", vec![XmlNode::Text("b".to_string())]),
+            ],
+        );
+        let json = node.to_json();
+        assert!(json.contains('['));
+        assert!(json.contains("\"item\""));
+    }
+
+    #[test]
+    fn unique_children_produce_object_keys() {
+        let node = elem(
+            "root",
+            vec![
+                elem("a", vec![XmlNode::Text("1".to_string())]),
+                elem("b", vec![XmlNode::Text("2".to_string())]),
+            ],
+        );
+        let json = node.to_json();
+        assert!(json.contains("\"a\""));
+        assert!(json.contains("\"b\""));
+        assert!(!json.contains('['));
+    }
+
+    #[test]
+    fn mixed_text_and_children_adds_hash_text() {
+        let node = XmlNode::Element {
+            name: "root".to_string(),
+            attributes: HashMap::new(),
+            children: vec![
+                XmlNode::Text("note".to_string()),
+                elem("child", vec![]),
+            ],
+        };
+        let json = node.to_json();
+        assert!(json.contains("\"#text\""));
+        assert!(json.contains("\"note\""));
+    }
+
+    #[test]
+    fn pretty_json_contains_newlines() {
+        let node = elem("root", vec![elem("child", vec![XmlNode::Text("x".to_string())])]);
+        let pretty = node.to_pretty_json(4);
+        assert!(pretty.contains('\n'));
+    }
+
+    #[test]
+    fn empty_element_produces_empty_object() {
+        let node = elem("root", vec![]);
+        let json = node.to_json();
+        assert!(json.contains('{'));
+        assert!(json.contains('}'));
+    }
+}
