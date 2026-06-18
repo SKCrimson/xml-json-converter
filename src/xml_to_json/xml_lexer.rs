@@ -3,7 +3,8 @@ use crate::xml_to_json::xml_model::Token;
 pub struct Lexer<'a> {
     input: &'a str,
     cursor: usize,
-    in_tag: bool, // State: whether we are inside angle brackets
+    in_tag: bool,
+    error: Option<&'static str>,
 }
 
 impl<'a> Lexer<'a> {
@@ -12,6 +13,7 @@ impl<'a> Lexer<'a> {
             input,
             cursor: 0,
             in_tag: false,
+            error: None,
         }
     }
 
@@ -30,8 +32,10 @@ impl<'a> Lexer<'a> {
             tokens.push(token);
         }
 
-        // Basic check: if we reached the end but are still "inside a tag",
-        // then the XML is truncated (for example, "<root ")
+        if let Some(err) = self.error {
+            return Err(err);
+        }
+
         if self.in_tag {
             return Err("Unexpected end of input: tag not closed");
         }
@@ -54,80 +58,85 @@ impl<'a> Lexer<'a> {
     }
 
     fn next_token(&mut self) -> Option<Token<'a>> {
-        let rest = self.remaining().trim_start();
-        if rest.is_empty() {
-            return None;
-        }
-
-        let diff = self.remaining().len() - rest.len();
-        self.advance(diff);
-        let rest = self.remaining();
-
-        if !self.in_tag {
-            if rest.starts_with("</") {
-                // ... (closing tag logic unchanged)
-                let end = rest.find('>')?;
-                let name = &rest[2..end];
-                self.advance(end + 1);
-                Some(Token::TagClose(name))
-            } else if rest.starts_with("<?") {
-                // Special handling for the <?xml declaration
-                self.in_tag = true;
-                let end = rest[2..]
-                    .find(|c: char| c.is_whitespace() || c == '?')
-                    .map(|i| i + 2)
-                    .unwrap_or(rest.len());
-                let name = &rest[1..end]; // keep "?" in the name for distinction
-                self.advance(end);
-                Some(Token::TagOpen(name))
-            } else if rest.starts_with("<!--") {
-                // Special handling for comments <!--
-                let end = rest.find("-->")?;
-                self.advance(end + 3);
-                Some(Token::EmptyTag)
-            } else if rest.starts_with("<!") {
-                // Skip <!DOCTYPE> and similar declarations to the closing >
-                let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
-                self.advance(end);
-                Some(Token::EmptyTag)
-            } else if rest.starts_with('<') {
-                self.in_tag = true;
-                let end = rest[1..]
-                    .find(|c: char| c.is_whitespace() || c == '>' || c == '/')
-                    .map(|i| i + 1)
-                    .unwrap_or(rest.len());
-                let name = &rest[1..end];
-                self.advance(end);
-                Some(Token::TagOpen(name))
-            } else {
-                // ... (text logic unchanged)
-                let end = rest.find('<').unwrap_or(rest.len());
-                let text = &rest[..end];
-                self.advance(end);
-                let trimmed = text.trim();
-                if trimmed.is_empty() {
-                    self.next_token()
-                } else {
-                    Some(Token::Text(trimmed))
-                }
+        loop {
+            let rest = self.remaining().trim_start();
+            if rest.is_empty() {
+                return None;
             }
-        } else {
-            // Inside a tag
-            if rest.starts_with("?>") {
-                // Closing the declaration
-                self.in_tag = false;
-                self.advance(2);
-                Some(Token::TagEnd)
-            } else if rest.starts_with("/>") {
-                self.in_tag = false;
-                self.advance(2);
-                Some(Token::TagSelfClose)
-            } else if rest.starts_with('>') {
-                self.in_tag = false;
-                self.advance(1);
-                Some(Token::TagEnd)
+
+            let diff = self.remaining().len() - rest.len();
+            self.advance(diff);
+            let rest = self.remaining();
+
+            if !self.in_tag {
+                if rest.starts_with("</") {
+                    let end = rest.find('>')?;
+                    let name = &rest[2..end];
+                    self.advance(end + 1);
+                    return Some(Token::TagClose(name));
+                } else if rest.starts_with("<?") {
+                    // Special handling for the <?xml declaration
+                    self.in_tag = true;
+                    let end = rest[2..]
+                        .find(|c: char| c.is_whitespace() || c == '?')
+                        .map(|i| i + 2)
+                        .unwrap_or(rest.len());
+                    let name = &rest[1..end]; // keep "?" in the name for distinction
+                    self.advance(end);
+                    return Some(Token::TagOpen(name));
+                } else if rest.starts_with("<!--") {
+                    match rest.find("-->") {
+                        Some(end) => {
+                            self.advance(end + 3);
+                            return Some(Token::EmptyTag);
+                        }
+                        None => {
+                            self.error = Some("Unclosed comment");
+                            return None;
+                        }
+                    }
+                } else if rest.starts_with("<!") {
+                    // Skip <!DOCTYPE> and similar declarations to the closing >
+                    let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
+                    self.advance(end);
+                    return Some(Token::EmptyTag);
+                } else if rest.starts_with('<') {
+                    self.in_tag = true;
+                    let end = rest[1..]
+                        .find(|c: char| c.is_whitespace() || c == '>' || c == '/')
+                        .map(|i| i + 1)
+                        .unwrap_or(rest.len());
+                    let name = &rest[1..end];
+                    self.advance(end);
+                    return Some(Token::TagOpen(name));
+                } else {
+                    let end = rest.find('<').unwrap_or(rest.len());
+                    let text = &rest[..end];
+                    self.advance(end);
+                    let trimmed = text.trim();
+                    if trimmed.is_empty() {
+                        continue;
+                    }
+                    return Some(Token::Text(trimmed));
+                }
             } else {
-                self.parse_attribute(rest)
+                // Inside a tag
+                if rest.starts_with("?>") {
+                    // Closing the declaration
+                    self.in_tag = false;
+                    self.advance(2);
+                    return Some(Token::TagEnd);
+                } else if rest.starts_with("/>") {
+                    self.in_tag = false;
+                    self.advance(2);
+                    return Some(Token::TagSelfClose);
+                } else if rest.starts_with('>') {
+                    self.in_tag = false;
+                    self.advance(1);
+                    return Some(Token::TagEnd);
+                } else {
+                    return self.parse_attribute(rest);
+                }
             }
         }
     }

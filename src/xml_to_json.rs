@@ -94,6 +94,18 @@ mod tests {
     }
 
     #[test]
+    fn unclosed_comment_returns_error() {
+        assert!(convert("<root><!-- no close</root>", false).is_err());
+    }
+
+    #[test]
+    fn closed_comment_is_valid() {
+        let result = convert("<root><!-- comment --><child>x</child></root>", false);
+        assert!(result.is_ok());
+        assert!(result.unwrap().contains("\"child\""));
+    }
+
+    #[test]
     fn special_chars_in_text_are_escaped_in_json() {
         let xml = "<root>say &quot;hi&quot;</root>";
         let result = convert(xml, false).unwrap();
