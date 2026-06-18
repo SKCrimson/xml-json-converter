@@ -17,28 +17,26 @@ impl Params {
 
         let file_path: String = args[1].clone();
         let path = Path::new(&file_path);
-        let mut extension: String = "".to_string();
+        let extension: String;
         let mut command: String = "".to_string();
         let mut output_name: Option<String> = None;
 
-        if path.exists() && path.is_file() {
-            if let Some(ext) = path.extension() {
-                if let Some(ext_str) = ext.to_str() {
-                    if ext_str.eq_ignore_ascii_case("xml") {
-                        extension = ext_str.to_string();
-                    } else if ext_str.eq_ignore_ascii_case("json") {
-                        extension = ext_str.to_string();
-                    } else {
-                        return Err("Unsupported file type. Please provide XML or JSON file.");
-                    }
+        if !path.exists() || !path.is_file() {
+            return Err("File not found. Please provide a valid file path.");
+        }
+
+        if let Some(ext) = path.extension() {
+            if let Some(ext_str) = ext.to_str() {
+                if ext_str.eq_ignore_ascii_case("xml") || ext_str.eq_ignore_ascii_case("json") {
+                    extension = ext_str.to_string();
                 } else {
-                    return Err("Failed to read the file extension. Please provide a valid file.");
+                    return Err("Unsupported file type. Please provide XML or JSON file.");
                 }
             } else {
-                return Err(
-                    "Provided file path does not exist or is not a file. Please provide a valid file path.",
-                );
+                return Err("Failed to read the file extension. Please provide a valid file.");
             }
+        } else {
+            return Err("File has no extension. Please provide an XML or JSON file.");
         }
 
         let mut i = 2;

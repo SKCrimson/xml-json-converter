@@ -89,7 +89,7 @@ impl<'a> JsonNode<'a> {
                     inner.push_str(&val.to_xml_recursive(key, depth + 1, indent_size));
                 }
                 format!(
-                    "{}<{}>{} \n{}</{}>",
+                    "{}<{}>{}\n{}</{}>",
                     indent, safe_label, inner, indent, safe_label
                 )
             }
@@ -100,7 +100,7 @@ impl<'a> JsonNode<'a> {
                     inner.push_str(&el.to_xml_recursive("item", depth + 1, indent_size));
                 }
                 format!(
-                    "{}<{}>{} \n{}</{}>",
+                    "{}<{}>{}\n{}</{}>",
                     indent, safe_label, inner, indent, safe_label
                 )
             }
