@@ -21,6 +21,9 @@ impl<'a> Parser<'a> {
 
             match token {
                 Token::TagOpen(name) => {
+                    if stack.is_empty() && root.is_some() {
+                        return Err(format!("Second root element <{}>", name));
+                    }
                     let new_node = XmlNode::Element {
                         name: name.to_string(),
                         attributes: Vec::new(),

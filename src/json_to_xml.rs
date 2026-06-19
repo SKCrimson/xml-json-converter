@@ -84,10 +84,10 @@ mod tests {
     }
 
     #[test]
-    fn less_than_greater_than_escaped() {
+    fn less_than_escaped_greater_than_literal() {
         let result = convert("{\"expr\": \"1 < 2 > 0\"}", false).unwrap();
         assert!(result.contains("&lt;"));
-        assert!(result.contains("&gt;"));
+        assert!(result.contains("> 0"));
     }
 
     #[test]
@@ -99,6 +99,31 @@ mod tests {
     #[test]
     fn invalid_json_returns_error() {
         assert!(convert("{unclosed", false).is_err());
+    }
+
+    #[test]
+    fn double_comma_returns_error() {
+        assert!(convert("[1,, 2]", false).is_err());
+    }
+
+    #[test]
+    fn mismatched_brackets_return_error() {
+        assert!(convert("[1, 2}", false).is_err());
+    }
+
+    #[test]
+    fn trailing_comma_returns_error() {
+        assert!(convert("{\"a\": 1,}", false).is_err());
+    }
+
+    #[test]
+    fn invalid_keyword_literal_returns_error() {
+        assert!(convert("{\"x\": treu}", false).is_err());
+    }
+
+    #[test]
+    fn invalid_number_literal_returns_error() {
+        assert!(convert("{\"x\": 1.2.3}", false).is_err());
     }
 
     #[test]
@@ -123,7 +148,7 @@ mod tests {
     #[test]
     fn escaped_quote_in_string_decoded() {
         let result = convert(r#"{"msg": "say \"hi\""}"#, false).unwrap();
-        assert!(result.contains("<msg>say &quot;hi&quot;</msg>"), "got: {}", result);
+        assert!(result.contains("<msg>say \"hi\"</msg>"), "got: {}", result);
     }
 
     #[test]

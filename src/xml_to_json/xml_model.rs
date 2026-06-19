@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 const MAX_DEPTH: usize = 512;
 
 #[derive(Debug, PartialEq)]
@@ -50,14 +52,16 @@ impl XmlNode {
 
                 // 2. Group children by name, preserving order of first appearance
                 let mut groups: Vec<(&str, Vec<&XmlNode>)> = Vec::new();
+                let mut group_index: HashMap<&str, usize> = HashMap::new();
                 let mut text_content: Vec<&String> = Vec::new();
 
                 for child in children {
                     match child {
                         XmlNode::Element { name, .. } => {
-                            if let Some(entry) = groups.iter_mut().find(|(n, _)| *n == name.as_str()) {
-                                entry.1.push(child);
+                            if let Some(&idx) = group_index.get(name.as_str()) {
+                                groups[idx].1.push(child);
                             } else {
+                                group_index.insert(name.as_str(), groups.len());
                                 groups.push((name.as_str(), vec![child]));
                             }
                         }
@@ -91,13 +95,21 @@ impl XmlNode {
                     }
                 }
 
-                // 4. Text content
-                let joined = text_content.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("");
+                // 4. Text content — when element children are present, whitespace-only
+                // runs are formatting noise (indentation); drop them. When there are no
+                // element children, whitespace IS the content and must be kept.
+                let effective_text: Vec<&String> = if groups.is_empty() {
+                    text_content.clone()
+                } else {
+                    text_content.iter().filter(|t| !t.trim().is_empty()).copied().collect()
+                };
 
-                if parts.is_empty() && !text_content.is_empty() {
+                let joined = effective_text.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("");
+
+                if parts.is_empty() && !effective_text.is_empty() {
                     return Ok(format!("\"{}\"", Self::escape_json(&joined)));
                 }
-                if !text_content.is_empty() {
+                if !effective_text.is_empty() {
                     parts.push(format!("\"#text\": \"{}\"", Self::escape_json(&joined)));
                 }
 

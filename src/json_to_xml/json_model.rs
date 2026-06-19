@@ -81,12 +81,9 @@ fn escape_xml_text(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
     for c in text.chars() {
         match c {
-            '&'  => out.push_str("&amp;"),
-            '<'  => out.push_str("&lt;"),
-            '>'  => out.push_str("&gt;"),
-            '"'  => out.push_str("&quot;"),
-            '\'' => out.push_str("&apos;"),
-            c    => out.push(c),
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            c   => out.push(c),
         }
     }
     out
@@ -97,7 +94,7 @@ fn sanitize_tag_name(name: &str) -> String {
         return "_".to_string();
     }
 
-    let is_valid = |c: char| c.is_alphanumeric() || c == '_' || c == '-';
+    let is_valid = |c: char| c.is_alphanumeric() || c == '_' || c == '-' || c == '.' || c == ':';
 
     let mut sanitized = if name.chars().all(is_valid) {
         name.to_string()
@@ -105,9 +102,9 @@ fn sanitize_tag_name(name: &str) -> String {
         name.replace(|c: char| !is_valid(c), "_")
     };
 
-    // An XML tag cannot start with a digit or '-'
+    // An XML tag cannot start with a digit, '-', or '.'
     if let Some(first) = sanitized.chars().next() {
-        if first.is_numeric() || first == '-' {
+        if first.is_numeric() || first == '-' || first == '.' {
             sanitized.insert(0, '_');
         }
     }
@@ -203,15 +200,15 @@ mod tests {
     }
 
     #[test]
-    fn greater_than_is_escaped() {
+    fn greater_than_is_literal_in_text() {
         let node = JsonNode::StringVal("a > b".to_string());
-        assert!(node.to_xml().unwrap().contains("&gt;"));
+        assert!(node.to_xml().unwrap().contains("a > b"));
     }
 
     #[test]
-    fn quotes_are_escaped() {
+    fn quotes_are_literal_in_text() {
         let node = JsonNode::StringVal("say \"hi\"".to_string());
-        assert!(node.to_xml().unwrap().contains("&quot;"));
+        assert!(node.to_xml().unwrap().contains("say \"hi\""));
     }
 
     #[test]
@@ -275,5 +272,35 @@ mod tests {
         let node = JsonNode::Object(vec![("".to_string(), JsonNode::Null)]);
         let xml = node.to_xml().unwrap();
         assert!(!xml.contains("<>"), "empty tag name leaked: {}", xml);
+    }
+
+    #[test]
+    fn tag_name_with_dot_in_middle_is_preserved() {
+        let node = JsonNode::Object(vec![("my.class".to_string(), JsonNode::StringVal("v".to_string()))]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<my.class>"), "got: {}", xml);
+    }
+
+    #[test]
+    fn tag_name_starting_with_dot_gets_underscore_prefix() {
+        let node = JsonNode::Object(vec![(".hidden".to_string(), JsonNode::StringVal("v".to_string()))]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<_.hidden>"), "got: {}", xml);
+    }
+
+    #[test]
+    fn tag_name_with_namespace_prefix_preserved() {
+        let node = JsonNode::Object(vec![("xsi:type".to_string(), JsonNode::StringVal("xs:string".to_string()))]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<xsi:type>"), "got: {}", xml);
+    }
+
+    #[test]
+    fn at_prefix_from_xml_attr_becomes_underscore_colon_preserved() {
+        // "@xsi:type" key (from XML→JSON round-trip): '@' → '_', ':' preserved
+        let node = JsonNode::Object(vec![("@xsi:type".to_string(), JsonNode::StringVal("xs:string".to_string()))]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<_xsi:type>"), "got: {}", xml);
+        assert!(!xml.contains("<_xsi_type>"), "colon was incorrectly replaced: {}", xml);
     }
 }

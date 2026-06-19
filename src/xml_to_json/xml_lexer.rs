@@ -193,11 +193,10 @@ impl<'a> Lexer<'a> {
                 self.advance(end);
                 return Some(Token::TagOpen(name));
             } else {
-                // Text content: skip whitespace-only nodes, preserve the rest as-is
                 let end = rest.find('<').unwrap_or(rest.len());
                 let text = &rest[..end];
                 self.advance(end);
-                if text.trim().is_empty() {
+                if text.is_empty() {
                     continue;
                 }
                 return Some(Token::Text(decode_entities(text)));

@@ -4,11 +4,9 @@ use std::path::Path;
 use std::process;
 
 mod json_to_xml;
-mod json_validation;
 mod params;
 mod utils;
 mod xml_to_json;
-mod xml_validation;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -34,11 +32,11 @@ fn main() {
     match params.extension.as_str() {
         "xml" => run_conversion(
             &params.file_path, params.pretty, params.output_name.as_deref(),
-            "json", xml_validation::get_content, xml_to_json::convert,
+            "json", utils::read_file, xml_to_json::convert,
         ),
         "json" => run_conversion(
             &params.file_path, params.pretty, params.output_name.as_deref(),
-            "xml", json_validation::get_content, json_to_xml::convert,
+            "xml", utils::read_file, json_to_xml::convert,
         ),
         _ => {
             eprintln!("Unsupported file type. Please provide XML or JSON file.");

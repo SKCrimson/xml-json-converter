@@ -9,16 +9,15 @@ pub fn convert(xml: &str, pretty: bool) -> Result<String, String> {
     let tokens = lexer.tokenize()?;
     let root_node = xml_parser::Parser::new(tokens).parse()?;
 
-    let json_output = if let XmlNode::Element { name, .. } = &root_node {
-        if pretty {
-            format!("{{\n    \"{}\": {}\n}}", name, root_node.to_pretty_json_at(1, 4)?)
-        } else {
-            format!("{{ \"{}\": {} }}", name, root_node.to_json()?)
-        }
-    } else if pretty {
-        root_node.to_pretty_json(4)?
+    let name = match &root_node {
+        XmlNode::Element { name, .. } => name.as_str(),
+        XmlNode::Text(_) => unreachable!("parser always yields an Element as root"),
+    };
+
+    let json_output = if pretty {
+        format!("{{\n    \"{}\": {}\n}}", name, root_node.to_pretty_json_at(1, 4)?)
     } else {
-        root_node.to_json()?
+        format!("{{ \"{}\": {} }}", name, root_node.to_json()?)
     };
 
     Ok(json_output)
@@ -270,12 +269,19 @@ mod tests {
 
     #[test]
     fn whitespace_only_between_elements_is_skipped() {
-        // Indentation/newlines between sibling tags are not text nodes
+        // Indentation/newlines between sibling tags are formatting noise, not content
         let xml = "<root>\n    <a>1</a>\n    <b>2</b>\n</root>";
         let result = convert(xml, false).unwrap();
         assert!(result.contains("\"a\""), "got: {}", result);
         assert!(result.contains("\"b\""), "got: {}", result);
         assert!(!result.contains("\\n"), "got: {}", result);
+    }
+
+    #[test]
+    fn whitespace_only_text_content_preserved() {
+        // Whitespace is the only content — must not be silently dropped
+        let result = convert("<root>  </root>", false).unwrap();
+        assert!(result.contains("\"  \""), "got: {}", result);
     }
 
     #[test]
@@ -304,8 +310,49 @@ mod tests {
     }
 
     #[test]
+    fn multiple_root_elements_return_error() {
+        assert!(convert("<a/><b/>", false).is_err());
+        assert!(convert("<a></a><b></b>", false).is_err());
+    }
+
+    #[test]
+    fn stray_closing_tag_returns_error() {
+        assert!(convert("</root>", false).is_err());
+    }
+
+    #[test]
+    fn unclosed_comment_after_root_returns_error() {
+        assert!(convert("<root><child/></root><!-- unclosed", false).is_err());
+    }
+
+    #[test]
+    fn greater_than_in_double_quoted_attr_is_valid() {
+        assert!(convert("<root attr=\"1>0\"/>", false).is_ok());
+    }
+
+    #[test]
+    fn greater_than_in_single_quoted_attr_is_valid() {
+        assert!(convert("<root attr='1>0'/>", false).is_ok());
+    }
+
+    #[test]
+    fn greater_than_in_attr_with_children_is_valid() {
+        assert!(convert("<root><item href=\"a>b\"/></root>", false).is_ok());
+    }
+
+    #[test]
+    fn multiple_attrs_with_greater_than_are_valid() {
+        assert!(convert("<root x=\"1>2\" y=\"3>4\"/>", false).is_ok());
+    }
+
+    #[test]
+    fn processing_instruction_with_gt_is_valid() {
+        assert!(convert("<?pi foo=\"1>2\"?><root/>", false).is_ok());
+    }
+
+    #[test]
     fn mixed_content_text_nodes_concatenated_without_extra_space() {
-        // text "a " and " b" must join as "a  b", not "a   b"
+        // "a " (before <child/>) + "  b" (after) = "a   b" — joined without inserting extra space
         let xml = "<root>a <child/>  b</root>";
         let result = convert(xml, false).unwrap();
         assert!(result.contains("a   b"), "got: {}", result);
