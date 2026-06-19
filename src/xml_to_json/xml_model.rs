@@ -10,6 +10,7 @@ pub enum Token<'a> {
     TagEnd,                                  // >
     TagSelfClose,                            // />
     EmptyTag,                                //
+    Declaration,                             // <?...?>
     Text(&'a str),                           // content
 }
 

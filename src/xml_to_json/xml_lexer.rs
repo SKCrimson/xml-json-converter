@@ -75,15 +75,16 @@ impl<'a> Lexer<'a> {
                     self.advance(end + 1);
                     return Some(Token::TagClose(name));
                 } else if rest.starts_with("<?") {
-                    // Special handling for the <?xml declaration
-                    self.in_tag = true;
-                    let end = rest[2..]
-                        .find(|c: char| c.is_whitespace() || c == '?')
-                        .map(|i| i + 2)
-                        .unwrap_or(rest.len());
-                    let name = &rest[1..end]; // keep "?" in the name for distinction
-                    self.advance(end);
-                    return Some(Token::TagOpen(name));
+                    match rest.find("?>") {
+                        Some(end) => {
+                            self.advance(end + 2);
+                            return Some(Token::Declaration);
+                        }
+                        None => {
+                            self.error = Some("Unclosed processing instruction".to_string());
+                            return None;
+                        }
+                    }
                 } else if rest.starts_with("<!--") {
                     match rest.find("-->") {
                         Some(end) => {
@@ -121,12 +122,7 @@ impl<'a> Lexer<'a> {
                 }
             } else {
                 // Inside a tag
-                if rest.starts_with("?>") {
-                    // Closing the declaration
-                    self.in_tag = false;
-                    self.advance(2);
-                    return Some(Token::TagEnd);
-                } else if rest.starts_with("/>") {
+                if rest.starts_with("/>") {
                     self.in_tag = false;
                     self.advance(2);
                     return Some(Token::TagSelfClose);

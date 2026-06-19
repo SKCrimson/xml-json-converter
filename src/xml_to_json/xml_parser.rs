@@ -21,12 +21,6 @@ impl<'a> Parser<'a> {
 
             match token {
                 Token::TagOpen(name) => {
-                    // Ignore declarations like <?xml ... ?>
-                    if name.starts_with('?') {
-                        self.skip_until_tag_end();
-                        continue;
-                    }
-
                     let new_node = XmlNode::Element {
                         name: name.to_string(),
                         attributes: Vec::new(),
@@ -35,9 +29,15 @@ impl<'a> Parser<'a> {
                     stack.push(new_node);
                 }
 
-                Token::Attr(_ns, key, value) => {
+                Token::Declaration => {}
+
+                Token::Attr(ns, key, value) => {
                     if let Some(XmlNode::Element { attributes, .. }) = stack.last_mut() {
-                        attributes.push((key.to_string(), value.to_string()));
+                        let attr_key = match ns {
+                            Some(prefix) => format!("{}:{}", prefix, key),
+                            None => key.to_string(),
+                        };
+                        attributes.push((attr_key, value.to_string()));
                     }
                 }
 
@@ -80,15 +80,5 @@ impl<'a> Parser<'a> {
         }
 
         root.ok_or_else(|| "Empty XML document".to_string())
-    }
-
-    fn skip_until_tag_end(&mut self) {
-        while self.pos < self.tokens.len() {
-            if let Token::TagEnd = self.tokens[self.pos] {
-                self.pos += 1;
-                break;
-            }
-            self.pos += 1;
-        }
     }
 }

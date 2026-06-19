@@ -75,6 +75,19 @@ mod tests {
     }
 
     #[test]
+    fn non_xml_processing_instruction_is_skipped() {
+        let xml = "<?custom-pi some data?><root><val>x</val></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"val\""));
+        assert!(!result.contains("custom-pi"));
+    }
+
+    #[test]
+    fn unclosed_processing_instruction_returns_error() {
+        assert!(convert("<?xml version=\"1.0\"<root/>", false).is_err());
+    }
+
+    #[test]
     fn pretty_mode_contains_newlines() {
         let result = convert("<root><child>text</child></root>", true).unwrap();
         assert!(result.contains('\n'));
@@ -142,6 +155,21 @@ mod tests {
         let xml = "<root lang=\"日本語\"/>";
         let result = convert(xml, false).unwrap();
         assert!(result.contains("日本語"));
+    }
+
+    #[test]
+    fn namespaced_attribute_preserved_with_prefix() {
+        let xml = r#"<root xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>"#;
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"@xsi:type\""), "got: {}", result);
+        assert!(result.contains("\"@xmlns:xsi\""), "got: {}", result);
+    }
+
+    #[test]
+    fn namespaced_attribute_value_preserved() {
+        let xml = r#"<root xsi:type="xs:integer"/>"#;
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"xs:integer\""), "got: {}", result);
     }
 
     #[test]
