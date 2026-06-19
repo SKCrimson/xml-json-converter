@@ -73,7 +73,6 @@ impl<'a> Parser<'a> {
                     }
                 }
 
-                Token::TagEnd => { /* Just continue */ }
             }
         }
 

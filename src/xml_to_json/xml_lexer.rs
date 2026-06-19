@@ -125,7 +125,7 @@ impl<'a> Lexer<'a> {
                 } else if rest.starts_with('>') {
                     self.in_tag = false;
                     self.advance(1);
-                    return Some(Token::TagEnd);
+                    continue;
                 } else {
                     return self.parse_attribute(rest);
                 }
@@ -205,29 +205,39 @@ impl<'a> Lexer<'a> {
     }
 
     fn parse_attribute(&mut self, rest: &'a str) -> Option<Token<'a>> {
-        // Attribute names cannot contain whitespace, '=', '>', or '/'.
-        // Stop at the first such character to isolate the name.
+        // Attribute name: stop at whitespace, '=', '>', or '/'
         let name_end = rest
             .find(|c: char| c.is_whitespace() || c == '=' || c == '>' || c == '/')
             .unwrap_or(rest.len());
         let key = &rest[..name_end];
+        let mut pos = name_end;
 
-        // After the name, skip optional whitespace and require '='.
-        let after_name = rest[name_end..].trim_start();
-        if !after_name.starts_with('=') {
+        // Skip optional whitespace, then require '='
+        pos += rest[pos..].len() - rest[pos..].trim_start().len();
+        if !rest[pos..].starts_with('=') {
             self.error = Some("Attribute without '=' in tag".to_string());
             return None;
         }
+        pos += 1; // '='
 
-        let after_eq = after_name[1..].trim_start(); // skip '='
-        let quote = after_eq.chars().next()?;
-        let val_start = quote.len_utf8();
-        let val_end = after_eq[val_start..].find(quote)? + val_start;
-        let value = &after_eq[val_start..val_end];
+        // Skip optional whitespace, then require an opening quote
+        pos += rest[pos..].len() - rest[pos..].trim_start().len();
+        let quote = rest[pos..].chars().next()?;
+        if quote != '"' && quote != '\'' {
+            self.error = Some(format!(
+                "Attribute value must be quoted with '\"' or \"'\" (found '{}' after '=')",
+                quote
+            ));
+            return None;
+        }
+        pos += 1; // opening quote (both '"' and '\'' are single-byte ASCII)
 
-        let total_consumed = rest.len() - after_eq[val_end + quote.len_utf8()..].len();
-        self.advance(total_consumed);
+        // Find the matching closing quote and extract the value
+        let val_end = rest[pos..].find(quote)? + pos;
+        let value = &rest[pos..val_end];
+        pos = val_end + 1; // closing quote
 
+        self.advance(pos);
         Some(Token::Attr(key, decode_entities(value)))
     }
 }

@@ -292,6 +292,23 @@ mod tests {
     }
 
     #[test]
+    fn unquoted_attribute_value_returns_error() {
+        let result = convert("<root attr=value>text</root>", false);
+        assert!(result.is_err(), "expected error for unquoted attribute value");
+        let msg = result.unwrap_err();
+        assert!(msg.to_lowercase().contains("attribute"), "got: {}", msg);
+    }
+
+    #[test]
+    fn unquoted_attribute_repeated_char_returns_error() {
+        // Previously: attr=aba → quote='a', find('a') in "ba>" succeeds → value="b" silently
+        let result = convert("<root attr=aba>text</root>", false);
+        assert!(result.is_err(), "expected error for unquoted attribute value");
+        let msg = result.unwrap_err();
+        assert!(msg.to_lowercase().contains("attribute"), "got: {}", msg);
+    }
+
+    #[test]
     fn boolean_attribute_returns_clear_error() {
         let result = convert("<root disabled>text</root>", false);
         assert!(result.is_err(), "expected error for attribute without '='");

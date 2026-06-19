@@ -7,7 +7,6 @@ pub enum Token<'a> {
     TagOpen(&'a str),                        // <name
     TagClose(&'a str),                       // </name>
     Attr(&'a str, String),                    // (full-name, decoded-value)
-    TagEnd,                                  // >
     TagSelfClose,                            // />
     ProcessingInstruction,                   // <?...?>
     Text(String),                            // content (entity-decoded)
@@ -26,10 +25,6 @@ pub enum XmlNode {
 impl XmlNode {
     pub fn to_json(&self) -> Result<String, String> {
         self.to_json_impl(0, None)
-    }
-
-    pub fn to_pretty_json(&self, indent_size: usize) -> Result<String, String> {
-        self.to_json_impl(0, Some(indent_size))
     }
 
     pub(super) fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> Result<String, String> {
@@ -307,7 +302,7 @@ mod tests {
     #[test]
     fn pretty_json_contains_newlines() {
         let node = elem("root", vec![elem("child", vec![XmlNode::Text("x".to_string())])]);
-        let pretty = node.to_pretty_json(4).unwrap();
+        let pretty = node.to_pretty_json_at(0, 4).unwrap();
         assert!(pretty.contains('\n'));
     }
 

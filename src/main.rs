@@ -32,11 +32,11 @@ fn main() {
     match params.extension.as_str() {
         "xml" => run_conversion(
             &params.file_path, params.pretty, params.output_name.as_deref(),
-            "json", utils::read_file, xml_to_json::convert,
+            "json", xml_to_json::convert,
         ),
         "json" => run_conversion(
             &params.file_path, params.pretty, params.output_name.as_deref(),
-            "xml", utils::read_file, json_to_xml::convert,
+            "xml", json_to_xml::convert,
         ),
         _ => {
             eprintln!("Unsupported file type. Please provide XML or JSON file.");
@@ -50,10 +50,9 @@ fn run_conversion(
     pretty: bool,
     output_name: Option<&str>,
     out_ext: &str,
-    read: fn(&str) -> Result<String, String>,
     convert: fn(&str, bool) -> Result<String, String>,
 ) {
-    let content = match read(file_path) {
+    let content = match utils::read_file(file_path) {
         Ok(c) => c,
         Err(e) => { eprintln!("Error: {}", e); process::exit(1); }
     };
