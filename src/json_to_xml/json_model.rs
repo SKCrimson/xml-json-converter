@@ -1,4 +1,4 @@
-const MAX_DEPTH: usize = 512;
+pub(super) const MAX_DEPTH: usize = 512;
 
 #[derive(Debug, PartialEq)]
 pub enum Token<'a> {

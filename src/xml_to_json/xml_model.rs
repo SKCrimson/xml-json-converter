@@ -122,7 +122,11 @@ impl XmlNode {
                         out.push('}');
                         out
                     }
-                    None => format!("{{ {} }}", parts.join(", ")),
+                    None => if parts.is_empty() {
+                        "{}".to_string()
+                    } else {
+                        format!("{{ {} }}", parts.join(", "))
+                    },
                 })
             }
         }
@@ -302,8 +306,7 @@ mod tests {
     fn empty_element_produces_empty_object() {
         let node = elem("root", vec![]);
         let json = node.to_json().unwrap();
-        assert!(json.contains('{'));
-        assert!(json.contains('}'));
+        assert_eq!(json, "{}");
     }
 
     #[test]

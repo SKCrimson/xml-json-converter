@@ -139,17 +139,20 @@ impl<'a> Lexer<'a> {
         col: usize,
     ) -> Result<Option<Token<'a>>, String> {
         let mut end_idx = start_idx;
+        // First char (n/t/f/digit/minus) is always ASCII — length is 1.
+        let mut last_char_len: usize = 1;
 
         while let Some(&(_, c)) = self.chars.peek() {
             if c.is_whitespace() || ",}] :".contains(c) {
                 break;
             }
-            if let Some((i, _)) = self.consume() {
+            if let Some((i, ch)) = self.consume() {
                 end_idx = i;
+                last_char_len = ch.len_utf8();
             }
         }
 
-        let s = &self.input[start_idx..=end_idx];
+        let s = &self.input[start_idx..end_idx + last_char_len];
 
         match s {
             "true" => Ok(Some(Token::BoolVal(true))),
@@ -166,5 +169,36 @@ impl<'a> Lexer<'a> {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn multibyte_char_after_digit_does_not_panic() {
+        // "1€" — '€' is 3 bytes; the slice must not cut it in the middle.
+        // The literal is invalid JSON, but the error must be a clean message, not a panic.
+        let result = Lexer::new("1€").tokenize();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn valid_integer_literal() {
+        let tokens = Lexer::new("42").tokenize().unwrap();
+        assert_eq!(tokens, vec![Token::Number("42")]);
+    }
+
+    #[test]
+    fn valid_bool_true() {
+        let tokens = Lexer::new("true").tokenize().unwrap();
+        assert_eq!(tokens, vec![Token::BoolVal(true)]);
+    }
+
+    #[test]
+    fn valid_null_literal() {
+        let tokens = Lexer::new("null").tokenize().unwrap();
+        assert_eq!(tokens, vec![Token::Null]);
     }
 }

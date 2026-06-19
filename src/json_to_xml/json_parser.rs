@@ -1,7 +1,6 @@
 use crate::json_to_xml::json_model::JsonNode;
 use crate::json_to_xml::json_model::Token;
-
-const MAX_DEPTH: usize = 512;
+use super::json_model::MAX_DEPTH;
 
 pub struct Parser<'a> {
     tokens: Vec<Token<'a>>,

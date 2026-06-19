@@ -6,6 +6,7 @@ use std::process;
 mod json_to_xml;
 mod json_validation;
 mod params;
+mod utils;
 mod xml_to_json;
 mod xml_validation;
 
@@ -61,16 +62,7 @@ fn get_json(file_path: &str, pretty: bool, output_name: Option<&str>) {
         }
     };
 
-    let save_file_path = match output_name {
-        Some(name) => {
-            let dir = Path::new(file_path).parent().unwrap_or(Path::new("."));
-            dir.join(format!("{}.json", name)).to_string_lossy().into_owned()
-        }
-        None => {
-            let stem = Path::new(file_path).with_extension("").to_string_lossy().into_owned();
-            format!("{}-result.json", stem)
-        }
-    };
+    let save_file_path = build_output_path(file_path, "json", output_name);
 
     if let Err(e) = fs::write(&save_file_path, &json_content) {
         eprintln!("Error writing JSON file: {}", e);
@@ -97,16 +89,7 @@ fn get_xml(file_path: &str, pretty: bool, output_name: Option<&str>) {
         }
     };
 
-    let save_file_path = match output_name {
-        Some(name) => {
-            let dir = Path::new(file_path).parent().unwrap_or(Path::new("."));
-            dir.join(format!("{}.xml", name)).to_string_lossy().into_owned()
-        }
-        None => {
-            let stem = Path::new(file_path).with_extension("").to_string_lossy().into_owned();
-            format!("{}-result.xml", stem)
-        }
-    };
+    let save_file_path = build_output_path(file_path, "xml", output_name);
 
     if let Err(e) = fs::write(&save_file_path, &xml_content) {
         eprintln!("Error writing XML file: {}", e);
@@ -114,6 +97,19 @@ fn get_xml(file_path: &str, pretty: bool, output_name: Option<&str>) {
     }
 
     println!("Successfully saved to: {}", save_file_path);
+}
+
+fn build_output_path(input: &str, ext: &str, name: Option<&str>) -> String {
+    match name {
+        Some(n) => {
+            let dir = Path::new(input).parent().unwrap_or(Path::new("."));
+            dir.join(format!("{}.{}", n, ext)).to_string_lossy().into_owned()
+        }
+        None => {
+            let stem = Path::new(input).with_extension("").to_string_lossy().into_owned();
+            format!("{}-result.{}", stem, ext)
+        }
+    }
 }
 
 fn print_help(exe_name: &str) {
