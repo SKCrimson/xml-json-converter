@@ -37,13 +37,13 @@ impl<'a> Parser<'a> {
                             Some(prefix) => format!("{}:{}", prefix, key),
                             None => key.to_string(),
                         };
-                        attributes.push((attr_key, value.to_string()));
+                        attributes.push((attr_key, value.clone()));
                     }
                 }
 
                 Token::Text(text) => {
                     if let Some(XmlNode::Element { children, .. }) = stack.last_mut() {
-                        children.push(XmlNode::Text(text.to_string()));
+                        children.push(XmlNode::Text(text.clone()));
                     }
                 }
 
