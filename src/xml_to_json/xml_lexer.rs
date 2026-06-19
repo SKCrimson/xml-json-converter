@@ -84,7 +84,8 @@ impl<'a> Lexer<'a> {
         }
 
         if self.in_tag {
-            return Err("Unexpected end of input: tag not closed".to_string());
+            let (line, col) = self.position();
+            return Err(format!("Unexpected end of input: tag not closed at line {}, col {}", line, col));
         }
 
         Ok(tokens)
@@ -102,6 +103,17 @@ impl<'a> Lexer<'a> {
     // Moves the cursor forward
     fn advance(&mut self, n: usize) {
         self.cursor += n;
+    }
+
+    fn position_at(&self, byte_offset: usize) -> (usize, usize) {
+        let prefix = &self.input[..byte_offset.min(self.input.len())];
+        let line = prefix.bytes().filter(|&b| b == b'\n').count() + 1;
+        let col = prefix.rfind('\n').map_or(prefix.len() + 1, |i| prefix.len() - i);
+        (line, col)
+    }
+
+    fn position(&self) -> (usize, usize) {
+        self.position_at(self.cursor)
     }
 
     fn next_token(&mut self) -> Option<Token<'a>> {
@@ -133,11 +145,12 @@ impl<'a> Lexer<'a> {
                 let end = match rest.find('>') {
                     Some(i) => i,
                     None => {
-                        self.error = Some("Unexpected EOF in closing tag".to_string());
+                        let (line, col) = self.position();
+                        self.error = Some(format!("Unexpected EOF in closing tag at line {}, col {}", line, col));
                         return None;
                     }
                 };
-                let name = &rest[2..end];
+                let name = rest[2..end].trim();
                 self.advance(end + 1);
                 return Some(Token::TagClose(name));
             } else if rest.starts_with("<?") {
@@ -147,7 +160,8 @@ impl<'a> Lexer<'a> {
                         return Some(Token::ProcessingInstruction);
                     }
                     None => {
-                        self.error = Some("Unclosed processing instruction".to_string());
+                        let (line, col) = self.position();
+                        self.error = Some(format!("Unclosed processing instruction at line {}, col {}", line, col));
                         return None;
                     }
                 }
@@ -158,7 +172,8 @@ impl<'a> Lexer<'a> {
                         continue;
                     }
                     None => {
-                        self.error = Some("Unclosed comment".to_string());
+                        let (line, col) = self.position();
+                        self.error = Some(format!("Unclosed comment at line {}, col {}", line, col));
                         return None;
                     }
                 }
@@ -168,19 +183,27 @@ impl<'a> Lexer<'a> {
                     Some(end) => {
                         let content = &rest[PREFIX..end];
                         self.advance(end + "]]>".len());
-                        if !content.trim().is_empty() {
+                        if !content.is_empty() {
                             return Some(Token::Text(content.to_string()));
                         }
                         continue;
                     }
                     None => {
-                        self.error = Some("Unclosed CDATA section".to_string());
+                        let (line, col) = self.position();
+                        self.error = Some(format!("Unclosed CDATA section at line {}, col {}", line, col));
                         return None;
                     }
                 }
             } else if rest.starts_with("<!") {
-                // Skip <!DOCTYPE> and similar declarations to the closing >
-                let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
+                // Skip <!DOCTYPE> and similar declarations.
+                // If "[" appears before the first ">", an internal subset is present:
+                // skip to the matching "]>" that closes both the subset and the declaration.
+                let end = match rest.find('[') {
+                    Some(bracket) if rest.find('>').map_or(true, |gt| bracket < gt) => {
+                        rest.find("]>").map(|i| i + 2).unwrap_or(rest.len())
+                    }
+                    _ => rest.find('>').map(|i| i + 1).unwrap_or(rest.len()),
+                };
                 self.advance(end);
                 continue;
             } else if rest.starts_with('<') {
@@ -215,7 +238,8 @@ impl<'a> Lexer<'a> {
         // Skip optional whitespace, then require '='
         pos += rest[pos..].len() - rest[pos..].trim_start().len();
         if !rest[pos..].starts_with('=') {
-            self.error = Some("Attribute without '=' in tag".to_string());
+            let (line, col) = self.position_at(self.cursor + pos);
+            self.error = Some(format!("Attribute without '=' in tag at line {}, col {}", line, col));
             return None;
         }
         pos += 1; // '='
@@ -224,9 +248,10 @@ impl<'a> Lexer<'a> {
         pos += rest[pos..].len() - rest[pos..].trim_start().len();
         let quote = rest[pos..].chars().next()?;
         if quote != '"' && quote != '\'' {
+            let (line, col) = self.position_at(self.cursor + pos);
             self.error = Some(format!(
-                "Attribute value must be quoted with '\"' or \"'\" (found '{}' after '=')",
-                quote
+                "Attribute value must be quoted with '\"' or \"'\" (found '{}' after '=') at line {}, col {}",
+                quote, line, col
             ));
             return None;
         }

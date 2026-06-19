@@ -43,6 +43,11 @@ impl<'a> Parser<'a> {
                 Token::Text(text) => {
                     if let Some(XmlNode::Element { children, .. }) = stack.last_mut() {
                         children.push(XmlNode::Text(text.clone()));
+                    } else if !text.trim().is_empty() {
+                        return Err(format!(
+                            "Unexpected text content outside root element: {:?}",
+                            text
+                        ));
                     }
                 }
 
@@ -58,11 +63,11 @@ impl<'a> Parser<'a> {
                 Token::TagClose(close_name) => {
                     let finished_node = stack.pop().ok_or_else(|| "Unbalanced tags".to_string())?;
                     if let XmlNode::Element { ref name, .. } = finished_node {
-                        if name != close_name.trim() {
+                        if name.as_str() != *close_name {
                             return Err(format!(
                                 "Expected </{}>, found </{}>",
                                 name,
-                                close_name.trim()
+                                close_name
                             ));
                         }
                     }

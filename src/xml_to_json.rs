@@ -107,10 +107,64 @@ mod tests {
     fn truncated_closing_tag_returns_error() {
         let result = convert("<root></root", false);
         assert!(result.is_err());
-        assert!(
-            result.unwrap_err().contains("Unexpected EOF in closing tag"),
-            "expected specific EOF error, not a generic parser error"
-        );
+        let msg = result.unwrap_err();
+        assert!(msg.contains("Unexpected EOF in closing tag"), "got: {}", msg);
+        // "</root" starts at byte 6 → line 1, col 7
+        assert!(msg.contains("line 1"), "expected line in error: {}", msg);
+        assert!(msg.contains("col 7"), "expected col in error: {}", msg);
+    }
+
+    #[test]
+    fn closing_tag_with_trailing_whitespace_is_valid() {
+        // XML allows whitespace between tag name and '>' in closing tags
+        let result = convert("<root><child></child ></root>", false).unwrap();
+        assert!(result.contains("\"child\""), "got: {}", result);
+    }
+
+    #[test]
+    fn closing_tag_whitespace_still_matches_open_tag() {
+        // "</child >" must match "<child>", not produce a mismatch error
+        assert!(convert("<root><child></child ></root>", false).is_ok());
+        assert!(convert("<root><child></other ></root>", false).is_err());
+    }
+
+    #[test]
+    fn unclosed_comment_error_includes_position() {
+        // "<!--" starts at byte 11 (after "<root>\n    ") → line 2, col 5
+        let xml = "<root>\n    <!-- unclosed";
+        let msg = convert(xml, false).unwrap_err();
+        assert!(msg.contains("Unclosed comment"), "got: {}", msg);
+        assert!(msg.contains("line 2"), "got: {}", msg);
+        assert!(msg.contains("col 5"), "got: {}", msg);
+    }
+
+    #[test]
+    fn unclosed_pi_error_includes_position() {
+        // "<?pi" starts at byte 7 (after "<root>\n") → line 2, col 1
+        let xml = "<root>\n<?pi no close";
+        let msg = convert(xml, false).unwrap_err();
+        assert!(msg.contains("Unclosed processing instruction"), "got: {}", msg);
+        assert!(msg.contains("line 2"), "got: {}", msg);
+        assert!(msg.contains("col 1"), "got: {}", msg);
+    }
+
+    #[test]
+    fn unclosed_cdata_error_includes_position() {
+        // "<![CDATA[" starts at byte 7 (after "<root>\n") → line 2, col 1
+        let xml = "<root>\n<![CDATA[unclosed";
+        let msg = convert(xml, false).unwrap_err();
+        assert!(msg.contains("Unclosed CDATA section"), "got: {}", msg);
+        assert!(msg.contains("line 2"), "got: {}", msg);
+        assert!(msg.contains("col 1"), "got: {}", msg);
+    }
+
+    #[test]
+    fn unquoted_attribute_error_includes_position() {
+        // "=" at col 10, unquoted char 'v' at col 11 → position_at points to 'v'
+        let xml = "<root attr=value/>";
+        let msg = convert(xml, false).unwrap_err();
+        assert!(msg.to_lowercase().contains("attribute"), "got: {}", msg);
+        assert!(msg.contains("line 1"), "got: {}", msg);
     }
 
     #[test]
@@ -195,6 +249,30 @@ mod tests {
     }
 
     #[test]
+    fn xml_with_doctype_internal_subset_is_converted() {
+        // Previously "]>" leaked into the token stream as stray text after the first ">"
+        let xml = "<!DOCTYPE root [ <!ELEMENT root ANY> ]><root><name>test</name></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"name\""), "got: {}", result);
+        assert!(result.contains("\"test\""), "got: {}", result);
+        assert!(!result.contains(']'), "']' leaked into output: {}", result);
+    }
+
+    #[test]
+    fn xml_with_doctype_multi_declaration_internal_subset() {
+        let xml = concat!(
+            "<!DOCTYPE root [\n",
+            "  <!ELEMENT root ANY>\n",
+            "  <!ELEMENT name (#PCDATA)>\n",
+            "]>",
+            "<root><name>test</name></root>"
+        );
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"name\""), "got: {}", result);
+        assert!(result.contains("\"test\""), "got: {}", result);
+    }
+
+    #[test]
     fn multibyte_utf8_text_content() {
         let xml = "<root>Привет мир</root>";
         let result = convert(xml, false).unwrap();
@@ -258,6 +336,20 @@ mod tests {
     #[test]
     fn unclosed_cdata_returns_error() {
         assert!(convert("<root><![CDATA[unclosed", false).is_err());
+    }
+
+    #[test]
+    fn cdata_whitespace_only_content_preserved() {
+        // CDATA is always literal — whitespace must not be silently dropped
+        let result = convert("<root><![CDATA[  ]]></root>", false).unwrap();
+        assert!(result.contains("\"  \""), "got: {}", result);
+    }
+
+    #[test]
+    fn empty_cdata_produces_empty_object() {
+        // <![CDATA[]]> contributes zero characters — same as no content at all
+        let result = convert("<root><![CDATA[]]></root>", false).unwrap();
+        assert_eq!(result.trim(), "{ \"root\": {} }", "got: {}", result);
     }
 
     #[test]
@@ -330,6 +422,21 @@ mod tests {
     fn multiple_root_elements_return_error() {
         assert!(convert("<a/><b/>", false).is_err());
         assert!(convert("<a></a><b></b>", false).is_err());
+    }
+
+    #[test]
+    fn stray_text_after_root_returns_error() {
+        assert!(convert("<root/> lost data", false).is_err());
+    }
+
+    #[test]
+    fn stray_text_before_root_returns_error() {
+        assert!(convert("garbage<root/>", false).is_err());
+    }
+
+    #[test]
+    fn whitespace_outside_root_is_valid() {
+        assert!(convert("  \n  <root/>  \n  ", false).is_ok());
     }
 
     #[test]

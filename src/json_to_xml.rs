@@ -184,4 +184,30 @@ mod tests {
         let result = convert(json, false).unwrap();
         assert!(result.contains("<letter>\u{0420}</letter>"), "got: {}", result);
     }
+
+    #[test]
+    fn surrogate_pair_emoji_in_value() {
+        // 😀 = 😀 (U+1F600)
+        let json = "{\"icon\": \"\\uD83D\\uDE00\"}";
+        let result = convert(json, false).unwrap();
+        assert!(result.contains("<icon>😀</icon>"), "got: {}", result);
+    }
+
+    #[test]
+    fn surrogate_pair_supplementary_in_value() {
+        // 𐀀 = 𐀀 (U+10000, Linear B)
+        let json = "{\"ch\": \"\\uD800\\uDC00\"}";
+        let result = convert(json, false).unwrap();
+        assert!(result.contains("<ch>\u{10000}</ch>"), "got: {}", result);
+    }
+
+    #[test]
+    fn lone_high_surrogate_in_value_returns_error() {
+        assert!(convert("{\"x\": \"\\uD800\"}", false).is_err());
+    }
+
+    #[test]
+    fn lone_low_surrogate_in_value_returns_error() {
+        assert!(convert("{\"x\": \"\\uDC00\"}", false).is_err());
+    }
 }
