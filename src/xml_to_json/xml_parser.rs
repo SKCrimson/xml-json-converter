@@ -70,11 +70,6 @@ impl<'a> Parser<'a> {
                     }
                 }
 
-                Token::EmptyTag => {
-                    // An empty tag, such as <br/> or a comment <!-- ... -->
-                    // It has already been handled in the lexer, so we just ignore it
-                }
-
                 Token::TagEnd => { /* Just continue */ }
             }
         }

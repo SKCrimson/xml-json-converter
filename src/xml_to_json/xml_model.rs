@@ -6,12 +6,11 @@ const MAX_DEPTH: usize = 512;
 pub enum Token<'a> {
     TagOpen(&'a str),                        // <name
     TagClose(&'a str),                       // </name>
-    Attr(Option<&'a str>, &'a str, &'a str), // (namespace, key, value)
+    Attr(Option<&'a str>, &'a str, String),  // (namespace, key, decoded-value)
     TagEnd,                                  // >
     TagSelfClose,                            // />
-    EmptyTag,                                //
     Declaration,                             // <?...?>
-    Text(&'a str),                           // content
+    Text(String),                            // content (entity-decoded)
 }
 
 #[derive(Debug)]

@@ -132,7 +132,47 @@ mod tests {
     fn special_chars_in_text_are_escaped_in_json() {
         let xml = "<root>say &quot;hi&quot;</root>";
         let result = convert(xml, false).unwrap();
-        assert!(result.contains("root"));
+        // &quot; decoded to " then JSON-escaped to \"
+        assert!(result.contains(r#"say \"hi\""#), "got: {}", result);
+    }
+
+    #[test]
+    fn xml_entity_amp_in_text_decoded() {
+        let result = convert("<root>a &amp; b</root>", false).unwrap();
+        assert!(result.contains("a & b"), "got: {}", result);
+    }
+
+    #[test]
+    fn xml_entity_lt_gt_in_text_decoded() {
+        let result = convert("<root>1 &lt; 2 &gt; 0</root>", false).unwrap();
+        assert!(result.contains("1 < 2 > 0"), "got: {}", result);
+    }
+
+    #[test]
+    fn xml_entity_apos_in_text_decoded() {
+        let result = convert("<root>it&apos;s</root>", false).unwrap();
+        assert!(result.contains("it's"), "got: {}", result);
+    }
+
+    #[test]
+    fn xml_numeric_decimal_entity_in_text_decoded() {
+        // &#65; = 'A'
+        let result = convert("<root>&#65;</root>", false).unwrap();
+        assert!(result.contains("\"A\""), "got: {}", result);
+    }
+
+    #[test]
+    fn xml_numeric_hex_entity_in_text_decoded() {
+        // &#x41; = 'A'
+        let result = convert("<root>&#x41;</root>", false).unwrap();
+        assert!(result.contains("\"A\""), "got: {}", result);
+    }
+
+    #[test]
+    fn xml_entity_in_attribute_value_decoded() {
+        let xml = r#"<root label="say &quot;hi&quot;"/>"#;
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains(r#"say \"hi\""#), "got: {}", result);
     }
 
     #[test]

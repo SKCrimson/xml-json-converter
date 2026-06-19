@@ -1,5 +1,59 @@
 use crate::xml_to_json::xml_model::Token;
 
+fn decode_entities(s: &str) -> String {
+    if !s.contains('&') {
+        return s.to_string();
+    }
+
+    let mut out = String::with_capacity(s.len());
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c != '&' {
+            out.push(c);
+            continue;
+        }
+
+        let mut entity = String::new();
+        let mut closed = false;
+        for ec in chars.by_ref() {
+            if ec == ';' {
+                closed = true;
+                break;
+            }
+            entity.push(ec);
+        }
+
+        if !closed {
+            out.push('&');
+            out.push_str(&entity);
+            continue;
+        }
+
+        match entity.as_str() {
+            "amp"  => out.push('&'),
+            "lt"   => out.push('<'),
+            "gt"   => out.push('>'),
+            "quot" => out.push('"'),
+            "apos" => out.push('\''),
+            _ if entity.starts_with('#') => {
+                let (radix, digits) = if entity[1..].starts_with(['x', 'X']) {
+                    (16u32, &entity[2..])
+                } else {
+                    (10u32, &entity[1..])
+                };
+                match u32::from_str_radix(digits, radix).ok().and_then(char::from_u32) {
+                    Some(ch) => out.push(ch),
+                    None => { out.push('&'); out.push_str(&entity); out.push(';'); }
+                }
+            }
+            _ => { out.push('&'); out.push_str(&entity); out.push(';'); }
+        }
+    }
+
+    out
+}
+
 pub struct Lexer<'a> {
     input: &'a str,
     cursor: usize,
@@ -22,13 +76,6 @@ impl<'a> Lexer<'a> {
         let mut tokens = Vec::new();
 
         while let Some(token) = self.next_token() {
-            // Optional: logging for debugging
-            // println!("Token: {:?}", token);
-            if token == Token::EmptyTag {
-                // Skip empty tags (like comments or declarations)
-                continue;
-            }
-
             tokens.push(token);
         }
 
@@ -89,7 +136,7 @@ impl<'a> Lexer<'a> {
                     match rest.find("-->") {
                         Some(end) => {
                             self.advance(end + 3);
-                            return Some(Token::EmptyTag);
+                            continue;
                         }
                         None => {
                             self.error = Some("Unclosed comment".to_string());
@@ -100,7 +147,7 @@ impl<'a> Lexer<'a> {
                     // Skip <!DOCTYPE> and similar declarations to the closing >
                     let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
                     self.advance(end);
-                    return Some(Token::EmptyTag);
+                    continue;
                 } else if rest.starts_with('<') {
                     self.in_tag = true;
                     let end = rest[1..]
@@ -118,7 +165,7 @@ impl<'a> Lexer<'a> {
                     if trimmed.is_empty() {
                         continue;
                     }
-                    return Some(Token::Text(trimmed));
+                    return Some(Token::Text(decode_entities(trimmed)));
                 }
             } else {
                 // Inside a tag
@@ -146,9 +193,6 @@ impl<'a> Lexer<'a> {
         let eq_pos = rest.find('=')?;
         let full_key = rest[..eq_pos].trim();
 
-        // Important: if the key contains '?', we are mistakenly parsing the end of the declaration
-        // But with the new logic in next_token, this should be skipped.
-
         let (ns, key) = if let Some(colon_pos) = full_key.find(':') {
             (Some(&full_key[..colon_pos]), &full_key[colon_pos + 1..])
         } else {
@@ -164,6 +208,6 @@ impl<'a> Lexer<'a> {
         let total_consumed = rest.len() - after_eq[val_end + quote.len_utf8()..].len();
         self.advance(total_consumed);
 
-        Some(Token::Attr(ns, key, value))
+        Some(Token::Attr(ns, key, decode_entities(value)))
     }
 }

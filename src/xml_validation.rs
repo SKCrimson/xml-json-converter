@@ -2,7 +2,7 @@ use std::fs;
 
 pub fn get_content(file_path: &str) -> Result<String, String> {
     let content = fs::read_to_string(file_path)
-        .map_err(|_| "Failed to read the file. Please provide a valid XML file.".to_string())?;
+        .map_err(|e| format!("Failed to read the file: {}", e))?;
 
     if content.is_empty() {
         return Err("Content is empty".to_string());

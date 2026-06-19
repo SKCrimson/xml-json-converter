@@ -134,9 +134,9 @@ impl<'a> JsonNode<'a> {
         let mut sanitized =
             name.replace(|c: char| !c.is_alphanumeric() && c != '_' && c != '-', "_");
 
-        // An XML tag cannot start with a digit
+        // An XML tag cannot start with a digit or '-'
         if let Some(first) = sanitized.chars().next() {
-            if first.is_numeric() {
+            if first.is_numeric() || first == '-' {
                 sanitized.insert(0, '_');
             }
         }
@@ -241,6 +241,20 @@ mod tests {
         let node = JsonNode::Object(vec![("1key".to_string(), JsonNode::StringVal("v".to_string()))]);
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<_1key>"));
+    }
+
+    #[test]
+    fn tag_name_starting_with_dash_gets_underscore_prefix() {
+        let node = JsonNode::Object(vec![("-key".to_string(), JsonNode::StringVal("v".to_string()))]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<_-key>"), "got: {}", xml);
+    }
+
+    #[test]
+    fn tag_name_with_dash_in_middle_is_preserved() {
+        let node = JsonNode::Object(vec![("my-key".to_string(), JsonNode::StringVal("v".to_string()))]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<my-key>"), "got: {}", xml);
     }
 
     #[test]
