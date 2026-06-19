@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 const MAX_DEPTH: usize = 512;
 
 #[derive(Debug, PartialEq)]
@@ -51,25 +49,24 @@ impl XmlNode {
                 }
 
                 // 2. Group children by name, preserving order of first appearance
-                let mut seen_order: Vec<&str> = Vec::new();
-                let mut grouped: HashMap<&str, Vec<&XmlNode>> = HashMap::new();
+                let mut groups: Vec<(&str, Vec<&XmlNode>)> = Vec::new();
                 let mut text_content: Vec<&String> = Vec::new();
 
                 for child in children {
                     match child {
                         XmlNode::Element { name, .. } => {
-                            if !grouped.contains_key(name.as_str()) {
-                                seen_order.push(name.as_str());
+                            if let Some(entry) = groups.iter_mut().find(|(n, _)| *n == name.as_str()) {
+                                entry.1.push(child);
+                            } else {
+                                groups.push((name.as_str(), vec![child]));
                             }
-                            grouped.entry(name.as_str()).or_default().push(child);
                         }
                         XmlNode::Text(t) => text_content.push(t),
                     }
                 }
 
                 // 3. Serialize grouped children in document order
-                for name in &seen_order {
-                    let nodes = &grouped[name];
+                for (name, nodes) in &groups {
                     if nodes.len() > 1 {
                         let items: Vec<String> = nodes
                             .iter()

@@ -1,7 +1,7 @@
 use crate::utils;
 
 // State: what are we expecting?
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 enum Expect {
     Any,
     Key,           // Just after '{' — empty object is OK

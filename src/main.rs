@@ -32,12 +32,14 @@ fn main() {
     };
 
     match params.extension.as_str() {
-        "xml" => {
-            get_json(&params.file_path, params.pretty, params.output_name.as_deref());
-        }
-        "json" => {
-            get_xml(&params.file_path, params.pretty, params.output_name.as_deref());
-        }
+        "xml" => run_conversion(
+            &params.file_path, params.pretty, params.output_name.as_deref(),
+            "json", xml_validation::get_content, xml_to_json::convert,
+        ),
+        "json" => run_conversion(
+            &params.file_path, params.pretty, params.output_name.as_deref(),
+            "xml", json_validation::get_content, json_to_xml::convert,
+        ),
         _ => {
             eprintln!("Unsupported file type. Please provide XML or JSON file.");
             process::exit(1);
@@ -45,58 +47,28 @@ fn main() {
     }
 }
 
-fn get_json(file_path: &str, pretty: bool, output_name: Option<&str>) {
-    let xml_content = match xml_validation::get_content(file_path) {
-        Ok(content) => content,
-        Err(e) => {
-            eprintln!("Error validating XML: {}", e);
-            process::exit(1);
-        }
+fn run_conversion(
+    file_path: &str,
+    pretty: bool,
+    output_name: Option<&str>,
+    out_ext: &str,
+    read: fn(&str) -> Result<String, String>,
+    convert: fn(&str, bool) -> Result<String, String>,
+) {
+    let content = match read(file_path) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("Error: {}", e); process::exit(1); }
     };
-
-    let json_content = match xml_to_json::convert(&xml_content, pretty) {
-        Ok(json) => json,
-        Err(e) => {
-            eprintln!("Error converting XML to JSON: {}", e);
-            process::exit(1);
-        }
+    let output = match convert(&content, pretty) {
+        Ok(o) => o,
+        Err(e) => { eprintln!("Error: {}", e); process::exit(1); }
     };
-
-    let save_file_path = build_output_path(file_path, "json", output_name);
-
-    if let Err(e) = fs::write(&save_file_path, &json_content) {
-        eprintln!("Error writing JSON file: {}", e);
+    let save_path = build_output_path(file_path, out_ext, output_name);
+    if let Err(e) = fs::write(&save_path, &output) {
+        eprintln!("Error writing {}: {}", save_path, e);
         process::exit(1);
     }
-
-    println!("Successfully saved to: {}", save_file_path);
-}
-
-fn get_xml(file_path: &str, pretty: bool, output_name: Option<&str>) {
-    let json_content = match json_validation::get_content(file_path) {
-        Ok(content) => content,
-        Err(e) => {
-            eprintln!("Error validating JSON: {}", e);
-            process::exit(1);
-        }
-    };
-
-    let xml_content = match json_to_xml::convert(&json_content, pretty) {
-        Ok(xml) => xml,
-        Err(e) => {
-            eprintln!("Error converting JSON to XML: {}", e);
-            process::exit(1);
-        }
-    };
-
-    let save_file_path = build_output_path(file_path, "xml", output_name);
-
-    if let Err(e) = fs::write(&save_file_path, &xml_content) {
-        eprintln!("Error writing XML file: {}", e);
-        process::exit(1);
-    }
-
-    println!("Successfully saved to: {}", save_file_path);
+    println!("Successfully saved to: {}", save_path);
 }
 
 fn build_output_path(input: &str, ext: &str, name: Option<&str>) -> String {

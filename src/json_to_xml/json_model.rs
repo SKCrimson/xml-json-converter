@@ -37,7 +37,7 @@ impl JsonNode {
         if depth >= MAX_DEPTH {
             return Err("Nesting depth limit exceeded".to_string());
         }
-        let safe_label = self.sanitize_tag_name(label);
+        let safe_label = sanitize_tag_name(label);
         let pad = indent.map(|sz| " ".repeat(depth * sz)).unwrap_or_default();
 
         match self {
@@ -67,7 +67,7 @@ impl JsonNode {
                 Ok(format!("{}<{}>{}{}</{}>", pad, safe_label, inner, close_pad, safe_label))
             }
             JsonNode::StringVal(s) => Ok(format!(
-                "{}<{}>{}</{}>", pad, safe_label, self.escape_xml_text(s), safe_label
+                "{}<{}>{}</{}>", pad, safe_label, escape_xml_text(s), safe_label
             )),
             JsonNode::Number(n) => Ok(format!("{}<{}>{}</{}>", pad, safe_label, n, safe_label)),
             JsonNode::BoolVal(b) => Ok(format!("{}<{}>{}</{}>", pad, safe_label, b, safe_label)),
@@ -75,37 +75,43 @@ impl JsonNode {
         }
     }
 
-    fn escape_xml_text(&self, text: &str) -> String {
-        let mut out = String::with_capacity(text.len());
-        for c in text.chars() {
-            match c {
-                '&'  => out.push_str("&amp;"),
-                '<'  => out.push_str("&lt;"),
-                '>'  => out.push_str("&gt;"),
-                '"'  => out.push_str("&quot;"),
-                '\'' => out.push_str("&apos;"),
-                c    => out.push(c),
-            }
+}
+
+fn escape_xml_text(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    for c in text.chars() {
+        match c {
+            '&'  => out.push_str("&amp;"),
+            '<'  => out.push_str("&lt;"),
+            '>'  => out.push_str("&gt;"),
+            '"'  => out.push_str("&quot;"),
+            '\'' => out.push_str("&apos;"),
+            c    => out.push(c),
         }
-        out
+    }
+    out
+}
+
+fn sanitize_tag_name(name: &str) -> String {
+    if name.is_empty() {
+        return "_".to_string();
     }
 
-    fn sanitize_tag_name(&self, name: &str) -> String {
-        if name.is_empty() {
-            return "_".to_string();
-        }
+    let is_valid = |c: char| c.is_alphanumeric() || c == '_' || c == '-';
 
-        let mut sanitized =
-            name.replace(|c: char| !c.is_alphanumeric() && c != '_' && c != '-', "_");
+    let mut sanitized = if name.chars().all(is_valid) {
+        name.to_string()
+    } else {
+        name.replace(|c: char| !is_valid(c), "_")
+    };
 
-        // An XML tag cannot start with a digit or '-'
-        if let Some(first) = sanitized.chars().next() {
-            if first.is_numeric() || first == '-' {
-                sanitized.insert(0, '_');
-            }
+    // An XML tag cannot start with a digit or '-'
+    if let Some(first) = sanitized.chars().next() {
+        if first.is_numeric() || first == '-' {
+            sanitized.insert(0, '_');
         }
-        sanitized
     }
+    sanitized
 }
 
 #[cfg(test)]

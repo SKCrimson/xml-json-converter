@@ -18,7 +18,6 @@ impl Params {
 
         let file_path: String = args[1].clone();
         let path = Path::new(&file_path);
-        let extension: String;
         let mut pretty = false;
         let mut output_name: Option<String> = None;
 
@@ -26,21 +25,13 @@ impl Params {
             return Err("File not found. Please provide a valid file path.".into());
         }
 
-        if let Some(ext) = path.extension() {
-            if let Some(ext_str) = ext.to_str() {
-                if ext_str.eq_ignore_ascii_case("xml") || ext_str.eq_ignore_ascii_case("json") {
-                    extension = ext_str.to_ascii_lowercase();
-                } else {
-                    return Err("Unsupported file type. Please provide XML or JSON file.".into());
-                }
-            } else {
-                return Err(
-                    "Failed to read the file extension. Please provide a valid file.".into(),
-                );
+        let extension = match path.extension().and_then(|e| e.to_str()) {
+            Some(e) if e.eq_ignore_ascii_case("xml") || e.eq_ignore_ascii_case("json") => {
+                e.to_ascii_lowercase()
             }
-        } else {
-            return Err("File has no extension. Please provide an XML or JSON file.".into());
-        }
+            Some(_) => return Err("Unsupported file type. Please provide XML or JSON file.".into()),
+            None => return Err("File has no extension. Please provide an XML or JSON file.".into()),
+        };
 
         let mut i = 2;
         while i < args.len() {

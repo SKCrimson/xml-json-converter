@@ -206,11 +206,6 @@ impl<'a> Lexer<'a> {
     }
 
     fn parse_attribute(&mut self, rest: &'a str) -> Option<Token<'a>> {
-        // Check: if we reached the end of the tag before parsing an attribute
-        if rest.starts_with('>') || rest.starts_with("/>") || rest.starts_with("?>") {
-            return None;
-        }
-
         // Attribute names cannot contain whitespace, '=', '>', or '/'.
         // Stop at the first such character to isolate the name.
         let name_end = rest
