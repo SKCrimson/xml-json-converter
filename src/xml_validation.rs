@@ -40,11 +40,21 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
             // Look ahead
             match chars.peek() {
                 Some('?') => {
-                    // Skip declaration <?...?>
+                    // Skip processing instruction <?...?>
+                    let mut prev_question = false;
+                    let mut closed = false;
                     while let Some(inner) = chars.next() {
-                        if inner == '>' {
+                        if prev_question && inner == '>' {
+                            closed = true;
                             break;
                         }
+                        prev_question = inner == '?';
+                    }
+                    if !closed {
+                        return Err(format!(
+                            "Error at {}:{}: Unclosed processing instruction",
+                            start_line, start_col
+                        ));
                     }
                 }
                 Some('!') => {
@@ -283,5 +293,21 @@ mod tests {
     #[test]
     fn multiple_attrs_with_greater_than_is_valid() {
         assert!(validate("<root x=\"1>2\" y=\"3>4\"/>").is_ok());
+    }
+
+    #[test]
+    fn processing_instruction_with_gt_inside_is_valid() {
+        // '>' inside a PI must not terminate it; only '?>' does
+        assert!(validate("<?pi foo=\"1>2\"?><root/>").is_ok());
+    }
+
+    #[test]
+    fn unclosed_processing_instruction_fails() {
+        assert!(validate("<?unclosed <root/>").is_err());
+    }
+
+    #[test]
+    fn processing_instruction_at_eof_fails() {
+        assert!(validate("<?xml version=\"1.0\"").is_err());
     }
 }

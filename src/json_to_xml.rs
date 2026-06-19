@@ -35,10 +35,22 @@ mod tests {
     }
 
     #[test]
-    fn array_elements_wrapped_in_item() {
+    fn array_in_object_uses_key_as_repeated_tag() {
         let result = convert("{\"tags\": [\"a\", \"b\"]}", false).unwrap();
-        assert!(result.contains("<item>a</item>"));
-        assert!(result.contains("<item>b</item>"));
+        assert!(result.contains("<tags>a</tags>"), "got: {}", result);
+        assert!(result.contains("<tags>b</tags>"), "got: {}", result);
+        assert!(!result.contains("<item>"), "got: {}", result);
+    }
+
+    #[test]
+    fn round_trip_repeated_elements() {
+        let xml = "<root><item>a</item><item>b</item></root>";
+        let json = crate::xml_to_json::convert(xml, false).unwrap();
+        let result = convert(&json, false).unwrap();
+        assert!(result.contains("<item>a</item>"), "got: {}", result);
+        assert!(result.contains("<item>b</item>"), "got: {}", result);
+        // no nested wrapping
+        assert!(!result.contains("<item><item>"), "got: {}", result);
     }
 
     #[test]

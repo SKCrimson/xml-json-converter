@@ -107,8 +107,22 @@ mod tests {
     }
 
     #[test]
+    fn truncated_closing_tag_returns_error() {
+        let result = convert("<root></root", false);
+        assert!(result.is_err());
+        assert!(
+            result.unwrap_err().contains("Unexpected EOF in closing tag"),
+            "expected specific EOF error, not a generic parser error"
+        );
+    }
+
+    #[test]
     fn mismatched_closing_tag_returns_error() {
-        assert!(convert("<root><a></b></a></root>", false).is_err());
+        let result = convert("<root><a></b></a></root>", false);
+        assert!(result.is_err());
+        let msg = result.unwrap_err();
+        assert!(msg.contains("</a>"), "expected tag name in error, got: {}", msg);
+        assert!(msg.contains("</b>"), "expected tag name in error, got: {}", msg);
     }
 
     #[test]

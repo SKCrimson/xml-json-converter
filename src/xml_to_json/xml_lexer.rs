@@ -117,7 +117,13 @@ impl<'a> Lexer<'a> {
 
             if !self.in_tag {
                 if rest.starts_with("</") {
-                    let end = rest.find('>')?;
+                    let end = match rest.find('>') {
+                        Some(i) => i,
+                        None => {
+                            self.error = Some("Unexpected EOF in closing tag".to_string());
+                            return None;
+                        }
+                    };
                     let name = &rest[2..end];
                     self.advance(end + 1);
                     return Some(Token::TagClose(name));

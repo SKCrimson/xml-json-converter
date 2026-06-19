@@ -60,7 +60,11 @@ impl<'a> Parser<'a> {
                     let finished_node = stack.pop().ok_or_else(|| "Unbalanced tags".to_string())?;
                     if let XmlNode::Element { ref name, .. } = finished_node {
                         if name != close_name.trim() {
-                            return Err("Mismatched closing tag".to_string());
+                            return Err(format!(
+                                "Expected </{}>, found </{}>",
+                                name,
+                                close_name.trim()
+                            ));
                         }
                     }
                     if stack.is_empty() {

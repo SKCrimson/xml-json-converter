@@ -43,7 +43,13 @@ impl<'a> JsonNode<'a> {
             JsonNode::Object(pairs) => {
                 let mut inner = String::new();
                 for (key, val) in pairs {
-                    inner.push_str(&val.to_xml_internal(key, depth + 1)?);
+                    if let JsonNode::Array(elements) = val {
+                        for el in elements {
+                            inner.push_str(&el.to_xml_internal(key, depth + 1)?);
+                        }
+                    } else {
+                        inner.push_str(&val.to_xml_internal(key, depth + 1)?);
+                    }
                 }
                 Ok(format!("<{}>{}</{}>", safe_label, inner, safe_label))
             }
@@ -82,8 +88,15 @@ impl<'a> JsonNode<'a> {
             JsonNode::Object(pairs) => {
                 let mut inner = String::new();
                 for (key, val) in pairs {
-                    inner.push_str("\n");
-                    inner.push_str(&val.to_xml_recursive(key, depth + 1, indent_size)?);
+                    if let JsonNode::Array(elements) = val {
+                        for el in elements {
+                            inner.push_str("\n");
+                            inner.push_str(&el.to_xml_recursive(key, depth + 1, indent_size)?);
+                        }
+                    } else {
+                        inner.push_str("\n");
+                        inner.push_str(&val.to_xml_recursive(key, depth + 1, indent_size)?);
+                    }
                 }
                 Ok(format!(
                     "{}<{}>{}\n{}</{}>",
@@ -203,6 +216,21 @@ mod tests {
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<item>x</item>"));
         assert!(xml.contains("<item>y</item>"));
+    }
+
+    #[test]
+    fn array_value_in_object_produces_repeated_siblings() {
+        let node = JsonNode::Object(vec![(
+            "tag".to_string(),
+            JsonNode::Array(vec![
+                JsonNode::StringVal("a".to_string()),
+                JsonNode::StringVal("b".to_string()),
+            ]),
+        )]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<tag>a</tag>"), "got: {}", xml);
+        assert!(xml.contains("<tag>b</tag>"), "got: {}", xml);
+        assert!(!xml.contains("<item>"), "got: {}", xml);
     }
 
     #[test]
