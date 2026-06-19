@@ -104,6 +104,37 @@ mod tests {
     }
 
     #[test]
+    fn unclosed_child_element_names_element_in_error() {
+        // Previously: "Empty XML document" — stack not checked after tokens exhausted
+        let result = convert("<root><child>", false);
+        assert!(result.is_err());
+        let msg = result.unwrap_err();
+        assert!(msg.contains("child"), "expected element name in error: {}", msg);
+        assert!(msg.to_lowercase().contains("unclosed"), "expected 'unclosed' in error: {}", msg);
+        assert!(!msg.contains("Empty XML document"), "misleading message: {}", msg);
+    }
+
+    #[test]
+    fn unclosed_root_element_names_element_in_error() {
+        let result = convert("<root>", false);
+        assert!(result.is_err());
+        let msg = result.unwrap_err();
+        assert!(msg.contains("root"), "expected element name in error: {}", msg);
+        assert!(msg.to_lowercase().contains("unclosed"), "expected 'unclosed' in error: {}", msg);
+        assert!(!msg.contains("Empty XML document"), "misleading message: {}", msg);
+    }
+
+    #[test]
+    fn deeply_nested_unclosed_names_innermost_element() {
+        let result = convert("<a><b><c>text</c></b>", false);
+        assert!(result.is_err());
+        let msg = result.unwrap_err();
+        // "a" is the unclosed element (b and c were closed, a was not)
+        assert!(msg.contains('<'), "expected tag syntax in error: {}", msg);
+        assert!(!msg.contains("Empty XML document"), "misleading message: {}", msg);
+    }
+
+    #[test]
     fn truncated_closing_tag_returns_error() {
         let result = convert("<root></root", false);
         assert!(result.is_err());
@@ -381,6 +412,35 @@ mod tests {
         let xml = "<root><pre>line1\nline2</pre></root>";
         let result = convert(xml, false).unwrap();
         assert!(result.contains("line1\\nline2"), "got: {}", result);
+    }
+
+    #[test]
+    fn unterminated_double_quoted_attr_value_returns_error() {
+        // Previously: ? on find(quote) returned None silently → "Empty XML document"
+        let result = convert("<root attr=\"unclosed", false);
+        assert!(result.is_err(), "expected error for unterminated attribute value");
+        let msg = result.unwrap_err();
+        assert!(msg.to_lowercase().contains("attribute"), "misleading message: {}", msg);
+        assert!(!msg.contains("Empty XML document"), "misleading message: {}", msg);
+        assert!(!msg.contains("tag not closed"), "misleading message: {}", msg);
+    }
+
+    #[test]
+    fn unterminated_single_quoted_attr_value_returns_error() {
+        let result = convert("<root attr='unclosed", false);
+        assert!(result.is_err(), "expected error for unterminated attribute value");
+        let msg = result.unwrap_err();
+        assert!(msg.to_lowercase().contains("attribute"), "misleading message: {}", msg);
+        assert!(!msg.contains("Empty XML document"), "misleading message: {}", msg);
+    }
+
+    #[test]
+    fn unterminated_attr_value_error_includes_position() {
+        // attr=" starts at col 6, value at col 7 → line 1, col 7
+        let result = convert("<root attr=\"unclosed", false);
+        let msg = result.unwrap_err();
+        assert!(msg.contains("line 1"), "got: {}", msg);
+        assert!(msg.contains("col 12"), "got: {}", msg);
     }
 
     #[test]

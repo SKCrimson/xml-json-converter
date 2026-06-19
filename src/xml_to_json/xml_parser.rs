@@ -81,6 +81,10 @@ impl<'a> Parser<'a> {
             }
         }
 
+        if let Some(XmlNode::Element { name, .. }) = stack.last() {
+            return Err(format!("Unclosed element <{}>", name));
+        }
+
         root.ok_or_else(|| "Empty XML document".to_string())
     }
 }

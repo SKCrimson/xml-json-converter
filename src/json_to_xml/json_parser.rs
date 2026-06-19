@@ -13,7 +13,20 @@ impl Parser {
     }
 
     pub fn parse(&mut self) -> Result<JsonNode, String> {
-        self.parse_value(0)
+        let node = self.parse_value(0)?;
+        if let Some(token) = self.peek() {
+            let what = match token {
+                Token::BraceOpen    => "'{'",
+                Token::BracketOpen  => "'['",
+                Token::StringVal(_) => "string",
+                Token::Number(_)    => "number",
+                Token::BoolVal(_)   => "boolean",
+                Token::Null         => "'null'",
+                _                   => "token",
+            };
+            return Err(format!("Unexpected {} after top-level JSON value", what));
+        }
+        Ok(node)
     }
 
     fn parse_value(&mut self, depth: usize) -> Result<JsonNode, String> {

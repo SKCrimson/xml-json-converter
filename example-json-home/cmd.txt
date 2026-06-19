@@ -1,0 +1,14 @@
+
+  cargo run C:\Users\krivo\source\rust\xml-json-converter\example-json-home\simple.json --pretty
+  xml-json-converter.exe C:\Users\krivo\source\rust\xml-json-converter\example-json-home\simple.json
+  
+  cargo run C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-1.json
+  xml-json-converter.exe C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-1.json --pretty --name big-doc-1
+  xml-json-converter.exe C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-1.json -p -n big-doc-2
+  xml-json-converter.exe C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-1.json -n big-doc-3
+
+  cargo run C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-2.json
+  xml-json-converter.exe C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-2.json -p
+
+  cargo run C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-3.json
+  xml-json-converter.exe C:\Users\krivo\source\rust\xml-json-converter\example-json-home\test-3.json -p

@@ -258,7 +258,18 @@ impl<'a> Lexer<'a> {
         pos += 1; // opening quote (both '"' and '\'' are single-byte ASCII)
 
         // Find the matching closing quote and extract the value
-        let val_end = rest[pos..].find(quote)? + pos;
+        let val_end = match rest[pos..].find(quote) {
+            Some(i) => i + pos,
+            None => {
+                // pos is already past the opening quote; point back to the quote itself
+                let (line, col) = self.position_at(self.cursor + pos - 1);
+                self.error = Some(format!(
+                    "Unterminated attribute value at line {}, col {}",
+                    line, col
+                ));
+                return None;
+            }
+        };
         let value = &rest[pos..val_end];
         pos = val_end + 1; // closing quote
 

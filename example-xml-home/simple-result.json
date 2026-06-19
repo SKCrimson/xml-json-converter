@@ -1,0 +1,53 @@
+{
+    "library": {
+        "@location": "Central City",
+        "@last_updated": "2024-05-20",
+        "book": [
+            {
+                "@id": "b001",
+                "@category": "fiction",
+                "title": "The Great Gatsby",
+                "author": "F. Scott Fitzgerald",
+                "year": "1925",
+                "format": "Hardcover",
+                "price": {
+                    "@currency": "USD",
+                    "#text": "15.99"
+                },
+                "availability": {
+                    "@status": "in-stock"
+                }
+            },
+            {
+                "@id": "b002",
+                "@category": "science",
+                "title": "A Brief History of Time",
+                "author": "Stephen Hawking",
+                "year": "1988",
+                "format": "Paperback",
+                "price": {
+                    "@currency": "EUR",
+                    "#text": "12.50"
+                },
+                "availability": {
+                    "@status": "out-of-stock"
+                }
+            },
+            {
+                "@id": "b003",
+                "@category": "classic",
+                "title": "1984",
+                "author": "George Orwell",
+                "year": "1949",
+                "format": "E-book",
+                "price": {
+                    "@currency": "CZK",
+                    "#text": "450.00"
+                },
+                "availability": {
+                    "@status": "in-stock"
+                }
+            }
+        ]
+    }
+}

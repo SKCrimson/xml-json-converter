@@ -86,7 +86,12 @@ fn escape_xml_text(text: &str) -> String {
             c   => out.push(c),
         }
     }
-    out
+    // ]]> is forbidden in XML text content (XML 1.0 §2.4); escape the closing >
+    if out.contains("]]>") {
+        out.replace("]]>", "]]&gt;")
+    } else {
+        out
+    }
 }
 
 fn sanitize_tag_name(name: &str) -> String {
@@ -203,6 +208,32 @@ mod tests {
     fn greater_than_is_literal_in_text() {
         let node = JsonNode::StringVal("a > b".to_string());
         assert!(node.to_xml().unwrap().contains("a > b"));
+    }
+
+    #[test]
+    fn cdata_end_sequence_in_text_is_escaped() {
+        // "]]>" is forbidden in XML text content (XML 1.0 §2.4)
+        let node = JsonNode::StringVal("a]]>b".to_string());
+        let xml = node.to_xml().unwrap();
+        assert!(!xml.contains("]]>"), "]]> must not appear raw in XML: {}", xml);
+        assert!(xml.contains("]]&gt;"), "got: {}", xml);
+    }
+
+    #[test]
+    fn multiple_cdata_end_sequences_all_escaped() {
+        let node = JsonNode::StringVal("]]>x]]>".to_string());
+        let xml = node.to_xml().unwrap();
+        assert!(!xml.contains("]]>"), "]]> must not appear raw in XML: {}", xml);
+        assert_eq!(xml.matches("]]&gt;").count(), 2, "got: {}", xml);
+    }
+
+    #[test]
+    fn standalone_gt_not_escaped_by_cdata_fix() {
+        // The ]]> fix must not affect lone '>'
+        let node = JsonNode::StringVal("]>".to_string());
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("]>"), "got: {}", xml);
+        assert!(!xml.contains("&gt;"), "got: {}", xml);
     }
 
     #[test]

@@ -91,6 +91,20 @@ mod tests {
     }
 
     #[test]
+    fn cdata_end_sequence_in_value_is_escaped() {
+        // XML 1.0 §2.4 forbids "]]>" in text content
+        let result = convert("{\"data\": \"a]]>b\"}", false).unwrap();
+        assert!(!result.contains("]]>"), "]]> must not appear raw in output: {}", result);
+        assert!(result.contains("]]&gt;"), "got: {}", result);
+    }
+
+    #[test]
+    fn lone_gt_not_escaped_by_cdata_fix() {
+        let result = convert("{\"x\": \"]>\"}", false).unwrap();
+        assert!(result.contains("]>"), "got: {}", result);
+    }
+
+    #[test]
     fn pretty_mode_contains_newlines() {
         let result = convert("{\"a\": \"b\"}", true).unwrap();
         assert!(result.contains('\n'));
@@ -99,6 +113,31 @@ mod tests {
     #[test]
     fn invalid_json_returns_error() {
         assert!(convert("{unclosed", false).is_err());
+    }
+
+    #[test]
+    fn trailing_object_returns_error() {
+        // Previously the second object was silently dropped
+        let result = convert("{\"a\": 1} {\"b\": 2}", false);
+        assert!(result.is_err(), "expected error for two root objects");
+        let msg = result.unwrap_err();
+        assert!(msg.contains("'{'"), "expected token description in error: {}", msg);
+    }
+
+    #[test]
+    fn trailing_array_returns_error() {
+        let result = convert("[1, 2] [3, 4]", false);
+        assert!(result.is_err(), "expected error for two root arrays");
+        let msg = result.unwrap_err();
+        assert!(msg.contains("'['"), "expected token description in error: {}", msg);
+    }
+
+    #[test]
+    fn trailing_number_returns_error() {
+        let result = convert("42 43", false);
+        assert!(result.is_err(), "expected error for two root numbers");
+        let msg = result.unwrap_err();
+        assert!(msg.contains("number"), "expected token description in error: {}", msg);
     }
 
     #[test]
