@@ -148,4 +148,22 @@ fn print_help(exe_name: &str) {
     println!("NOTES:");
     println!("    XML -> JSON: attributes are prefixed with '@', text nodes with '#text'.");
     println!("    JSON -> XML: the root object becomes the <root> element.");
+    println!();
+    println!("ROUND-TRIP LIMITATIONS:");
+    println!("    Conversion is one-way lossless within each direction, but a full");
+    println!("    round-trip (XML->JSON->XML or JSON->XML->JSON) is NOT idempotent.");
+    println!();
+    println!("    XML -> JSON -> XML:");
+    println!("      Attributes become JSON keys (\"@attr\") and are converted back as");
+    println!("      child elements, not attributes:");
+    println!("        <item id=\"1\">text</item>");
+    println!("        -> {{ \"@id\": \"1\", \"#text\": \"text\" }}");
+    println!("        -> <item><_id>1</_id><__text>text</__text></item>");
+    println!();
+    println!("    JSON -> XML -> JSON:");
+    println!("      The root XML element (always named <root>) adds an extra nesting");
+    println!("      level on the way back:");
+    println!("        {{ \"name\": \"Alice\" }}");
+    println!("        -> <root><name>Alice</name></root>");
+    println!("        -> {{ \"root\": {{ \"name\": \"Alice\" }} }}");
 }

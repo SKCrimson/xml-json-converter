@@ -31,13 +31,9 @@ impl<'a> Parser<'a> {
 
                 Token::Declaration => {}
 
-                Token::Attr(ns, key, value) => {
+                Token::Attr(key, value) => {
                     if let Some(XmlNode::Element { attributes, .. }) = stack.last_mut() {
-                        let attr_key = match ns {
-                            Some(prefix) => format!("{}:{}", prefix, key),
-                            None => key.to_string(),
-                        };
-                        attributes.push((attr_key, value.clone()));
+                        attributes.push((key.to_string(), value.clone()));
                     }
                 }
 

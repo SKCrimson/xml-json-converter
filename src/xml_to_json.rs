@@ -233,4 +233,33 @@ mod tests {
         assert!(result.contains("Ñoño"));
         assert!(result.contains("中文"));
     }
+
+    #[test]
+    fn cdata_plain_text_content() {
+        let xml = "<root><![CDATA[hello world]]></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("hello world"), "got: {}", result);
+    }
+
+    #[test]
+    fn cdata_with_xml_markup_treated_as_literal_text() {
+        let xml = "<root><![CDATA[<b>bold</b>]]></root>";
+        let result = convert(xml, false).unwrap();
+        // The < and > are literal text, NOT parsed as child elements
+        assert!(result.contains("<b>bold</b>"), "got: {}", result);
+        assert!(!result.contains("\"b\""), "got: {}", result);
+    }
+
+    #[test]
+    fn cdata_with_ampersand_not_entity_decoded() {
+        let xml = "<root><![CDATA[a & b]]></root>";
+        let result = convert(xml, false).unwrap();
+        // '&' in CDATA is literal, not an entity reference
+        assert!(result.contains("a & b"), "got: {}", result);
+    }
+
+    #[test]
+    fn unclosed_cdata_returns_error() {
+        assert!(convert("<root><![CDATA[unclosed", false).is_err());
+    }
 }

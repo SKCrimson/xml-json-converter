@@ -132,11 +132,18 @@ impl<'a> JsonNode<'a> {
     }
 
     fn escape_xml_text(&self, text: &str) -> String {
-        text.replace('&', "&amp;")
-            .replace('<', "&lt;")
-            .replace('>', "&gt;")
-            .replace('"', "&quot;")
-            .replace('\'', "&apos;")
+        let mut out = String::with_capacity(text.len());
+        for c in text.chars() {
+            match c {
+                '&'  => out.push_str("&amp;"),
+                '<'  => out.push_str("&lt;"),
+                '>'  => out.push_str("&gt;"),
+                '"'  => out.push_str("&quot;"),
+                '\'' => out.push_str("&apos;"),
+                c    => out.push(c),
+            }
+        }
+        out
     }
 
     fn sanitize_tag_name(&self, name: &str) -> String {

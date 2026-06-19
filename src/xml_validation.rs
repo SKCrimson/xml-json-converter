@@ -81,6 +81,38 @@ fn is_well_formed(xml: &str) -> Result<(), String> {
                                 start_line, start_col
                             ));
                         }
+                    } else if first == Some('[') {
+                        // <![CDATA[...]]>
+                        let mut header = String::with_capacity(6);
+                        for _ in 0..6 {
+                            match chars.next() {
+                                Some(c) => header.push(c),
+                                None => break,
+                            }
+                        }
+                        if header == "CDATA[" {
+                            let mut closed = false;
+                            let mut buf = ['\0', '\0'];
+                            while let Some(c) = chars.next() {
+                                if buf[0] == ']' && buf[1] == ']' && c == '>' {
+                                    closed = true;
+                                    break;
+                                }
+                                buf[0] = buf[1];
+                                buf[1] = c;
+                            }
+                            if !closed {
+                                return Err(format!(
+                                    "Error at {}:{}: Unclosed CDATA section",
+                                    start_line, start_col
+                                ));
+                            }
+                        } else {
+                            // Unknown <![ construct — skip to >
+                            while let Some(c) = chars.next() {
+                                if c == '>' { break; }
+                            }
+                        }
                     } else {
                         // <!DOCTYPE> or other declaration — skip to closing >
                         while let Some(c) = chars.next() {
@@ -309,5 +341,21 @@ mod tests {
     #[test]
     fn processing_instruction_at_eof_fails() {
         assert!(validate("<?xml version=\"1.0\"").is_err());
+    }
+
+    #[test]
+    fn valid_cdata_section() {
+        assert!(validate("<root><![CDATA[hello]]></root>").is_ok());
+    }
+
+    #[test]
+    fn cdata_with_xml_markup_inside_is_valid() {
+        // '<' and '>' inside CDATA must not confuse the validator
+        assert!(validate("<root><![CDATA[<b>bold</b>]]></root>").is_ok());
+    }
+
+    #[test]
+    fn unclosed_cdata_fails() {
+        assert!(validate("<root><![CDATA[unclosed</root>").is_err());
     }
 }

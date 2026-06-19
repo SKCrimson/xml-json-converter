@@ -149,6 +149,23 @@ impl<'a> Lexer<'a> {
                             return None;
                         }
                     }
+                } else if rest.starts_with("<![CDATA[") {
+                    const PREFIX: usize = "<![CDATA[".len();
+                    match rest.find("]]>") {
+                        Some(end) => {
+                            let content = &rest[PREFIX..end];
+                            self.advance(end + "]]>".len());
+                            let trimmed = content.trim();
+                            if !trimmed.is_empty() {
+                                return Some(Token::Text(trimmed.to_string()));
+                            }
+                            continue;
+                        }
+                        None => {
+                            self.error = Some("Unclosed CDATA section".to_string());
+                            return None;
+                        }
+                    }
                 } else if rest.starts_with("<!") {
                     // Skip <!DOCTYPE> and similar declarations to the closing >
                     let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
@@ -197,13 +214,7 @@ impl<'a> Lexer<'a> {
         }
 
         let eq_pos = rest.find('=')?;
-        let full_key = rest[..eq_pos].trim();
-
-        let (ns, key) = if let Some(colon_pos) = full_key.find(':') {
-            (Some(&full_key[..colon_pos]), &full_key[colon_pos + 1..])
-        } else {
-            (None, full_key)
-        };
+        let key = rest[..eq_pos].trim();
 
         let after_eq = rest[eq_pos + 1..].trim_start();
         let quote = after_eq.chars().next()?;
@@ -214,6 +225,6 @@ impl<'a> Lexer<'a> {
         let total_consumed = rest.len() - after_eq[val_end + quote.len_utf8()..].len();
         self.advance(total_consumed);
 
-        Some(Token::Attr(ns, key, decode_entities(value)))
+        Some(Token::Attr(key, decode_entities(value)))
     }
 }
