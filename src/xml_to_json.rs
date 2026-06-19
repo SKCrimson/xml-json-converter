@@ -262,4 +262,45 @@ mod tests {
     fn unclosed_cdata_returns_error() {
         assert!(convert("<root><![CDATA[unclosed", false).is_err());
     }
+
+    #[test]
+    fn text_with_leading_whitespace_preserved() {
+        // Whitespace that is part of text content must be kept
+        let result = convert("<root><value>  hello  </value></root>", false).unwrap();
+        assert!(result.contains("  hello  "), "got: {}", result);
+    }
+
+    #[test]
+    fn whitespace_only_between_elements_is_skipped() {
+        // Indentation/newlines between sibling tags are not text nodes
+        let xml = "<root>\n    <a>1</a>\n    <b>2</b>\n</root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("\"a\""), "got: {}", result);
+        assert!(result.contains("\"b\""), "got: {}", result);
+        assert!(!result.contains("\\n"), "got: {}", result);
+    }
+
+    #[test]
+    fn multiline_text_content_preserved() {
+        let xml = "<root><pre>line1\nline2</pre></root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("line1\\nline2"), "got: {}", result);
+    }
+
+    #[test]
+    fn boolean_attribute_returns_clear_error() {
+        let result = convert("<root disabled>text</root>", false);
+        assert!(result.is_err(), "expected error for attribute without '='");
+        let msg = result.unwrap_err();
+        assert!(!msg.contains("tag not closed"), "misleading message: {}", msg);
+        assert!(msg.to_lowercase().contains("attribute"), "expected 'attribute' in error: {}", msg);
+    }
+
+    #[test]
+    fn mixed_content_text_nodes_concatenated_without_extra_space() {
+        // text "a " and " b" must join as "a  b", not "a   b"
+        let xml = "<root>a <child/>  b</root>";
+        let result = convert(xml, false).unwrap();
+        assert!(result.contains("a   b"), "got: {}", result);
+    }
 }

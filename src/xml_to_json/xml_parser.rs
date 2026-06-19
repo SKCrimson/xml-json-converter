@@ -29,7 +29,7 @@ impl<'a> Parser<'a> {
                     stack.push(new_node);
                 }
 
-                Token::Declaration => {}
+                Token::ProcessingInstruction => {}
 
                 Token::Attr(key, value) => {
                     if let Some(XmlNode::Element { attributes, .. }) = stack.last_mut() {

@@ -26,18 +26,19 @@ pub enum JsonNode<'a> {
 
 impl<'a> JsonNode<'a> {
     pub fn to_xml(&self) -> Result<String, String> {
-        self.to_xml_internal("root", 0)
+        self.to_xml_impl("root", 0, None)
     }
 
     pub fn to_pretty_xml(&self, indent_size: usize) -> Result<String, String> {
-        self.to_xml_recursive("root", 0, indent_size)
+        self.to_xml_impl("root", 0, Some(indent_size))
     }
 
-    fn to_xml_internal(&self, label: &str, depth: usize) -> Result<String, String> {
+    fn to_xml_impl(&self, label: &str, depth: usize, indent: Option<usize>) -> Result<String, String> {
         if depth >= MAX_DEPTH {
             return Err("Nesting depth limit exceeded".to_string());
         }
         let safe_label = self.sanitize_tag_name(label);
+        let pad = indent.map(|sz| " ".repeat(depth * sz)).unwrap_or_default();
 
         match self {
             JsonNode::Object(pairs) => {
@@ -45,89 +46,32 @@ impl<'a> JsonNode<'a> {
                 for (key, val) in pairs {
                     if let JsonNode::Array(elements) = val {
                         for el in elements {
-                            inner.push_str(&el.to_xml_internal(key, depth + 1)?);
+                            if indent.is_some() { inner.push('\n'); }
+                            inner.push_str(&el.to_xml_impl(key, depth + 1, indent)?);
                         }
                     } else {
-                        inner.push_str(&val.to_xml_internal(key, depth + 1)?);
+                        if indent.is_some() { inner.push('\n'); }
+                        inner.push_str(&val.to_xml_impl(key, depth + 1, indent)?);
                     }
                 }
-                Ok(format!("<{}>{}</{}>", safe_label, inner, safe_label))
+                let close_pad = if indent.is_some() { format!("\n{}", pad) } else { String::new() };
+                Ok(format!("{}<{}>{}{}</{}>", pad, safe_label, inner, close_pad, safe_label))
             }
             JsonNode::Array(elements) => {
                 let mut inner = String::new();
                 for el in elements {
-                    inner.push_str(&el.to_xml_internal("item", depth + 1)?);
+                    if indent.is_some() { inner.push('\n'); }
+                    inner.push_str(&el.to_xml_impl("item", depth + 1, indent)?);
                 }
-                Ok(format!("<{}>{}</{}>", safe_label, inner, safe_label))
+                let close_pad = if indent.is_some() { format!("\n{}", pad) } else { String::new() };
+                Ok(format!("{}<{}>{}{}</{}>", pad, safe_label, inner, close_pad, safe_label))
             }
             JsonNode::StringVal(s) => Ok(format!(
-                "<{}>{}</{}>",
-                safe_label,
-                self.escape_xml_text(s),
-                safe_label
+                "{}<{}>{}</{}>", pad, safe_label, self.escape_xml_text(s), safe_label
             )),
-            JsonNode::Number(n) => Ok(format!("<{}>{}</{}>", safe_label, n, safe_label)),
-            JsonNode::BoolVal(b) => Ok(format!("<{}>{}</{}>", safe_label, b, safe_label)),
-            JsonNode::Null => Ok(format!("<{} />", safe_label)),
-        }
-    }
-
-    fn to_xml_recursive(
-        &self,
-        label: &str,
-        depth: usize,
-        indent_size: usize,
-    ) -> Result<String, String> {
-        if depth >= MAX_DEPTH {
-            return Err("Nesting depth limit exceeded".to_string());
-        }
-        let safe_label = self.sanitize_tag_name(label);
-        let indent = " ".repeat(depth * indent_size);
-
-        match self {
-            JsonNode::Object(pairs) => {
-                let mut inner = String::new();
-                for (key, val) in pairs {
-                    if let JsonNode::Array(elements) = val {
-                        for el in elements {
-                            inner.push_str("\n");
-                            inner.push_str(&el.to_xml_recursive(key, depth + 1, indent_size)?);
-                        }
-                    } else {
-                        inner.push_str("\n");
-                        inner.push_str(&val.to_xml_recursive(key, depth + 1, indent_size)?);
-                    }
-                }
-                Ok(format!(
-                    "{}<{}>{}\n{}</{}>",
-                    indent, safe_label, inner, indent, safe_label
-                ))
-            }
-            JsonNode::Array(elements) => {
-                let mut inner = String::new();
-                for el in elements {
-                    inner.push_str("\n");
-                    inner.push_str(&el.to_xml_recursive("item", depth + 1, indent_size)?);
-                }
-                Ok(format!(
-                    "{}<{}>{}\n{}</{}>",
-                    indent, safe_label, inner, indent, safe_label
-                ))
-            }
-            JsonNode::StringVal(s) => Ok(format!(
-                "{}<{}>{}</{}>",
-                indent,
-                safe_label,
-                self.escape_xml_text(s),
-                safe_label
-            )),
-            JsonNode::Number(n) => {
-                Ok(format!("{}<{}>{}</{}>", indent, safe_label, n, safe_label))
-            }
-            JsonNode::BoolVal(b) => {
-                Ok(format!("{}<{}>{}</{}>", indent, safe_label, b, safe_label))
-            }
-            JsonNode::Null => Ok(format!("{}<{} />", indent, safe_label)),
+            JsonNode::Number(n) => Ok(format!("{}<{}>{}</{}>", pad, safe_label, n, safe_label)),
+            JsonNode::BoolVal(b) => Ok(format!("{}<{}>{}</{}>", pad, safe_label, b, safe_label)),
+            JsonNode::Null => Ok(format!("{}<{} />", pad, safe_label)),
         }
     }
 

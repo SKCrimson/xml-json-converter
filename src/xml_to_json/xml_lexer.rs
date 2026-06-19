@@ -106,92 +106,18 @@ impl<'a> Lexer<'a> {
 
     fn next_token(&mut self) -> Option<Token<'a>> {
         loop {
-            let rest = self.remaining().trim_start();
+            let rest = self.remaining();
             if rest.is_empty() {
                 return None;
             }
 
-            let diff = self.remaining().len() - rest.len();
-            self.advance(diff);
-            let rest = self.remaining();
+            if self.in_tag {
+                // Skip whitespace between attributes
+                let trimmed = rest.trim_start();
+                let diff = rest.len() - trimmed.len();
+                self.advance(diff);
+                let rest = self.remaining();
 
-            if !self.in_tag {
-                if rest.starts_with("</") {
-                    let end = match rest.find('>') {
-                        Some(i) => i,
-                        None => {
-                            self.error = Some("Unexpected EOF in closing tag".to_string());
-                            return None;
-                        }
-                    };
-                    let name = &rest[2..end];
-                    self.advance(end + 1);
-                    return Some(Token::TagClose(name));
-                } else if rest.starts_with("<?") {
-                    match rest.find("?>") {
-                        Some(end) => {
-                            self.advance(end + 2);
-                            return Some(Token::Declaration);
-                        }
-                        None => {
-                            self.error = Some("Unclosed processing instruction".to_string());
-                            return None;
-                        }
-                    }
-                } else if rest.starts_with("<!--") {
-                    match rest.find("-->") {
-                        Some(end) => {
-                            self.advance(end + 3);
-                            continue;
-                        }
-                        None => {
-                            self.error = Some("Unclosed comment".to_string());
-                            return None;
-                        }
-                    }
-                } else if rest.starts_with("<![CDATA[") {
-                    const PREFIX: usize = "<![CDATA[".len();
-                    match rest.find("]]>") {
-                        Some(end) => {
-                            let content = &rest[PREFIX..end];
-                            self.advance(end + "]]>".len());
-                            let trimmed = content.trim();
-                            if !trimmed.is_empty() {
-                                return Some(Token::Text(trimmed.to_string()));
-                            }
-                            continue;
-                        }
-                        None => {
-                            self.error = Some("Unclosed CDATA section".to_string());
-                            return None;
-                        }
-                    }
-                } else if rest.starts_with("<!") {
-                    // Skip <!DOCTYPE> and similar declarations to the closing >
-                    let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
-                    self.advance(end);
-                    continue;
-                } else if rest.starts_with('<') {
-                    self.in_tag = true;
-                    let end = rest[1..]
-                        .find(|c: char| c.is_whitespace() || c == '>' || c == '/')
-                        .map(|i| i + 1)
-                        .unwrap_or(rest.len());
-                    let name = &rest[1..end];
-                    self.advance(end);
-                    return Some(Token::TagOpen(name));
-                } else {
-                    let end = rest.find('<').unwrap_or(rest.len());
-                    let text = &rest[..end];
-                    self.advance(end);
-                    let trimmed = text.trim();
-                    if trimmed.is_empty() {
-                        continue;
-                    }
-                    return Some(Token::Text(decode_entities(trimmed)));
-                }
-            } else {
-                // Inside a tag
                 if rest.starts_with("/>") {
                     self.in_tag = false;
                     self.advance(2);
@@ -203,6 +129,78 @@ impl<'a> Lexer<'a> {
                 } else {
                     return self.parse_attribute(rest);
                 }
+            } else if rest.starts_with("</") {
+                let end = match rest.find('>') {
+                    Some(i) => i,
+                    None => {
+                        self.error = Some("Unexpected EOF in closing tag".to_string());
+                        return None;
+                    }
+                };
+                let name = &rest[2..end];
+                self.advance(end + 1);
+                return Some(Token::TagClose(name));
+            } else if rest.starts_with("<?") {
+                match rest.find("?>") {
+                    Some(end) => {
+                        self.advance(end + 2);
+                        return Some(Token::ProcessingInstruction);
+                    }
+                    None => {
+                        self.error = Some("Unclosed processing instruction".to_string());
+                        return None;
+                    }
+                }
+            } else if rest.starts_with("<!--") {
+                match rest.find("-->") {
+                    Some(end) => {
+                        self.advance(end + 3);
+                        continue;
+                    }
+                    None => {
+                        self.error = Some("Unclosed comment".to_string());
+                        return None;
+                    }
+                }
+            } else if rest.starts_with("<![CDATA[") {
+                const PREFIX: usize = "<![CDATA[".len();
+                match rest.find("]]>") {
+                    Some(end) => {
+                        let content = &rest[PREFIX..end];
+                        self.advance(end + "]]>".len());
+                        if !content.trim().is_empty() {
+                            return Some(Token::Text(content.to_string()));
+                        }
+                        continue;
+                    }
+                    None => {
+                        self.error = Some("Unclosed CDATA section".to_string());
+                        return None;
+                    }
+                }
+            } else if rest.starts_with("<!") {
+                // Skip <!DOCTYPE> and similar declarations to the closing >
+                let end = rest.find('>').map(|i| i + 1).unwrap_or(rest.len());
+                self.advance(end);
+                continue;
+            } else if rest.starts_with('<') {
+                self.in_tag = true;
+                let end = rest[1..]
+                    .find(|c: char| c.is_whitespace() || c == '>' || c == '/')
+                    .map(|i| i + 1)
+                    .unwrap_or(rest.len());
+                let name = &rest[1..end];
+                self.advance(end);
+                return Some(Token::TagOpen(name));
+            } else {
+                // Text content: skip whitespace-only nodes, preserve the rest as-is
+                let end = rest.find('<').unwrap_or(rest.len());
+                let text = &rest[..end];
+                self.advance(end);
+                if text.trim().is_empty() {
+                    continue;
+                }
+                return Some(Token::Text(decode_entities(text)));
             }
         }
     }
@@ -213,7 +211,13 @@ impl<'a> Lexer<'a> {
             return None;
         }
 
-        let eq_pos = rest.find('=')?;
+        let eq_pos = match rest.find('=') {
+            Some(i) => i,
+            None => {
+                self.error = Some("Attribute without '=' in tag".to_string());
+                return None;
+            }
+        };
         let key = rest[..eq_pos].trim();
 
         let after_eq = rest[eq_pos + 1..].trim_start();

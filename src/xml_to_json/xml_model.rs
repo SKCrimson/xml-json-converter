@@ -9,7 +9,7 @@ pub enum Token<'a> {
     Attr(&'a str, String),                    // (full-name, decoded-value)
     TagEnd,                                  // >
     TagSelfClose,                            // />
-    Declaration,                             // <?...?>
+    ProcessingInstruction,                   // <?...?>
     Text(String),                            // content (entity-decoded)
 }
 
@@ -25,29 +25,25 @@ pub enum XmlNode {
 
 impl XmlNode {
     pub fn to_json(&self) -> Result<String, String> {
-        self.to_json_at_depth(0)
+        self.to_json_impl(0, None)
     }
 
     pub fn to_pretty_json(&self, indent_size: usize) -> Result<String, String> {
-        self.to_json_recursive(0, indent_size)
+        self.to_json_impl(0, Some(indent_size))
     }
 
     pub fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> Result<String, String> {
-        self.to_json_recursive(depth, indent_size)
+        self.to_json_impl(depth, Some(indent_size))
     }
 
-    fn to_json_at_depth(&self, depth: usize) -> Result<String, String> {
+    fn to_json_impl(&self, depth: usize, indent: Option<usize>) -> Result<String, String> {
         if depth >= MAX_DEPTH {
             return Err("Nesting depth limit exceeded".to_string());
         }
         match self {
             XmlNode::Text(s) => Ok(format!("\"{}\"", Self::escape_json(s))),
-            XmlNode::Element {
-                name: _,
-                attributes,
-                children,
-            } => {
-                let mut parts = Vec::new();
+            XmlNode::Element { attributes, children, .. } => {
+                let mut parts: Vec<String> = Vec::new();
 
                 // 1. Attributes (order preserved from document)
                 for (key, value) in attributes {
@@ -56,169 +52,78 @@ impl XmlNode {
 
                 // 2. Group children by name, preserving order of first appearance
                 let mut seen_order: Vec<&str> = Vec::new();
-                let mut grouped_children: HashMap<&str, Vec<&XmlNode>> = HashMap::new();
-                let mut text_content = Vec::new();
+                let mut grouped: HashMap<&str, Vec<&XmlNode>> = HashMap::new();
+                let mut text_content: Vec<&String> = Vec::new();
 
                 for child in children {
                     match child {
                         XmlNode::Element { name, .. } => {
-                            if !grouped_children.contains_key(name.as_str()) {
+                            if !grouped.contains_key(name.as_str()) {
                                 seen_order.push(name.as_str());
                             }
-                            grouped_children
-                                .entry(name.as_str())
-                                .or_default()
-                                .push(child);
+                            grouped.entry(name.as_str()).or_default().push(child);
                         }
                         XmlNode::Text(t) => text_content.push(t),
                     }
                 }
 
-                // 3. Process grouped child nodes in document order
+                // 3. Serialize grouped children in document order
                 for name in &seen_order {
-                    let nodes = &grouped_children[name];
+                    let nodes = &grouped[name];
                     if nodes.len() > 1 {
                         let items: Vec<String> = nodes
                             .iter()
-                            .map(|n| n.to_json_at_depth(depth + 1))
+                            .map(|n| n.to_json_impl(depth + 1, indent))
                             .collect::<Result<Vec<_>, _>>()?;
-                        parts.push(format!("\"{}\": [{}]", name, items.join(", ")));
-                    } else {
-                        parts.push(format!(
-                            "\"{}\": {}",
-                            name,
-                            nodes[0].to_json_at_depth(depth + 1)?
-                        ));
-                    }
-                }
-
-                // 4. If there is only text and no attributes/children, return just a string
-                if parts.is_empty() && !text_content.is_empty() {
-                    let joined_text = text_content
-                        .iter()
-                        .map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .join(" ");
-                    return Ok(format!("\"{}\"", Self::escape_json(&joined_text)));
-                }
-
-                // If there is text along with other elements, add it as a special field
-                if !text_content.is_empty() && !parts.is_empty() {
-                    let joined_text = text_content
-                        .iter()
-                        .map(|s| s.as_str())
-                        .collect::<Vec<_>>()
-                        .join(" ");
-                    parts.push(format!(
-                        "\"#text\": \"{}\"",
-                        Self::escape_json(&joined_text)
-                    ));
-                }
-
-                Ok(format!("{{ {} }}", parts.join(", ")))
-            }
-        }
-    }
-
-    fn to_json_recursive(&self, depth: usize, indent_size: usize) -> Result<String, String> {
-        if depth >= MAX_DEPTH {
-            return Err("Nesting depth limit exceeded".to_string());
-        }
-        let current_indent = " ".repeat(depth * indent_size);
-        let next_indent = " ".repeat((depth + 1) * indent_size);
-
-        match self {
-            XmlNode::Text(s) => Ok(format!("\"{}\"", Self::escape_json(s))),
-
-            XmlNode::Element {
-                attributes,
-                children,
-                ..
-            } => {
-                let mut parts = Vec::new();
-
-                // 1. Attributes (order preserved from document)
-                for (key, value) in attributes {
-                    parts.push(format!("\"@{}\": \"{}\"", key, Self::escape_json(value)));
-                }
-
-                // 2. Group children by name, preserving order of first appearance
-                let mut seen_order: Vec<&str> = Vec::new();
-                let mut grouped_children: HashMap<&str, Vec<&XmlNode>> = HashMap::new();
-                let mut text_content = Vec::new();
-
-                for child in children {
-                    match child {
-                        XmlNode::Element { name, .. } => {
-                            if !grouped_children.contains_key(name.as_str()) {
-                                seen_order.push(name.as_str());
+                        let array_val = match indent {
+                            Some(sz) => {
+                                let item_pad = " ".repeat((depth + 2) * sz);
+                                let close_pad = " ".repeat((depth + 1) * sz);
+                                let sep = format!(",\n{}", item_pad);
+                                format!("[\n{}{}\n{}]", item_pad, items.join(&sep), close_pad)
                             }
-                            grouped_children
-                                .entry(name.as_str())
-                                .or_default()
-                                .push(child);
-                        }
-                        XmlNode::Text(t) => text_content.push(t),
-                    }
-                }
-
-                // 3. Process grouped child nodes in document order
-                for name in &seen_order {
-                    let nodes = &grouped_children[name];
-                    if nodes.len() > 1 {
-                        let items: Vec<String> = nodes
-                            .iter()
-                            .map(|n| n.to_json_recursive(depth + 2, indent_size))
-                            .collect::<Result<Vec<_>, _>>()?;
-
-                        let array_body =
-                            items.join(&format!(",\n{}", " ".repeat((depth + 2) * indent_size)));
-                        parts.push(format!(
-                            "\"{}\": [\n{}{}\n{}]",
-                            name,
-                            " ".repeat((depth + 2) * indent_size),
-                            array_body,
-                            next_indent
-                        ));
+                            None => format!("[{}]", items.join(", ")),
+                        };
+                        parts.push(format!("\"{}\": {}", name, array_val));
                     } else {
                         parts.push(format!(
                             "\"{}\": {}",
                             name,
-                            nodes[0].to_json_recursive(depth + 1, indent_size)?
+                            nodes[0].to_json_impl(depth + 1, indent)?
                         ));
                     }
                 }
 
                 // 4. Text content
-                let joined_text = text_content
-                    .iter()
-                    .map(|s| s.as_str())
-                    .collect::<Vec<_>>()
-                    .join(" ");
+                let joined = text_content.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("");
 
                 if parts.is_empty() && !text_content.is_empty() {
-                    return Ok(format!("\"{}\"", Self::escape_json(&joined_text)));
+                    return Ok(format!("\"{}\"", Self::escape_json(&joined)));
                 }
-
                 if !text_content.is_empty() {
-                    parts.push(format!(
-                        "\"#text\": \"{}\"",
-                        Self::escape_json(&joined_text)
-                    ));
+                    parts.push(format!("\"#text\": \"{}\"", Self::escape_json(&joined)));
                 }
 
-                let mut result = String::from("{\n");
-                for (i, part) in parts.iter().enumerate() {
-                    result.push_str(&next_indent);
-                    result.push_str(part);
-                    if i < parts.len() - 1 {
-                        result.push(',');
+                // 5. Assemble the object
+                Ok(match indent {
+                    Some(sz) => {
+                        let current_pad = " ".repeat(depth * sz);
+                        let next_pad = " ".repeat((depth + 1) * sz);
+                        let mut out = String::from("{\n");
+                        for (i, part) in parts.iter().enumerate() {
+                            out.push_str(&next_pad);
+                            out.push_str(part);
+                            if i + 1 < parts.len() {
+                                out.push(',');
+                            }
+                            out.push('\n');
+                        }
+                        out.push_str(&current_pad);
+                        out.push('}');
+                        out
                     }
-                    result.push('\n');
-                }
-                result.push_str(&current_indent);
-                result.push('}');
-                Ok(result)
+                    None => format!("{{ {} }}", parts.join(", ")),
+                })
             }
         }
     }
@@ -368,6 +273,22 @@ mod tests {
         let json = node.to_json().unwrap();
         assert!(json.contains("\"#text\""));
         assert!(json.contains("\"note\""));
+    }
+
+    #[test]
+    fn multiple_text_nodes_joined_without_separator() {
+        // "a " and " b" already carry their own whitespace — join must not add more
+        let node = XmlNode::Element {
+            name: "p".to_string(),
+            attributes: Vec::new(),
+            children: vec![
+                XmlNode::Text("a ".to_string()),
+                elem("b", vec![]),
+                XmlNode::Text(" c".to_string()),
+            ],
+        };
+        let json = node.to_json().unwrap();
+        assert!(json.contains("\"a  c\""), "got: {}", json);
     }
 
     #[test]
