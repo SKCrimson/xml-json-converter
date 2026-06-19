@@ -2,21 +2,21 @@ use crate::json_to_xml::json_model::JsonNode;
 use crate::json_to_xml::json_model::Token;
 use super::json_model::MAX_DEPTH;
 
-pub struct Parser<'a> {
-    tokens: Vec<Token<'a>>,
+pub struct Parser {
+    tokens: Vec<Token>,
     pos: usize,
 }
 
-impl<'a> Parser<'a> {
-    pub fn new(tokens: Vec<Token<'a>>) -> Self {
+impl Parser {
+    pub fn new(tokens: Vec<Token>) -> Self {
         Parser { tokens, pos: 0 }
     }
 
-    pub fn parse(&mut self) -> Result<JsonNode<'a>, String> {
+    pub fn parse(&mut self) -> Result<JsonNode, String> {
         self.parse_value(0)
     }
 
-    fn parse_value(&mut self, depth: usize) -> Result<JsonNode<'a>, String> {
+    fn parse_value(&mut self, depth: usize) -> Result<JsonNode, String> {
         if depth >= MAX_DEPTH {
             return Err("Nesting depth limit exceeded".to_string());
         }
@@ -26,31 +26,31 @@ impl<'a> Parser<'a> {
             Token::BraceOpen => self.parse_object(depth + 1),
             Token::BracketOpen => self.parse_array(depth + 1),
             Token::StringVal(s) => Ok(JsonNode::StringVal(s.clone())),
-            Token::Number(n) => Ok(JsonNode::Number(*n)),
+            Token::Number(n) => Ok(JsonNode::Number(n.clone())),
             Token::BoolVal(b) => Ok(JsonNode::BoolVal(*b)),
             Token::Null => Ok(JsonNode::Null),
             _ => Err("Invalid start of JSON".to_string()),
         }
     }
 
-    fn peek(&self) -> Option<&Token<'a>> {
+    fn peek(&self) -> Option<&Token> {
         self.tokens.get(self.pos)
     }
 
-    fn consume(&mut self) -> Option<&Token<'a>> {
+    fn consume(&mut self) -> Option<&Token> {
         let token = self.tokens.get(self.pos);
         self.pos += 1;
         token
     }
 
-    fn expect(&mut self, expected: Token<'a>, error_msg: &'static str) -> Result<(), String> {
+    fn expect(&mut self, expected: Token, error_msg: &'static str) -> Result<(), String> {
         match self.consume() {
             Some(t) if t == &expected => Ok(()),
             _ => Err(error_msg.to_string()),
         }
     }
 
-    fn parse_object(&mut self, depth: usize) -> Result<JsonNode<'a>, String> {
+    fn parse_object(&mut self, depth: usize) -> Result<JsonNode, String> {
         let mut pairs = Vec::new();
 
         if let Some(Token::BraceClose) = self.peek() {
@@ -78,7 +78,7 @@ impl<'a> Parser<'a> {
         Ok(JsonNode::Object(pairs))
     }
 
-    fn parse_array(&mut self, depth: usize) -> Result<JsonNode<'a>, String> {
+    fn parse_array(&mut self, depth: usize) -> Result<JsonNode, String> {
         let mut elements = Vec::new();
 
         if let Some(Token::BracketClose) = self.peek() {

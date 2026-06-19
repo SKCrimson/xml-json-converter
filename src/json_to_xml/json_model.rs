@@ -1,7 +1,7 @@
 pub(super) const MAX_DEPTH: usize = 512;
 
 #[derive(Debug, PartialEq)]
-pub enum Token<'a> {
+pub enum Token {
     BraceOpen,
     BraceClose,
     BracketOpen,
@@ -9,22 +9,22 @@ pub enum Token<'a> {
     Colon,
     Comma,
     StringVal(String),
-    Number(&'a str),
+    Number(String),
     BoolVal(bool),
     Null,
 }
 
 #[derive(Debug)]
-pub enum JsonNode<'a> {
-    Object(Vec<(String, JsonNode<'a>)>),
-    Array(Vec<JsonNode<'a>>),
+pub enum JsonNode {
+    Object(Vec<(String, JsonNode)>),
+    Array(Vec<JsonNode>),
     StringVal(String),
-    Number(&'a str),
+    Number(String),
     BoolVal(bool),
     Null,
 }
 
-impl<'a> JsonNode<'a> {
+impl JsonNode {
     pub fn to_xml(&self) -> Result<String, String> {
         self.to_xml_impl("root", 0, None)
     }
@@ -120,14 +120,14 @@ mod tests {
 
     #[test]
     fn number_to_xml() {
-        let node = JsonNode::Number("42");
+        let node = JsonNode::Number("42".to_string());
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<root>") && xml.contains("42") && xml.contains("</root>"));
     }
 
     #[test]
     fn large_integer_preserved_exactly() {
-        let node = JsonNode::Number("9007199254740993");
+        let node = JsonNode::Number("9007199254740993".to_string());
         assert!(node.to_xml().unwrap().contains("9007199254740993"));
     }
 

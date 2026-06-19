@@ -7,8 +7,6 @@ mod xml_parser;
 pub fn convert(xml: &str, pretty: bool) -> Result<String, String> {
     let mut lexer = xml_lexer::Lexer::new(xml);
     let tokens = lexer.tokenize()?;
-    // println!("Tokens: {:?}", tokens);
-
     let root_node = xml_parser::Parser::new(tokens).parse()?;
 
     let json_output = if let XmlNode::Element { name, .. } = &root_node {
@@ -294,6 +292,15 @@ mod tests {
         let msg = result.unwrap_err();
         assert!(!msg.contains("tag not closed"), "misleading message: {}", msg);
         assert!(msg.to_lowercase().contains("attribute"), "expected 'attribute' in error: {}", msg);
+    }
+
+    #[test]
+    fn boolean_attr_before_normal_attr_returns_error() {
+        // Previously find('=') jumped past 'disabled' and grabbed "disabled attr" as key.
+        let result = convert("<root disabled attr=\"x\">text</root>", false);
+        assert!(result.is_err(), "expected error for boolean attribute");
+        let msg = result.unwrap_err();
+        assert!(msg.to_lowercase().contains("attribute"), "got: {}", msg);
     }
 
     #[test]

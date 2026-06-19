@@ -18,10 +18,6 @@ pub fn get_content(file_path: &str) -> Result<String, String> {
     Ok(content)
 }
 
-pub fn validate(json: &str) -> Result<(), String> {
-    is_well_formed(json)
-}
-
 struct PosTracker<I: Iterator<Item = char>> {
     inner: I,
     line: usize,
@@ -42,7 +38,7 @@ impl<I: Iterator<Item = char>> Iterator for PosTracker<I> {
     }
 }
 
-fn is_well_formed(json: &str) -> Result<(), String> {
+pub fn validate(json: &str) -> Result<(), String> {
     let tracker = PosTracker {
         inner: json.chars(),
         line: 1,
@@ -246,7 +242,7 @@ where
     Err("Unclosed string".into())
 }
 
-fn consume_literal<I>(first_c: char, chars: &mut std::iter::Peekable<I>) -> Result<String, String>
+fn consume_literal<I>(first_c: char, chars: &mut std::iter::Peekable<I>) -> Result<(), String>
 where
     I: Iterator<Item = (char, usize, usize)>,
 {
@@ -260,8 +256,8 @@ where
         }
     }
     match lit.as_str() {
-        "true" | "false" | "null" => Ok(lit),
-        _ if lit.parse::<f64>().is_ok() => Ok(lit),
+        "true" | "false" | "null" => Ok(()),
+        _ if lit.parse::<f64>().is_ok() => Ok(()),
         _ => Err(format!("Invalid literal '{}'", lit)),
     }
 }

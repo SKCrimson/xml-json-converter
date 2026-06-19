@@ -32,7 +32,7 @@ impl XmlNode {
         self.to_json_impl(0, Some(indent_size))
     }
 
-    pub fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> Result<String, String> {
+    pub(super) fn to_pretty_json_at(&self, depth: usize, indent_size: usize) -> Result<String, String> {
         self.to_json_impl(depth, Some(indent_size))
     }
 

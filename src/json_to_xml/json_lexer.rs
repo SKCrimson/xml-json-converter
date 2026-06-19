@@ -19,7 +19,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn tokenize(&mut self) -> Result<Vec<Token<'a>>, String> {
+    pub fn tokenize(&mut self) -> Result<Vec<Token>, String> {
         let mut tokens = Vec::new();
         while let Some(token) = self.next_token()? {
             tokens.push(token);
@@ -27,7 +27,7 @@ impl<'a> Lexer<'a> {
         Ok(tokens)
     }
 
-    fn next_token(&mut self) -> Result<Option<Token<'a>>, String> {
+    fn next_token(&mut self) -> Result<Option<Token>, String> {
         self.skip_whitespace();
 
         let (start_idx, c) = match self.consume() {
@@ -137,7 +137,7 @@ impl<'a> Lexer<'a> {
         start_idx: usize,
         line: usize,
         col: usize,
-    ) -> Result<Option<Token<'a>>, String> {
+    ) -> Result<Option<Token>, String> {
         let mut end_idx = start_idx;
         // First char (n/t/f/digit/minus) is always ASCII — length is 1.
         let mut last_char_len: usize = 1;
@@ -160,7 +160,7 @@ impl<'a> Lexer<'a> {
             "null" => Ok(Some(Token::Null)),
             _ => {
                 if s.parse::<f64>().is_ok() {
-                    Ok(Some(Token::Number(s)))
+                    Ok(Some(Token::Number(s.to_string())))
                 } else {
                     Err(format!(
                         "Invalid literal '{}' at line {}, col {}",
@@ -187,7 +187,7 @@ mod tests {
     #[test]
     fn valid_integer_literal() {
         let tokens = Lexer::new("42").tokenize().unwrap();
-        assert_eq!(tokens, vec![Token::Number("42")]);
+        assert_eq!(tokens, vec![Token::Number("42".to_string())]);
     }
 
     #[test]

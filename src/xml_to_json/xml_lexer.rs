@@ -211,16 +211,21 @@ impl<'a> Lexer<'a> {
             return None;
         }
 
-        let eq_pos = match rest.find('=') {
-            Some(i) => i,
-            None => {
-                self.error = Some("Attribute without '=' in tag".to_string());
-                return None;
-            }
-        };
-        let key = rest[..eq_pos].trim();
+        // Attribute names cannot contain whitespace, '=', '>', or '/'.
+        // Stop at the first such character to isolate the name.
+        let name_end = rest
+            .find(|c: char| c.is_whitespace() || c == '=' || c == '>' || c == '/')
+            .unwrap_or(rest.len());
+        let key = &rest[..name_end];
 
-        let after_eq = rest[eq_pos + 1..].trim_start();
+        // After the name, skip optional whitespace and require '='.
+        let after_name = rest[name_end..].trim_start();
+        if !after_name.starts_with('=') {
+            self.error = Some("Attribute without '=' in tag".to_string());
+            return None;
+        }
+
+        let after_eq = after_name[1..].trim_start(); // skip '='
         let quote = after_eq.chars().next()?;
         let val_start = quote.len_utf8();
         let val_end = after_eq[val_start..].find(quote)? + val_start;

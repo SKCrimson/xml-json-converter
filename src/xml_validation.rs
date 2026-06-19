@@ -7,10 +7,6 @@ pub fn get_content(file_path: &str) -> Result<String, String> {
 }
 
 pub fn validate(xml: &str) -> Result<(), String> {
-    is_well_formed(xml)
-}
-
-fn is_well_formed(xml: &str) -> Result<(), String> {
     let mut stack = Vec::new();
     let mut root_count = 0;
     let mut chars = xml.chars().peekable();
