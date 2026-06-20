@@ -21,7 +21,7 @@ pub fn convert(xml: &str, indent: usize) -> Result<String, String> {
         let pad = " ".repeat(indent);
         format!("{{\n{}\"{}\": {}\n}}", pad, name, root_node.to_pretty_json_at(1, indent)?)
     } else {
-        format!("{{ \"{}\": {} }}", name, root_node.to_json()?)
+        format!("{{\"{}\":{}}}", name, root_node.to_json()?)
     };
 
     Ok(json_output)
@@ -316,6 +316,24 @@ mod tests {
     }
 
     #[test]
+    fn xml_with_doctype_attlist_default_containing_bracket_gt() {
+        // "]>" inside a quoted ATTLIST default must not close the internal subset early
+        let xml = "<!DOCTYPE root [ <!ATTLIST item val CDATA \"def]>ault\"> ]><root><item>ok</item></root>";
+        let result = convert(xml, 0).unwrap();
+        assert!(result.contains("\"item\""), "got: {}", result);
+        assert!(result.contains("\"ok\""), "got: {}", result);
+    }
+
+    #[test]
+    fn xml_with_doctype_comment_containing_bracket_gt() {
+        // "]>" inside a DTD comment must not close the internal subset early
+        let xml = "<!DOCTYPE root [ <!-- ]> --> ]><root><name>test</name></root>";
+        let result = convert(xml, 0).unwrap();
+        assert!(result.contains("\"name\""), "got: {}", result);
+        assert!(result.contains("\"test\""), "got: {}", result);
+    }
+
+    #[test]
     fn multibyte_utf8_text_content() {
         let xml = "<root>Привет мир</root>";
         let result = convert(xml, 0).unwrap();
@@ -392,7 +410,7 @@ mod tests {
     fn empty_cdata_produces_empty_object() {
         // <![CDATA[]]> contributes zero characters — same as no content at all
         let result = convert("<root><![CDATA[]]></root>", 0).unwrap();
-        assert_eq!(result.trim(), "{ \"root\": {} }", "got: {}", result);
+        assert_eq!(result.trim(), "{\"root\":{}}", "got: {}", result);
     }
 
     #[test]

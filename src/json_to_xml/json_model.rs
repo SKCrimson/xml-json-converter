@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 pub(super) const MAX_DEPTH: usize = 512;
 
 #[derive(Debug, PartialEq)]
@@ -42,16 +44,21 @@ impl JsonNode {
 
         match self {
             JsonNode::Object(pairs) => {
+                let mut seen_tags: HashMap<String, usize> = HashMap::new();
                 let mut inner = String::new();
                 for (key, val) in pairs {
+                    let base = sanitize_tag_name(key);
+                    let n = seen_tags.entry(base.clone()).or_insert(0);
+                    *n += 1;
+                    let tag = if *n == 1 { base } else { format!("{}_{}", base, n) };
                     if let JsonNode::Array(elements) = val {
                         for el in elements {
                             if indent.is_some() { inner.push('\n'); }
-                            inner.push_str(&el.to_xml_impl(key, depth + 1, indent)?);
+                            inner.push_str(&el.to_xml_impl(&tag, depth + 1, indent)?);
                         }
                     } else {
                         if indent.is_some() { inner.push('\n'); }
-                        inner.push_str(&val.to_xml_impl(key, depth + 1, indent)?);
+                        inner.push_str(&val.to_xml_impl(&tag, depth + 1, indent)?);
                     }
                 }
                 let close_pad = if indent.is_some() { format!("\n{}", pad) } else { String::new() };
@@ -333,5 +340,56 @@ mod tests {
         let xml = node.to_xml().unwrap();
         assert!(xml.contains("<_xsi:type>"), "got: {}", xml);
         assert!(!xml.contains("<_xsi_type>"), "colon was incorrectly replaced: {}", xml);
+    }
+
+    #[test]
+    fn colliding_keys_second_gets_numeric_suffix() {
+        // "_id" and "@id" both sanitize to "_id"; second occurrence gets "_id_2"
+        let node = JsonNode::Object(vec![
+            ("_id".to_string(), JsonNode::StringVal("first".to_string())),
+            ("@id".to_string(), JsonNode::StringVal("second".to_string())),
+        ]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<_id>first</_id>"), "got: {}", xml);
+        assert!(xml.contains("<_id_2>second</_id_2>"), "got: {}", xml);
+    }
+
+    #[test]
+    fn triple_collision_gets_sequential_suffixes() {
+        // "@k", "#k", and "_k" all sanitize to "_k"
+        let node = JsonNode::Object(vec![
+            ("_k".to_string(), JsonNode::StringVal("a".to_string())),
+            ("@k".to_string(), JsonNode::StringVal("b".to_string())),
+            ("#k".to_string(), JsonNode::StringVal("c".to_string())),
+        ]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<_k>a</_k>"), "got: {}", xml);
+        assert!(xml.contains("<_k_2>b</_k_2>"), "got: {}", xml);
+        assert!(xml.contains("<_k_3>c</_k_3>"), "got: {}", xml);
+    }
+
+    #[test]
+    fn digit_prefix_collision_resolved() {
+        // "1key" sanitizes to "_1key"; if "_1key" is also present, second gets "_1key_2"
+        let node = JsonNode::Object(vec![
+            ("_1key".to_string(), JsonNode::StringVal("original".to_string())),
+            ("1key".to_string(), JsonNode::StringVal("sanitized".to_string())),
+        ]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<_1key>original</_1key>"), "got: {}", xml);
+        assert!(xml.contains("<_1key_2>sanitized</_1key_2>"), "got: {}", xml);
+    }
+
+    #[test]
+    fn unique_keys_unaffected_by_collision_fix() {
+        // Non-colliding keys must still produce their original sanitized names
+        let node = JsonNode::Object(vec![
+            ("name".to_string(), JsonNode::StringVal("Alice".to_string())),
+            ("@role".to_string(), JsonNode::StringVal("admin".to_string())),
+        ]);
+        let xml = node.to_xml().unwrap();
+        assert!(xml.contains("<name>Alice</name>"), "got: {}", xml);
+        assert!(xml.contains("<_role>admin</_role>"), "got: {}", xml);
+        assert!(!xml.contains("_2"), "unexpected suffix: {}", xml);
     }
 }

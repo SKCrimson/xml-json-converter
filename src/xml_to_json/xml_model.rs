@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 const MAX_DEPTH: usize = 512;
@@ -6,10 +7,10 @@ const MAX_DEPTH: usize = 512;
 pub enum Token<'a> {
     TagOpen(&'a str),                        // <name
     TagClose(&'a str),                       // </name>
-    Attr(&'a str, String),                    // (full-name, decoded-value)
+    Attr(&'a str, Cow<'a, str>),             // (full-name, decoded-value)
     TagSelfClose,                            // />
     ProcessingInstruction,                   // <?...?>
-    Text(String),                            // content (entity-decoded)
+    Text(Cow<'a, str>),                      // content (entity-decoded)
 }
 
 #[derive(Debug)]
@@ -39,10 +40,11 @@ impl XmlNode {
             XmlNode::Text(s) => Ok(format!("\"{}\"", Self::escape_json(s))),
             XmlNode::Element { attributes, children, .. } => {
                 let mut parts: Vec<String> = Vec::new();
+                let kv_sep = if indent.is_some() { ": " } else { ":" };
 
                 // 1. Attributes (order preserved from document)
                 for (key, value) in attributes {
-                    parts.push(format!("\"@{}\": \"{}\"", key, Self::escape_json(value)));
+                    parts.push(format!("\"@{}\"{}\"{}\"", key, kv_sep, Self::escape_json(value)));
                 }
 
                 // 2. Group children by name, preserving order of first appearance
@@ -78,13 +80,14 @@ impl XmlNode {
                                 let sep = format!(",\n{}", item_pad);
                                 format!("[\n{}{}\n{}]", item_pad, items.join(&sep), close_pad)
                             }
-                            None => format!("[{}]", items.join(", ")),
+                            None => format!("[{}]", items.join(",")),
                         };
-                        parts.push(format!("\"{}\": {}", name, array_val));
+                        parts.push(format!("\"{}\"{}{}",name, kv_sep, array_val));
                     } else {
                         parts.push(format!(
-                            "\"{}\": {}",
+                            "\"{}\"{}{}",
                             name,
+                            kv_sep,
                             nodes[0].to_json_impl(depth + 1, indent)?
                         ));
                     }
@@ -105,7 +108,7 @@ impl XmlNode {
                     return Ok(format!("\"{}\"", Self::escape_json(&joined)));
                 }
                 if !effective_text.is_empty() {
-                    parts.push(format!("\"#text\": \"{}\"", Self::escape_json(&joined)));
+                    parts.push(format!("\"#text\"{}\"{}\"", kv_sep, Self::escape_json(&joined)));
                 }
 
                 // 5. Assemble the object
@@ -129,7 +132,7 @@ impl XmlNode {
                     None => if parts.is_empty() {
                         "{}".to_string()
                     } else {
-                        format!("{{ {} }}", parts.join(", "))
+                        format!("{{{}}}", parts.join(","))
                     },
                 })
             }
@@ -209,7 +212,7 @@ mod tests {
     fn element_with_attribute_has_at_prefix() {
         let node = elem_attr("root", &[("id", "1")]);
         let json = node.to_json().unwrap();
-        assert!(json.contains("\"@id\": \"1\""));
+        assert!(json.contains("\"@id\":\"1\""));
     }
 
     #[test]

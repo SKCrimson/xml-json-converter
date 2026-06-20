@@ -1,8 +1,9 @@
+use std::borrow::Cow;
 use crate::xml_to_json::xml_model::Token;
 
-fn decode_entities(s: &str) -> String {
+fn decode_entities<'a>(s: &'a str) -> Cow<'a, str> {
     if !s.contains('&') {
-        return s.to_string();
+        return Cow::Borrowed(s);
     }
 
     let mut out = String::with_capacity(s.len());
@@ -51,7 +52,41 @@ fn decode_entities(s: &str) -> String {
         }
     }
 
-    out
+    Cow::Owned(out)
+}
+
+fn find_doctype_subset_end(s: &str) -> usize {
+    // Scan the DTD internal subset body (everything after the opening '['),
+    // returning the number of bytes consumed up to and including the closing "]>".
+    // Tracks quoted strings and <!-- comments --> so that "]>" inside either
+    // does not close the subset prematurely.
+    let bytes = s.as_bytes();
+    let mut i = 0;
+    let mut in_quote: Option<u8> = None;
+    while i < bytes.len() {
+        let b = bytes[i];
+        match in_quote {
+            Some(q) => {
+                if b == q { in_quote = None; }
+                i += 1;
+            }
+            None => {
+                if bytes[i..].starts_with(b"<!--") {
+                    match s[i..].find("-->") {
+                        Some(end) => { i += end + 3; }
+                        None => return s.len(),
+                    }
+                } else {
+                    match b {
+                        b'"' | b'\'' => { in_quote = Some(b); i += 1; }
+                        b']' if bytes.get(i + 1) == Some(&b'>') => return i + 2,
+                        _ => i += 1,
+                    }
+                }
+            }
+        }
+    }
+    s.len()
 }
 
 pub struct Lexer<'a> {
@@ -187,7 +222,7 @@ impl<'a> Lexer<'a> {
                         let content = &rest[PREFIX..end];
                         self.advance(end + "]]>".len());
                         if !content.is_empty() {
-                            return Some(Token::Text(content.to_string()));
+                            return Some(Token::Text(Cow::Borrowed(content)));
                         }
                         continue;
                     }
@@ -200,10 +235,11 @@ impl<'a> Lexer<'a> {
             } else if rest.starts_with("<!") {
                 // Skip <!DOCTYPE> and similar declarations.
                 // If "[" appears before the first ">", an internal subset is present:
-                // skip to the matching "]>" that closes both the subset and the declaration.
+                // scan past it with find_doctype_subset_end so that "]>" inside
+                // quoted strings or comments does not close the subset prematurely.
                 let end = match rest.find('[') {
                     Some(bracket) if rest.find('>').map_or(true, |gt| bracket < gt) => {
-                        rest.find("]>").map(|i| i + 2).unwrap_or(rest.len())
+                        bracket + 1 + find_doctype_subset_end(&rest[bracket + 1..])
                     }
                     _ => rest.find('>').map(|i| i + 1).unwrap_or(rest.len()),
                 };
