@@ -86,19 +86,31 @@ impl JsonNode {
 
 fn escape_xml_text(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
+    // Buffer consecutive ']' so that ]]> (forbidden in XML 1.0 §2.4) can be
+    // detected and its '>' escaped without a second pass over the output.
+    let mut brackets = 0usize;
+
     for c in text.chars() {
         match c {
-            '&' => out.push_str("&amp;"),
-            '<' => out.push_str("&lt;"),
-            c   => out.push(c),
+            ']' => brackets += 1,
+            '>' if brackets >= 2 => {
+                for _ in 0..brackets - 2 { out.push(']'); }
+                out.push_str("]]&gt;");
+                brackets = 0;
+            }
+            _ => {
+                for _ in 0..brackets { out.push(']'); }
+                brackets = 0;
+                match c {
+                    '&' => out.push_str("&amp;"),
+                    '<' => out.push_str("&lt;"),
+                    c   => out.push(c),
+                }
+            }
         }
     }
-    // ]]> is forbidden in XML text content (XML 1.0 §2.4); escape the closing >
-    if out.contains("]]>") {
-        out.replace("]]>", "]]&gt;")
-    } else {
-        out
-    }
+    for _ in 0..brackets { out.push(']'); }
+    out
 }
 
 fn sanitize_tag_name(name: &str) -> String {
