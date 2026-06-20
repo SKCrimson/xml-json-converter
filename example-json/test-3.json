@@ -1,1 +1,1276 @@
-{ "GridsOptions": { "ColumnsOption": [{ "@optionName": "Vše", "Column": [{ "@columnName": "KatalogoveCislo", "Header": "Číslo", "Visible": "true", "Index": "0", "Width": "79.11" }, { "@columnName": "Koncovka", "Header": "Koncovka", "Visible": "true", "Index": "1", "Width": "61.876666666666672" }, { "@columnName": "NazevMedium", "Header": "Media", "Visible": "true", "Index": "2", "Width": "44.133333333333333" }, { "@columnName": "ProjektoveCislo", "Header": "Projekt", "Visible": "true", "Index": "3", "Width": "48.13666666666667" }, { "@columnName": "Vydavatele", "Header": "Vydavatel", "Visible": "true", "Index": "4", "Width": "62.536666666666669" }, { "@columnName": "NazevCesky", "Header": "Název česky", "Visible": "true", "Index": "5", "Width": "75.503333333333345" }, { "@columnName": "NazevAnglicky", "Header": "Název anglicky", "Visible": "true", "Index": "6", "Width": "89.910000000000011" }, { "@columnName": "NazevObchodni", "Header": "Název obchodní", "Visible": "true", "Index": "7", "Width": "97.03" }, { "@columnName": "NazevObchodniAnglicky", "Header": "Název ang.obchodní", "Visible": "true", "Index": "8", "Width": "119.59333333333333" }, { "@columnName": "PrimarniCarovyKod", "Header": "Prim. čárový kód", "Visible": "true", "Index": "9", "Width": "98.776666666666671" }, { "@columnName": "CaroveKody.EAN", "Header": "EAN", "Visible": "true", "Index": "10", "Width": "33.786666666666669" }, { "@columnName": "CaroveKody.GEAN", "Header": "GEAN", "Visible": "true", "Index": "11", "Width": "42.02" }, { "@columnName": "CaroveKody.GEAN_SK", "Header": "GEAN SK", "Visible": "true", "Index": "12", "Width": "58.64" }, { "@columnName": "CaroveKody.UPC", "Header": "UPC", "Visible": "true", "Index": "13", "Width": "33.393333333333331" }, { "@columnName": "Editor", "Header": "Editor", "Visible": "true", "Index": "14", "Width": "42.313333333333333" }, { "@columnName": "EditorDigi", "Header": "Editor Digi", "Visible": "true", "Index": "15", "Width": "66.893333333333345" }, { "@columnName": "ZajmovyNaklad", "Header": "Zájmový náklad", "Visible": "true", "Index": "16", "Width": "94.003333333333345" }, { "@columnName": "Kompilace", "Header": "Kompilace", "Visible": "true", "Index": "17", "Width": "65.826666666666668" }, { "@columnName": "ObchodniAkceOmezeny", "Header": "Obchodní akce omezeny", "Visible": "true", "Index": "18", "Width": "141.63333333333335" }, { "@columnName": "PrvniRokVydani", "Header": "℗", "Visible": "true", "Index": "19", "Width": "21.68" }, { "@columnName": "DatVydani", "Header": "Vydáno", "Visible": "true", "Index": "20", "Width": "51.253333333333337" }, { "@columnName": "NazevKatalogoveCisloTyp", "Header": "Typ", "Visible": "true", "Index": "21", "Width": "29.486666666666668" }, { "@columnName": "StopazKatalogoveCislo", "Header": "Stopáž", "Visible": "true", "Index": "22", "Width": "46.67" }, { "@columnName": "OznameniOSA", "Header": "Oznámení OSA", "Visible": "true", "Index": "23", "Width": "91.126666666666665" }, { "@columnName": "PoznamkaKatalogoveCislo", "Header": "Poznámka", "Visible": "true", "Index": "24", "Width": "65.036666666666662" }, { "@columnName": "CelyNazevCenoveKategorie", "Header": "Cenová kategorie k datu", "Visible": "true", "Index": "25", "Width": "140.1" }, { "@columnName": "CenaDataFyzicka.KodCenoveKategorie", "Header": "Kód CK fyzická", "Visible": "true", "Index": "26", "Width": "88.236666666666665" }, { "@columnName": "CenaDataFyzicka.PocetNosicu", "Header": "Počet nosičů CK fyzická", "Visible": "true", "Index": "27", "Width": "134.10666666666668" }, { "@columnName": "CenaDataFyzicka.NazevCenovaKategorie", "Header": "Název CK fyzická", "Visible": "true", "Index": "28", "Width": "100.00666666666667" }, { "@columnName": "ZkratkaZakladniZanr", "Header": "Základní žánr", "Visible": "true", "Index": "29", "Width": "81.473333333333343" }, { "@columnName": "ZkratkaZanrKatalogoveCislo", "Header": "Žánr KČ kód", "Visible": "true", "Index": "30", "Width": "75.410000000000011" }, { "@columnName": "NazevZanrKatalogoveCislo", "Header": "Žánr KČ", "Visible": "true", "Index": "31", "Width": "52.063333333333333" }, { "@columnName": "NazevZanrProExport", "Header": "Žánr export", "Visible": "true", "Index": "32", "Width": "72.306666666666672" }, { "@columnName": "PocetVzorku", "Header": "Počet vzorků", "Visible": "true", "Index": "33", "Width": "78.61" }, { "@columnName": "ArtistDisplayCesky", "Header": "Artist Display", "Visible": "true", "Index": "34", "Width": "80.62" }, { "@columnName": "ArtistDisplayAnglicky", "Header": "Artist Display ang.", "Visible": "true", "Index": "35", "Width": "106.47000000000001" }, { "@columnName": "PrepisovatSkladby", "Header": "Přepisovat podle snímků", "Visible": "true", "Index": "36", "Width": "140.96" }, { "@columnName": "ObalPoznamka", "Header": "Obal - přední", "Visible": "true", "Index": "37", "Width": "81.753333333333345" }, { "@columnName": "ObalZadniPoznamka", "Header": "Obal - zadní", "Visible": "true", "Index": "38", "Width": "75.783333333333331" }, { "@columnName": "ExistujeObal", "Header": "Obal uložen", "Visible": "true", "Index": "39", "Width": "74.62" }, { "@columnName": "NazevDigitalni", "Header": "Název digitální", "Visible": "true", "Index": "40", "Width": "89.543333333333337" }, { "@columnName": "NazevDigitalniAnglicky", "Header": "Název digitální ang.", "Visible": "true", "Index": "41", "Width": "115.39333333333335" }, { "@columnName": "NazevSklad", "Header": "Název sklad", "Visible": "true", "Index": "42", "Width": "73.956666666666678" }, { "@columnName": "ArtistDisplaySklad", "Header": "Art. display sklad", "Visible": "true", "Index": "43", "Width": "100.23" }, { "@columnName": "CenaDataDigitalni.NazevCenovaHaldina", "Header": "Cenová hladina", "Visible": "true", "Index": "44", "Width": "92.34" }, { "@columnName": "CenaDataDigitalni.NazevCenovaKategorieDigitalni", "Header": "Název CK digitální", "Visible": "true", "Index": "45", "Width": "107.22000000000001" }, { "@columnName": "CenaDataFyzicka.Cena.CZK_DPC", "Header": "CZK DPC", "Visible": "true", "Index": "46", "Width": "58.083333333333336" }, { "@columnName": "CenaDataFyzicka.Cena.CZK_PPD", "Header": "CZK PPD", "Visible": "true", "Index": "47", "Width": "57.373333333333335" }, { "@columnName": "CenaDataFyzicka.Cena.CZK_DPC_2016", "Header": "CZK DPC 2016", "Visible": "true", "Index": "48", "Width": "87.25" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_MP3", "Header": "CZK PPD MP3", "Visible": "true", "Index": "49", "Width": "84.626666666666665" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_MP3", "Header": "CZK DPC MP3", "Visible": "true", "Index": "50", "Width": "85.336666666666673" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_FLAC", "Header": "CZK DPC FLAC", "Visible": "true", "Index": "51", "Width": "88.166666666666671" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_FLAC", "Header": "CZK PPD FLAC", "Visible": "true", "Index": "52", "Width": "87.456666666666678" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_HiRes", "Header": "CZK DPC HiRes", "Visible": "true", "Index": "53", "Width": "90.993333333333339" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_HiRes", "Header": "CZK PPD HiRes", "Visible": "true", "Index": "54", "Width": "90.283333333333331" }, { "@columnName": "VlastniciZvuku", "Header": "Vlastníci zvuku", "Visible": "true", "Index": "55", "Width": "88.776666666666671" }, { "@columnName": "VlastniciObrazu", "Header": "Vlastníci obrazu", "Visible": "true", "Index": "56", "Width": "94.64" }, { "@columnName": "Distributori", "Header": "Distributoři", "Visible": "true", "Index": "57", "Width": "70.580000000000013" }, { "@columnName": "DistribucniSmlouva", "Header": "Distribuční smlouva", "Visible": "true", "Index": "58", "Width": "114.94000000000001" }, { "@columnName": "VydavatelePuvodni", "Header": "Vyd. původní", "Visible": "true", "Index": "59", "Width": "80.596666666666678" }, { "@columnName": "Oceneni", "Header": "Ocenění", "Visible": "true", "Index": "60", "Width": "54.63" }, { "@columnName": "ProdejnePouzeJakoCelek", "Header": "Prod. pouze jako celek", "Visible": "true", "Index": "61", "Width": "130" }, { "@columnName": "DatUvedeniFyzickyTrh", "Header": "Uvedení na fyzický trh", "Visible": "true", "Index": "62", "Width": "127.30333333333334" }, { "@columnName": "DatUvedeniDigitalniTrh", "Header": "Uvedení na digi trh", "Visible": "true", "Index": "63", "Width": "112.04" }, { "@columnName": "StezejniInterpreti", "Header": "Stěžejní interpreti", "Visible": "true", "Index": "64", "Width": "103.61333333333334" }, { "@columnName": "StezejniAutori", "Header": "Stěžejní autoři", "Visible": "true", "Index": "65", "Width": "85.99666666666667" }, { "@columnName": "ZkratkaLabel", "Header": "Label", "Visible": "true", "Index": "66", "Width": "38.993333333333339" }, { "@columnName": "VydavatelVydalVRoce", "Header": "Vydavatel vydal v roce", "Visible": "true", "Index": "67", "Width": "128.8" }, { "@columnName": "NazevMedium1OC", "Header": "Médium (1. OC)", "Visible": "true", "Index": "68", "Width": "94.513333333333335" }, { "@columnName": "ZkratkaAudioKvalita", "Header": "Audio kvalita", "Visible": "true", "Index": "69", "Width": "79.623333333333335" }, { "@columnName": "DigitalniNahrada", "Header": "Digitální náhrada", "Visible": "true", "Index": "70", "Width": "101.49666666666667" }, { "@columnName": "PocetOC", "Header": "Počet OC", "Visible": "true", "Index": "71", "Width": "59.956666666666671" }, { "@columnName": "VypnoutSrazeniNosicu", "Header": "Vyp. srážení nosičů pro Believe", "Visible": "true", "Index": "72", "Width": "173.51333333333335" }, { "@columnName": "Verze", "Header": "Verze", "Visible": "true", "Index": "73", "Width": "39.843333333333334" }, { "@columnName": "StreamingZakazan", "Header": "Streaming zakázán", "Visible": "true", "Index": "74", "Width": "109.92333333333335" }, { "@columnName": "NahraniPouzeRok", "Header": "Nah. snímků - pouze rok", "Visible": "true", "Index": "75", "Width": "141.04333333333335" }, { "@columnName": "PridruzeneSnimky", "Header": "Přidružené snímky", "Visible": "true", "Index": "76", "Width": "107.78333333333335" }, { "@columnName": "JevAdp", "Header": "Je v ADP", "Visible": "true", "Index": "77", "Width": "56.753333333333337" }, { "@columnName": "TrackyADP", "Header": "Tracky v ADP", "Visible": "true", "Index": "78", "Width": "79.03" }, { "@columnName": "Skladem", "Header": "Kusů na skladě", "Visible": "true", "Index": "79", "Width": "89.516666666666666" }, { "@columnName": "PoslatNaSklad", "Header": "Poslat na sklad", "Visible": "true", "Index": "80", "Width": "89.086666666666673" }, { "@columnName": "JeVPoslucharne", "Header": "Je v posluchárně", "Visible": "true", "Index": "81", "Width": "98.433333333333337" }, { "@columnName": "IntergramHlasit", "Header": "Hlásit na Intergram", "Visible": "true", "Index": "82", "Width": "112.25333333333334" }, { "@columnName": "EdicniPlan", "Header": "Ediční plán", "Visible": "true", "Index": "83", "Width": "68.426666666666677" }, { "@columnName": "Dph", "Header": "DPH", "Visible": "true", "Index": "84", "Width": "34.653333333333336" }, { "@columnName": "TypProdejeKatalogoveCislo", "Header": "Typ prodeje kč", "Visible": "true", "Index": "85", "Width": "88.350000000000009" }, { "@columnName": "RoleKatalogoveCislo", "Header": "Role kč", "Visible": "true", "Index": "86", "Width": "48.833333333333336" }, { "@columnName": "MasterPas", "Header": "Master pás", "Visible": "true", "Index": "87", "Width": "69.033333333333331" }, { "@columnName": "Slozka", "Header": "Složky", "Visible": "true", "Index": "88", "Width": "44.506666666666668" }, { "@columnName": "Smlouva", "Header": "Smlouvy", "Visible": "true", "Index": "89", "Width": "55.99" }] }, { "@optionName": "", "Column": [{ "@columnName": "KatalogoveCislo", "Header": "Číslo", "Visible": "true", "Index": "0", "Width": "79.11" }, { "@columnName": "Koncovka", "Header": "Koncovka", "Visible": "true", "Index": "1", "Width": "61.876666666666672" }, { "@columnName": "ProjektoveCislo", "Header": "Projekt", "Visible": "true", "Index": "2", "Width": "48.13666666666667" }, { "@columnName": "Vydavatele", "Header": "Vydavatel", "Visible": "true", "Index": "3", "Width": "62.536666666666669" }, { "@columnName": "NazevCesky", "Header": "Název česky", "Visible": "true", "Index": "4", "Width": "75.503333333333345" }, { "@columnName": "NazevAnglicky", "Header": "Název anglicky", "Visible": "true", "Index": "5", "Width": "89.910000000000011" }, { "@columnName": "NazevObchodni", "Header": "Název obchodní", "Visible": "true", "Index": "6", "Width": "97.03" }, { "@columnName": "NazevObchodniAnglicky", "Header": "Název ang.obchodní", "Visible": "true", "Index": "7", "Width": "119.59333333333333" }, { "@columnName": "PrimarniCarovyKod", "Header": "Prim. čárový kód", "Visible": "true", "Index": "8", "Width": "98.776666666666671" }, { "@columnName": "CaroveKody.EAN", "Header": "EAN", "Visible": "true", "Index": "9", "Width": "33.786666666666669" }, { "@columnName": "CaroveKody.UPC", "Header": "UPC", "Visible": "true", "Index": "10", "Width": "33.393333333333331" }, { "@columnName": "PrvniRokVydani", "Header": "℗", "Visible": "false", "Index": "11", "Width": "21.68" }, { "@columnName": "ArtistDisplaySklad", "Header": "Art. display sklad", "Visible": "false", "Index": "12", "Width": "100.23" }, { "@columnName": "ArtistDisplayCesky", "Header": "Artist Display", "Visible": "false", "Index": "13", "Width": "80.62" }, { "@columnName": "ArtistDisplayAnglicky", "Header": "Artist Display ang.", "Visible": "false", "Index": "14", "Width": "106.47000000000001" }, { "@columnName": "ZkratkaAudioKvalita", "Header": "Audio kvalita", "Visible": "false", "Index": "15", "Width": "79.623333333333335" }, { "@columnName": "CenaDataDigitalni.NazevCenovaHaldina", "Header": "Cenová hladina", "Visible": "false", "Index": "16", "Width": "92.34" }, { "@columnName": "CelyNazevCenoveKategorie", "Header": "Cenová kategorie k datu", "Visible": "false", "Index": "17", "Width": "140.1" }, { "@columnName": "CenaDataFyzicka.Cena.CZK_DPC", "Header": "CZK DPC", "Visible": "false", "Index": "18", "Width": "58.083333333333336" }, { "@columnName": "CenaDataFyzicka.Cena.CZK_DPC_2016", "Header": "CZK DPC 2016", "Visible": "false", "Index": "19", "Width": "87.25" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_FLAC", "Header": "CZK DPC FLAC", "Visible": "false", "Index": "20", "Width": "88.166666666666671" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_HiRes", "Header": "CZK DPC HiRes", "Visible": "false", "Index": "21", "Width": "90.993333333333339" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_MP3", "Header": "CZK DPC MP3", "Visible": "false", "Index": "22", "Width": "85.336666666666673" }, { "@columnName": "CenaDataFyzicka.Cena.CZK_PPD", "Header": "CZK PPD", "Visible": "false", "Index": "23", "Width": "57.373333333333335" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_FLAC", "Header": "CZK PPD FLAC", "Visible": "false", "Index": "24", "Width": "87.456666666666678" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_HiRes", "Header": "CZK PPD HiRes", "Visible": "false", "Index": "25", "Width": "90.283333333333331" }, { "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_MP3", "Header": "CZK PPD MP3", "Visible": "false", "Index": "26", "Width": "84.626666666666665" }, { "@columnName": "DigitalniNahrada", "Header": "Digitální náhrada", "Visible": "false", "Index": "27", "Width": "101.49666666666667" }, { "@columnName": "DistribucniSmlouva", "Header": "Distribuční smlouva", "Visible": "false", "Index": "28", "Width": "114.94000000000001" }, { "@columnName": "Distributori", "Header": "Distributoři", "Visible": "false", "Index": "29", "Width": "70.580000000000013" }, { "@columnName": "Dph", "Header": "DPH", "Visible": "false", "Index": "30", "Width": "34.653333333333336" }, { "@columnName": "EdicniPlan", "Header": "Ediční plán", "Visible": "false", "Index": "31", "Width": "68.426666666666677" }, { "@columnName": "Editor", "Header": "Editor", "Visible": "false", "Index": "32", "Width": "42.313333333333333" }, { "@columnName": "EditorDigi", "Header": "Editor Digi", "Visible": "false", "Index": "33", "Width": "66.893333333333345" }, { "@columnName": "CaroveKody.GEAN", "Header": "GEAN", "Visible": "false", "Index": "34", "Width": "42.02" }, { "@columnName": "CaroveKody.GEAN_SK", "Header": "GEAN SK", "Visible": "false", "Index": "35", "Width": "58.64" }, { "@columnName": "IntergramHlasit", "Header": "Hlásit na Intergram", "Visible": "false", "Index": "36", "Width": "112.25333333333334" }, { "@columnName": "JevAdp", "Header": "Je v ADP", "Visible": "false", "Index": "37", "Width": "56.753333333333337" }, { "@columnName": "JeVPoslucharne", "Header": "Je v posluchárně", "Visible": "false", "Index": "38", "Width": "98.433333333333337" }, { "@columnName": "CenaDataFyzicka.KodCenoveKategorie", "Header": "Kód CK fyzická", "Visible": "false", "Index": "39", "Width": "88.236666666666665" }, { "@columnName": "Kompilace", "Header": "Kompilace", "Visible": "false", "Index": "40", "Width": "65.826666666666668" }, { "@columnName": "Skladem", "Header": "Kusů na skladě", "Visible": "false", "Index": "41", "Width": "89.516666666666666" }, { "@columnName": "ZkratkaLabel", "Header": "Label", "Visible": "false", "Index": "42", "Width": "38.993333333333339" }, { "@columnName": "MasterPas", "Header": "Master pás", "Visible": "false", "Index": "43", "Width": "69.033333333333331" }, { "@columnName": "NazevMedium", "Header": "Media", "Visible": "false", "Index": "44", "Width": "44.133333333333333" }, { "@columnName": "NazevMedium1OC", "Header": "Médium (1. OC)", "Visible": "false", "Index": "45", "Width": "94.513333333333335" }, { "@columnName": "NahraniPouzeRok", "Header": "Nah. snímků - pouze rok", "Visible": "false", "Index": "46", "Width": "141.04333333333335" }, { "@columnName": "CenaDataDigitalni.NazevCenovaKategorieDigitalni", "Header": "Název CK digitální", "Visible": "false", "Index": "47", "Width": "107.22000000000001" }, { "@columnName": "CenaDataFyzicka.NazevCenovaKategorie", "Header": "Název CK fyzická", "Visible": "false", "Index": "48", "Width": "100.00666666666667" }, { "@columnName": "NazevDigitalni", "Header": "Název digitální", "Visible": "false", "Index": "49", "Width": "89.543333333333337" }, { "@columnName": "NazevDigitalniAnglicky", "Header": "Název digitální ang.", "Visible": "false", "Index": "50", "Width": "115.39333333333335" }, { "@columnName": "NazevSklad", "Header": "Název sklad", "Visible": "false", "Index": "51", "Width": "73.956666666666678" }, { "@columnName": "ObalPoznamka", "Header": "Obal - přední", "Visible": "false", "Index": "52", "Width": "81.753333333333345" }, { "@columnName": "ObalZadniPoznamka", "Header": "Obal - zadní", "Visible": "false", "Index": "53", "Width": "75.783333333333331" }, { "@columnName": "ExistujeObal", "Header": "Obal uložen", "Visible": "false", "Index": "54", "Width": "74.62" }, { "@columnName": "ObchodniAkceOmezeny", "Header": "Obchodní akce omezeny", "Visible": "false", "Index": "55", "Width": "141.63333333333335" }, { "@columnName": "Oceneni", "Header": "Ocenění", "Visible": "false", "Index": "56", "Width": "54.63" }, { "@columnName": "OznameniOSA", "Header": "Oznámení OSA", "Visible": "false", "Index": "57", "Width": "91.126666666666665" }, { "@columnName": "CenaDataFyzicka.PocetNosicu", "Header": "Počet nosičů CK fyzická", "Visible": "false", "Index": "58", "Width": "134.10666666666668" }, { "@columnName": "PocetOC", "Header": "Počet OC", "Visible": "false", "Index": "59", "Width": "59.956666666666671" }, { "@columnName": "PocetVzorku", "Header": "Počet vzorků", "Visible": "false", "Index": "60", "Width": "78.61" }, { "@columnName": "PoslatNaSklad", "Header": "Poslat na sklad", "Visible": "false", "Index": "61", "Width": "89.086666666666673" }, { "@columnName": "PoznamkaKatalogoveCislo", "Header": "Poznámka", "Visible": "false", "Index": "62", "Width": "65.036666666666662" }, { "@columnName": "ProdejnePouzeJakoCelek", "Header": "Prod. pouze jako celek", "Visible": "false", "Index": "63", "Width": "130" }, { "@columnName": "PrepisovatSkladby", "Header": "Přepisovat podle snímků", "Visible": "false", "Index": "64", "Width": "140.96" }, { "@columnName": "PridruzeneSnimky", "Header": "Přidružené snímky", "Visible": "false", "Index": "65", "Width": "107.78333333333335" }, { "@columnName": "RoleKatalogoveCislo", "Header": "Role kč", "Visible": "false", "Index": "66", "Width": "48.833333333333336" }, { "@columnName": "Slozka", "Header": "Složky", "Visible": "false", "Index": "67", "Width": "44.506666666666668" }, { "@columnName": "Smlouva", "Header": "Smlouvy", "Visible": "false", "Index": "68", "Width": "55.99" }, { "@columnName": "StezejniAutori", "Header": "Stěžejní autoři", "Visible": "false", "Index": "69", "Width": "85.99666666666667" }, { "@columnName": "StezejniInterpreti", "Header": "Stěžejní interpreti", "Visible": "false", "Index": "70", "Width": "103.61333333333334" }, { "@columnName": "StopazKatalogoveCislo", "Header": "Stopáž", "Visible": "false", "Index": "71", "Width": "46.67" }, { "@columnName": "StreamingZakazan", "Header": "Streaming zakázán", "Visible": "false", "Index": "72", "Width": "109.92333333333335" }, { "@columnName": "TrackyADP", "Header": "Tracky v ADP", "Visible": "false", "Index": "73", "Width": "79.03" }, { "@columnName": "NazevKatalogoveCisloTyp", "Header": "Typ", "Visible": "false", "Index": "74", "Width": "29.486666666666668" }, { "@columnName": "TypProdejeKatalogoveCislo", "Header": "Typ prodeje kč", "Visible": "false", "Index": "75", "Width": "88.350000000000009" }, { "@columnName": "DatUvedeniDigitalniTrh", "Header": "Uvedení na digi trh", "Visible": "false", "Index": "76", "Width": "112.04" }, { "@columnName": "DatUvedeniFyzickyTrh", "Header": "Uvedení na fyzický trh", "Visible": "false", "Index": "77", "Width": "127.30333333333334" }, { "@columnName": "Verze", "Header": "Verze", "Visible": "false", "Index": "78", "Width": "39.843333333333334" }, { "@columnName": "VlastniciObrazu", "Header": "Vlastníci obrazu", "Visible": "false", "Index": "79", "Width": "94.64" }, { "@columnName": "VlastniciZvuku", "Header": "Vlastníci zvuku", "Visible": "false", "Index": "80", "Width": "88.776666666666671" }, { "@columnName": "VydavatelePuvodni", "Header": "Vyd. původní", "Visible": "false", "Index": "81", "Width": "80.596666666666678" }, { "@columnName": "DatVydani", "Header": "Vydáno", "Visible": "false", "Index": "82", "Width": "51.253333333333337" }, { "@columnName": "VydavatelVydalVRoce", "Header": "Vydavatel vydal v roce", "Visible": "false", "Index": "83", "Width": "128.8" }, { "@columnName": "VypnoutSrazeniNosicu", "Header": "Vyp. srážení nosičů pro Believe", "Visible": "false", "Index": "84", "Width": "173.51333333333335" }, { "@columnName": "ZajmovyNaklad", "Header": "Zájmový náklad", "Visible": "false", "Index": "85", "Width": "94.003333333333345" }, { "@columnName": "ZkratkaZakladniZanr", "Header": "Základní žánr", "Visible": "false", "Index": "86", "Width": "81.473333333333343" }, { "@columnName": "NazevZanrProExport", "Header": "Žánr export", "Visible": "false", "Index": "87", "Width": "72.306666666666672" }, { "@columnName": "NazevZanrKatalogoveCislo", "Header": "Žánr KČ", "Visible": "false", "Index": "88", "Width": "52.063333333333333" }, { "@columnName": "ZkratkaZanrKatalogoveCislo", "Header": "Žánr KČ kód", "Visible": "false", "Index": "89", "Width": "75.410000000000011" }] }] } }
+{
+    "GridsOptions": {
+        "ColumnsOption": [
+            {
+                "@optionName": "Vše",
+                "Column": [
+                    {
+                        "@columnName": "KatalogoveCislo",
+                        "Header": "Číslo",
+                        "Visible": "true",
+                        "Index": "0",
+                        "Width": "79.11"
+                    },
+                    {
+                        "@columnName": "Koncovka",
+                        "Header": "Koncovka",
+                        "Visible": "true",
+                        "Index": "1",
+                        "Width": "61.876666666666672"
+                    },
+                    {
+                        "@columnName": "NazevMedium",
+                        "Header": "Media",
+                        "Visible": "true",
+                        "Index": "2",
+                        "Width": "44.133333333333333"
+                    },
+                    {
+                        "@columnName": "ProjektoveCislo",
+                        "Header": "Projekt",
+                        "Visible": "true",
+                        "Index": "3",
+                        "Width": "48.13666666666667"
+                    },
+                    {
+                        "@columnName": "Vydavatele",
+                        "Header": "Vydavatel",
+                        "Visible": "true",
+                        "Index": "4",
+                        "Width": "62.536666666666669"
+                    },
+                    {
+                        "@columnName": "NazevCesky",
+                        "Header": "Název česky",
+                        "Visible": "true",
+                        "Index": "5",
+                        "Width": "75.503333333333345"
+                    },
+                    {
+                        "@columnName": "NazevAnglicky",
+                        "Header": "Název anglicky",
+                        "Visible": "true",
+                        "Index": "6",
+                        "Width": "89.910000000000011"
+                    },
+                    {
+                        "@columnName": "NazevObchodni",
+                        "Header": "Název obchodní",
+                        "Visible": "true",
+                        "Index": "7",
+                        "Width": "97.03"
+                    },
+                    {
+                        "@columnName": "NazevObchodniAnglicky",
+                        "Header": "Název ang.obchodní",
+                        "Visible": "true",
+                        "Index": "8",
+                        "Width": "119.59333333333333"
+                    },
+                    {
+                        "@columnName": "PrimarniCarovyKod",
+                        "Header": "Prim. čárový kód",
+                        "Visible": "true",
+                        "Index": "9",
+                        "Width": "98.776666666666671"
+                    },
+                    {
+                        "@columnName": "CaroveKody.EAN",
+                        "Header": "EAN",
+                        "Visible": "true",
+                        "Index": "10",
+                        "Width": "33.786666666666669"
+                    },
+                    {
+                        "@columnName": "CaroveKody.GEAN",
+                        "Header": "GEAN",
+                        "Visible": "true",
+                        "Index": "11",
+                        "Width": "42.02"
+                    },
+                    {
+                        "@columnName": "CaroveKody.GEAN_SK",
+                        "Header": "GEAN SK",
+                        "Visible": "true",
+                        "Index": "12",
+                        "Width": "58.64"
+                    },
+                    {
+                        "@columnName": "CaroveKody.UPC",
+                        "Header": "UPC",
+                        "Visible": "true",
+                        "Index": "13",
+                        "Width": "33.393333333333331"
+                    },
+                    {
+                        "@columnName": "Editor",
+                        "Header": "Editor",
+                        "Visible": "true",
+                        "Index": "14",
+                        "Width": "42.313333333333333"
+                    },
+                    {
+                        "@columnName": "EditorDigi",
+                        "Header": "Editor Digi",
+                        "Visible": "true",
+                        "Index": "15",
+                        "Width": "66.893333333333345"
+                    },
+                    {
+                        "@columnName": "ZajmovyNaklad",
+                        "Header": "Zájmový náklad",
+                        "Visible": "true",
+                        "Index": "16",
+                        "Width": "94.003333333333345"
+                    },
+                    {
+                        "@columnName": "Kompilace",
+                        "Header": "Kompilace",
+                        "Visible": "true",
+                        "Index": "17",
+                        "Width": "65.826666666666668"
+                    },
+                    {
+                        "@columnName": "ObchodniAkceOmezeny",
+                        "Header": "Obchodní akce omezeny",
+                        "Visible": "true",
+                        "Index": "18",
+                        "Width": "141.63333333333335"
+                    },
+                    {
+                        "@columnName": "PrvniRokVydani",
+                        "Header": "℗",
+                        "Visible": "true",
+                        "Index": "19",
+                        "Width": "21.68"
+                    },
+                    {
+                        "@columnName": "DatVydani",
+                        "Header": "Vydáno",
+                        "Visible": "true",
+                        "Index": "20",
+                        "Width": "51.253333333333337"
+                    },
+                    {
+                        "@columnName": "NazevKatalogoveCisloTyp",
+                        "Header": "Typ",
+                        "Visible": "true",
+                        "Index": "21",
+                        "Width": "29.486666666666668"
+                    },
+                    {
+                        "@columnName": "StopazKatalogoveCislo",
+                        "Header": "Stopáž",
+                        "Visible": "true",
+                        "Index": "22",
+                        "Width": "46.67"
+                    },
+                    {
+                        "@columnName": "OznameniOSA",
+                        "Header": "Oznámení OSA",
+                        "Visible": "true",
+                        "Index": "23",
+                        "Width": "91.126666666666665"
+                    },
+                    {
+                        "@columnName": "PoznamkaKatalogoveCislo",
+                        "Header": "Poznámka",
+                        "Visible": "true",
+                        "Index": "24",
+                        "Width": "65.036666666666662"
+                    },
+                    {
+                        "@columnName": "CelyNazevCenoveKategorie",
+                        "Header": "Cenová kategorie k datu",
+                        "Visible": "true",
+                        "Index": "25",
+                        "Width": "140.1"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.KodCenoveKategorie",
+                        "Header": "Kód CK fyzická",
+                        "Visible": "true",
+                        "Index": "26",
+                        "Width": "88.236666666666665"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.PocetNosicu",
+                        "Header": "Počet nosičů CK fyzická",
+                        "Visible": "true",
+                        "Index": "27",
+                        "Width": "134.10666666666668"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.NazevCenovaKategorie",
+                        "Header": "Název CK fyzická",
+                        "Visible": "true",
+                        "Index": "28",
+                        "Width": "100.00666666666667"
+                    },
+                    {
+                        "@columnName": "ZkratkaZakladniZanr",
+                        "Header": "Základní žánr",
+                        "Visible": "true",
+                        "Index": "29",
+                        "Width": "81.473333333333343"
+                    },
+                    {
+                        "@columnName": "ZkratkaZanrKatalogoveCislo",
+                        "Header": "Žánr KČ kód",
+                        "Visible": "true",
+                        "Index": "30",
+                        "Width": "75.410000000000011"
+                    },
+                    {
+                        "@columnName": "NazevZanrKatalogoveCislo",
+                        "Header": "Žánr KČ",
+                        "Visible": "true",
+                        "Index": "31",
+                        "Width": "52.063333333333333"
+                    },
+                    {
+                        "@columnName": "NazevZanrProExport",
+                        "Header": "Žánr export",
+                        "Visible": "true",
+                        "Index": "32",
+                        "Width": "72.306666666666672"
+                    },
+                    {
+                        "@columnName": "PocetVzorku",
+                        "Header": "Počet vzorků",
+                        "Visible": "true",
+                        "Index": "33",
+                        "Width": "78.61"
+                    },
+                    {
+                        "@columnName": "ArtistDisplayCesky",
+                        "Header": "Artist Display",
+                        "Visible": "true",
+                        "Index": "34",
+                        "Width": "80.62"
+                    },
+                    {
+                        "@columnName": "ArtistDisplayAnglicky",
+                        "Header": "Artist Display ang.",
+                        "Visible": "true",
+                        "Index": "35",
+                        "Width": "106.47000000000001"
+                    },
+                    {
+                        "@columnName": "PrepisovatSkladby",
+                        "Header": "Přepisovat podle snímků",
+                        "Visible": "true",
+                        "Index": "36",
+                        "Width": "140.96"
+                    },
+                    {
+                        "@columnName": "ObalPoznamka",
+                        "Header": "Obal - přední",
+                        "Visible": "true",
+                        "Index": "37",
+                        "Width": "81.753333333333345"
+                    },
+                    {
+                        "@columnName": "ObalZadniPoznamka",
+                        "Header": "Obal - zadní",
+                        "Visible": "true",
+                        "Index": "38",
+                        "Width": "75.783333333333331"
+                    },
+                    {
+                        "@columnName": "ExistujeObal",
+                        "Header": "Obal uložen",
+                        "Visible": "true",
+                        "Index": "39",
+                        "Width": "74.62"
+                    },
+                    {
+                        "@columnName": "NazevDigitalni",
+                        "Header": "Název digitální",
+                        "Visible": "true",
+                        "Index": "40",
+                        "Width": "89.543333333333337"
+                    },
+                    {
+                        "@columnName": "NazevDigitalniAnglicky",
+                        "Header": "Název digitální ang.",
+                        "Visible": "true",
+                        "Index": "41",
+                        "Width": "115.39333333333335"
+                    },
+                    {
+                        "@columnName": "NazevSklad",
+                        "Header": "Název sklad",
+                        "Visible": "true",
+                        "Index": "42",
+                        "Width": "73.956666666666678"
+                    },
+                    {
+                        "@columnName": "ArtistDisplaySklad",
+                        "Header": "Art. display sklad",
+                        "Visible": "true",
+                        "Index": "43",
+                        "Width": "100.23"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.NazevCenovaHaldina",
+                        "Header": "Cenová hladina",
+                        "Visible": "true",
+                        "Index": "44",
+                        "Width": "92.34"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.NazevCenovaKategorieDigitalni",
+                        "Header": "Název CK digitální",
+                        "Visible": "true",
+                        "Index": "45",
+                        "Width": "107.22000000000001"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.Cena.CZK_DPC",
+                        "Header": "CZK DPC",
+                        "Visible": "true",
+                        "Index": "46",
+                        "Width": "58.083333333333336"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.Cena.CZK_PPD",
+                        "Header": "CZK PPD",
+                        "Visible": "true",
+                        "Index": "47",
+                        "Width": "57.373333333333335"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.Cena.CZK_DPC_2016",
+                        "Header": "CZK DPC 2016",
+                        "Visible": "true",
+                        "Index": "48",
+                        "Width": "87.25"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_MP3",
+                        "Header": "CZK PPD MP3",
+                        "Visible": "true",
+                        "Index": "49",
+                        "Width": "84.626666666666665"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_MP3",
+                        "Header": "CZK DPC MP3",
+                        "Visible": "true",
+                        "Index": "50",
+                        "Width": "85.336666666666673"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_FLAC",
+                        "Header": "CZK DPC FLAC",
+                        "Visible": "true",
+                        "Index": "51",
+                        "Width": "88.166666666666671"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_FLAC",
+                        "Header": "CZK PPD FLAC",
+                        "Visible": "true",
+                        "Index": "52",
+                        "Width": "87.456666666666678"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_HiRes",
+                        "Header": "CZK DPC HiRes",
+                        "Visible": "true",
+                        "Index": "53",
+                        "Width": "90.993333333333339"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_HiRes",
+                        "Header": "CZK PPD HiRes",
+                        "Visible": "true",
+                        "Index": "54",
+                        "Width": "90.283333333333331"
+                    },
+                    {
+                        "@columnName": "VlastniciZvuku",
+                        "Header": "Vlastníci zvuku",
+                        "Visible": "true",
+                        "Index": "55",
+                        "Width": "88.776666666666671"
+                    },
+                    {
+                        "@columnName": "VlastniciObrazu",
+                        "Header": "Vlastníci obrazu",
+                        "Visible": "true",
+                        "Index": "56",
+                        "Width": "94.64"
+                    },
+                    {
+                        "@columnName": "Distributori",
+                        "Header": "Distributoři",
+                        "Visible": "true",
+                        "Index": "57",
+                        "Width": "70.580000000000013"
+                    },
+                    {
+                        "@columnName": "DistribucniSmlouva",
+                        "Header": "Distribuční smlouva",
+                        "Visible": "true",
+                        "Index": "58",
+                        "Width": "114.94000000000001"
+                    },
+                    {
+                        "@columnName": "VydavatelePuvodni",
+                        "Header": "Vyd. původní",
+                        "Visible": "true",
+                        "Index": "59",
+                        "Width": "80.596666666666678"
+                    },
+                    {
+                        "@columnName": "Oceneni",
+                        "Header": "Ocenění",
+                        "Visible": "true",
+                        "Index": "60",
+                        "Width": "54.63"
+                    },
+                    {
+                        "@columnName": "ProdejnePouzeJakoCelek",
+                        "Header": "Prod. pouze jako celek",
+                        "Visible": "true",
+                        "Index": "61",
+                        "Width": "130"
+                    },
+                    {
+                        "@columnName": "DatUvedeniFyzickyTrh",
+                        "Header": "Uvedení na fyzický trh",
+                        "Visible": "true",
+                        "Index": "62",
+                        "Width": "127.30333333333334"
+                    },
+                    {
+                        "@columnName": "DatUvedeniDigitalniTrh",
+                        "Header": "Uvedení na digi trh",
+                        "Visible": "true",
+                        "Index": "63",
+                        "Width": "112.04"
+                    },
+                    {
+                        "@columnName": "StezejniInterpreti",
+                        "Header": "Stěžejní interpreti",
+                        "Visible": "true",
+                        "Index": "64",
+                        "Width": "103.61333333333334"
+                    },
+                    {
+                        "@columnName": "StezejniAutori",
+                        "Header": "Stěžejní autoři",
+                        "Visible": "true",
+                        "Index": "65",
+                        "Width": "85.99666666666667"
+                    },
+                    {
+                        "@columnName": "ZkratkaLabel",
+                        "Header": "Label",
+                        "Visible": "true",
+                        "Index": "66",
+                        "Width": "38.993333333333339"
+                    },
+                    {
+                        "@columnName": "VydavatelVydalVRoce",
+                        "Header": "Vydavatel vydal v roce",
+                        "Visible": "true",
+                        "Index": "67",
+                        "Width": "128.8"
+                    },
+                    {
+                        "@columnName": "NazevMedium1OC",
+                        "Header": "Médium (1. OC)",
+                        "Visible": "true",
+                        "Index": "68",
+                        "Width": "94.513333333333335"
+                    },
+                    {
+                        "@columnName": "ZkratkaAudioKvalita",
+                        "Header": "Audio kvalita",
+                        "Visible": "true",
+                        "Index": "69",
+                        "Width": "79.623333333333335"
+                    },
+                    {
+                        "@columnName": "DigitalniNahrada",
+                        "Header": "Digitální náhrada",
+                        "Visible": "true",
+                        "Index": "70",
+                        "Width": "101.49666666666667"
+                    },
+                    {
+                        "@columnName": "PocetOC",
+                        "Header": "Počet OC",
+                        "Visible": "true",
+                        "Index": "71",
+                        "Width": "59.956666666666671"
+                    },
+                    {
+                        "@columnName": "VypnoutSrazeniNosicu",
+                        "Header": "Vyp. srážení nosičů pro Believe",
+                        "Visible": "true",
+                        "Index": "72",
+                        "Width": "173.51333333333335"
+                    },
+                    {
+                        "@columnName": "Verze",
+                        "Header": "Verze",
+                        "Visible": "true",
+                        "Index": "73",
+                        "Width": "39.843333333333334"
+                    },
+                    {
+                        "@columnName": "StreamingZakazan",
+                        "Header": "Streaming zakázán",
+                        "Visible": "true",
+                        "Index": "74",
+                        "Width": "109.92333333333335"
+                    },
+                    {
+                        "@columnName": "NahraniPouzeRok",
+                        "Header": "Nah. snímků - pouze rok",
+                        "Visible": "true",
+                        "Index": "75",
+                        "Width": "141.04333333333335"
+                    },
+                    {
+                        "@columnName": "PridruzeneSnimky",
+                        "Header": "Přidružené snímky",
+                        "Visible": "true",
+                        "Index": "76",
+                        "Width": "107.78333333333335"
+                    },
+                    {
+                        "@columnName": "JevAdp",
+                        "Header": "Je v ADP",
+                        "Visible": "true",
+                        "Index": "77",
+                        "Width": "56.753333333333337"
+                    },
+                    {
+                        "@columnName": "TrackyADP",
+                        "Header": "Tracky v ADP",
+                        "Visible": "true",
+                        "Index": "78",
+                        "Width": "79.03"
+                    },
+                    {
+                        "@columnName": "Skladem",
+                        "Header": "Kusů na skladě",
+                        "Visible": "true",
+                        "Index": "79",
+                        "Width": "89.516666666666666"
+                    },
+                    {
+                        "@columnName": "PoslatNaSklad",
+                        "Header": "Poslat na sklad",
+                        "Visible": "true",
+                        "Index": "80",
+                        "Width": "89.086666666666673"
+                    },
+                    {
+                        "@columnName": "JeVPoslucharne",
+                        "Header": "Je v posluchárně",
+                        "Visible": "true",
+                        "Index": "81",
+                        "Width": "98.433333333333337"
+                    },
+                    {
+                        "@columnName": "IntergramHlasit",
+                        "Header": "Hlásit na Intergram",
+                        "Visible": "true",
+                        "Index": "82",
+                        "Width": "112.25333333333334"
+                    },
+                    {
+                        "@columnName": "EdicniPlan",
+                        "Header": "Ediční plán",
+                        "Visible": "true",
+                        "Index": "83",
+                        "Width": "68.426666666666677"
+                    },
+                    {
+                        "@columnName": "Dph",
+                        "Header": "DPH",
+                        "Visible": "true",
+                        "Index": "84",
+                        "Width": "34.653333333333336"
+                    },
+                    {
+                        "@columnName": "TypProdejeKatalogoveCislo",
+                        "Header": "Typ prodeje kč",
+                        "Visible": "true",
+                        "Index": "85",
+                        "Width": "88.350000000000009"
+                    },
+                    {
+                        "@columnName": "RoleKatalogoveCislo",
+                        "Header": "Role kč",
+                        "Visible": "true",
+                        "Index": "86",
+                        "Width": "48.833333333333336"
+                    },
+                    {
+                        "@columnName": "MasterPas",
+                        "Header": "Master pás",
+                        "Visible": "true",
+                        "Index": "87",
+                        "Width": "69.033333333333331"
+                    },
+                    {
+                        "@columnName": "Slozka",
+                        "Header": "Složky",
+                        "Visible": "true",
+                        "Index": "88",
+                        "Width": "44.506666666666668"
+                    },
+                    {
+                        "@columnName": "Smlouva",
+                        "Header": "Smlouvy",
+                        "Visible": "true",
+                        "Index": "89",
+                        "Width": "55.99"
+                    }
+                ]
+            },
+            {
+                "@optionName": "",
+                "Column": [
+                    {
+                        "@columnName": "KatalogoveCislo",
+                        "Header": "Číslo",
+                        "Visible": "true",
+                        "Index": "0",
+                        "Width": "79.11"
+                    },
+                    {
+                        "@columnName": "Koncovka",
+                        "Header": "Koncovka",
+                        "Visible": "true",
+                        "Index": "1",
+                        "Width": "61.876666666666672"
+                    },
+                    {
+                        "@columnName": "ProjektoveCislo",
+                        "Header": "Projekt",
+                        "Visible": "true",
+                        "Index": "2",
+                        "Width": "48.13666666666667"
+                    },
+                    {
+                        "@columnName": "Vydavatele",
+                        "Header": "Vydavatel",
+                        "Visible": "true",
+                        "Index": "3",
+                        "Width": "62.536666666666669"
+                    },
+                    {
+                        "@columnName": "NazevCesky",
+                        "Header": "Název česky",
+                        "Visible": "true",
+                        "Index": "4",
+                        "Width": "75.503333333333345"
+                    },
+                    {
+                        "@columnName": "NazevAnglicky",
+                        "Header": "Název anglicky",
+                        "Visible": "true",
+                        "Index": "5",
+                        "Width": "89.910000000000011"
+                    },
+                    {
+                        "@columnName": "NazevObchodni",
+                        "Header": "Název obchodní",
+                        "Visible": "true",
+                        "Index": "6",
+                        "Width": "97.03"
+                    },
+                    {
+                        "@columnName": "NazevObchodniAnglicky",
+                        "Header": "Název ang.obchodní",
+                        "Visible": "true",
+                        "Index": "7",
+                        "Width": "119.59333333333333"
+                    },
+                    {
+                        "@columnName": "PrimarniCarovyKod",
+                        "Header": "Prim. čárový kód",
+                        "Visible": "true",
+                        "Index": "8",
+                        "Width": "98.776666666666671"
+                    },
+                    {
+                        "@columnName": "CaroveKody.EAN",
+                        "Header": "EAN",
+                        "Visible": "true",
+                        "Index": "9",
+                        "Width": "33.786666666666669"
+                    },
+                    {
+                        "@columnName": "CaroveKody.UPC",
+                        "Header": "UPC",
+                        "Visible": "true",
+                        "Index": "10",
+                        "Width": "33.393333333333331"
+                    },
+                    {
+                        "@columnName": "PrvniRokVydani",
+                        "Header": "℗",
+                        "Visible": "false",
+                        "Index": "11",
+                        "Width": "21.68"
+                    },
+                    {
+                        "@columnName": "ArtistDisplaySklad",
+                        "Header": "Art. display sklad",
+                        "Visible": "false",
+                        "Index": "12",
+                        "Width": "100.23"
+                    },
+                    {
+                        "@columnName": "ArtistDisplayCesky",
+                        "Header": "Artist Display",
+                        "Visible": "false",
+                        "Index": "13",
+                        "Width": "80.62"
+                    },
+                    {
+                        "@columnName": "ArtistDisplayAnglicky",
+                        "Header": "Artist Display ang.",
+                        "Visible": "false",
+                        "Index": "14",
+                        "Width": "106.47000000000001"
+                    },
+                    {
+                        "@columnName": "ZkratkaAudioKvalita",
+                        "Header": "Audio kvalita",
+                        "Visible": "false",
+                        "Index": "15",
+                        "Width": "79.623333333333335"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.NazevCenovaHaldina",
+                        "Header": "Cenová hladina",
+                        "Visible": "false",
+                        "Index": "16",
+                        "Width": "92.34"
+                    },
+                    {
+                        "@columnName": "CelyNazevCenoveKategorie",
+                        "Header": "Cenová kategorie k datu",
+                        "Visible": "false",
+                        "Index": "17",
+                        "Width": "140.1"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.Cena.CZK_DPC",
+                        "Header": "CZK DPC",
+                        "Visible": "false",
+                        "Index": "18",
+                        "Width": "58.083333333333336"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.Cena.CZK_DPC_2016",
+                        "Header": "CZK DPC 2016",
+                        "Visible": "false",
+                        "Index": "19",
+                        "Width": "87.25"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_FLAC",
+                        "Header": "CZK DPC FLAC",
+                        "Visible": "false",
+                        "Index": "20",
+                        "Width": "88.166666666666671"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_HiRes",
+                        "Header": "CZK DPC HiRes",
+                        "Visible": "false",
+                        "Index": "21",
+                        "Width": "90.993333333333339"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_DPC_MP3",
+                        "Header": "CZK DPC MP3",
+                        "Visible": "false",
+                        "Index": "22",
+                        "Width": "85.336666666666673"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.Cena.CZK_PPD",
+                        "Header": "CZK PPD",
+                        "Visible": "false",
+                        "Index": "23",
+                        "Width": "57.373333333333335"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_FLAC",
+                        "Header": "CZK PPD FLAC",
+                        "Visible": "false",
+                        "Index": "24",
+                        "Width": "87.456666666666678"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_HiRes",
+                        "Header": "CZK PPD HiRes",
+                        "Visible": "false",
+                        "Index": "25",
+                        "Width": "90.283333333333331"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.Cena.CZK_PPD_MP3",
+                        "Header": "CZK PPD MP3",
+                        "Visible": "false",
+                        "Index": "26",
+                        "Width": "84.626666666666665"
+                    },
+                    {
+                        "@columnName": "DigitalniNahrada",
+                        "Header": "Digitální náhrada",
+                        "Visible": "false",
+                        "Index": "27",
+                        "Width": "101.49666666666667"
+                    },
+                    {
+                        "@columnName": "DistribucniSmlouva",
+                        "Header": "Distribuční smlouva",
+                        "Visible": "false",
+                        "Index": "28",
+                        "Width": "114.94000000000001"
+                    },
+                    {
+                        "@columnName": "Distributori",
+                        "Header": "Distributoři",
+                        "Visible": "false",
+                        "Index": "29",
+                        "Width": "70.580000000000013"
+                    },
+                    {
+                        "@columnName": "Dph",
+                        "Header": "DPH",
+                        "Visible": "false",
+                        "Index": "30",
+                        "Width": "34.653333333333336"
+                    },
+                    {
+                        "@columnName": "EdicniPlan",
+                        "Header": "Ediční plán",
+                        "Visible": "false",
+                        "Index": "31",
+                        "Width": "68.426666666666677"
+                    },
+                    {
+                        "@columnName": "Editor",
+                        "Header": "Editor",
+                        "Visible": "false",
+                        "Index": "32",
+                        "Width": "42.313333333333333"
+                    },
+                    {
+                        "@columnName": "EditorDigi",
+                        "Header": "Editor Digi",
+                        "Visible": "false",
+                        "Index": "33",
+                        "Width": "66.893333333333345"
+                    },
+                    {
+                        "@columnName": "CaroveKody.GEAN",
+                        "Header": "GEAN",
+                        "Visible": "false",
+                        "Index": "34",
+                        "Width": "42.02"
+                    },
+                    {
+                        "@columnName": "CaroveKody.GEAN_SK",
+                        "Header": "GEAN SK",
+                        "Visible": "false",
+                        "Index": "35",
+                        "Width": "58.64"
+                    },
+                    {
+                        "@columnName": "IntergramHlasit",
+                        "Header": "Hlásit na Intergram",
+                        "Visible": "false",
+                        "Index": "36",
+                        "Width": "112.25333333333334"
+                    },
+                    {
+                        "@columnName": "JevAdp",
+                        "Header": "Je v ADP",
+                        "Visible": "false",
+                        "Index": "37",
+                        "Width": "56.753333333333337"
+                    },
+                    {
+                        "@columnName": "JeVPoslucharne",
+                        "Header": "Je v posluchárně",
+                        "Visible": "false",
+                        "Index": "38",
+                        "Width": "98.433333333333337"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.KodCenoveKategorie",
+                        "Header": "Kód CK fyzická",
+                        "Visible": "false",
+                        "Index": "39",
+                        "Width": "88.236666666666665"
+                    },
+                    {
+                        "@columnName": "Kompilace",
+                        "Header": "Kompilace",
+                        "Visible": "false",
+                        "Index": "40",
+                        "Width": "65.826666666666668"
+                    },
+                    {
+                        "@columnName": "Skladem",
+                        "Header": "Kusů na skladě",
+                        "Visible": "false",
+                        "Index": "41",
+                        "Width": "89.516666666666666"
+                    },
+                    {
+                        "@columnName": "ZkratkaLabel",
+                        "Header": "Label",
+                        "Visible": "false",
+                        "Index": "42",
+                        "Width": "38.993333333333339"
+                    },
+                    {
+                        "@columnName": "MasterPas",
+                        "Header": "Master pás",
+                        "Visible": "false",
+                        "Index": "43",
+                        "Width": "69.033333333333331"
+                    },
+                    {
+                        "@columnName": "NazevMedium",
+                        "Header": "Media",
+                        "Visible": "false",
+                        "Index": "44",
+                        "Width": "44.133333333333333"
+                    },
+                    {
+                        "@columnName": "NazevMedium1OC",
+                        "Header": "Médium (1. OC)",
+                        "Visible": "false",
+                        "Index": "45",
+                        "Width": "94.513333333333335"
+                    },
+                    {
+                        "@columnName": "NahraniPouzeRok",
+                        "Header": "Nah. snímků - pouze rok",
+                        "Visible": "false",
+                        "Index": "46",
+                        "Width": "141.04333333333335"
+                    },
+                    {
+                        "@columnName": "CenaDataDigitalni.NazevCenovaKategorieDigitalni",
+                        "Header": "Název CK digitální",
+                        "Visible": "false",
+                        "Index": "47",
+                        "Width": "107.22000000000001"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.NazevCenovaKategorie",
+                        "Header": "Název CK fyzická",
+                        "Visible": "false",
+                        "Index": "48",
+                        "Width": "100.00666666666667"
+                    },
+                    {
+                        "@columnName": "NazevDigitalni",
+                        "Header": "Název digitální",
+                        "Visible": "false",
+                        "Index": "49",
+                        "Width": "89.543333333333337"
+                    },
+                    {
+                        "@columnName": "NazevDigitalniAnglicky",
+                        "Header": "Název digitální ang.",
+                        "Visible": "false",
+                        "Index": "50",
+                        "Width": "115.39333333333335"
+                    },
+                    {
+                        "@columnName": "NazevSklad",
+                        "Header": "Název sklad",
+                        "Visible": "false",
+                        "Index": "51",
+                        "Width": "73.956666666666678"
+                    },
+                    {
+                        "@columnName": "ObalPoznamka",
+                        "Header": "Obal - přední",
+                        "Visible": "false",
+                        "Index": "52",
+                        "Width": "81.753333333333345"
+                    },
+                    {
+                        "@columnName": "ObalZadniPoznamka",
+                        "Header": "Obal - zadní",
+                        "Visible": "false",
+                        "Index": "53",
+                        "Width": "75.783333333333331"
+                    },
+                    {
+                        "@columnName": "ExistujeObal",
+                        "Header": "Obal uložen",
+                        "Visible": "false",
+                        "Index": "54",
+                        "Width": "74.62"
+                    },
+                    {
+                        "@columnName": "ObchodniAkceOmezeny",
+                        "Header": "Obchodní akce omezeny",
+                        "Visible": "false",
+                        "Index": "55",
+                        "Width": "141.63333333333335"
+                    },
+                    {
+                        "@columnName": "Oceneni",
+                        "Header": "Ocenění",
+                        "Visible": "false",
+                        "Index": "56",
+                        "Width": "54.63"
+                    },
+                    {
+                        "@columnName": "OznameniOSA",
+                        "Header": "Oznámení OSA",
+                        "Visible": "false",
+                        "Index": "57",
+                        "Width": "91.126666666666665"
+                    },
+                    {
+                        "@columnName": "CenaDataFyzicka.PocetNosicu",
+                        "Header": "Počet nosičů CK fyzická",
+                        "Visible": "false",
+                        "Index": "58",
+                        "Width": "134.10666666666668"
+                    },
+                    {
+                        "@columnName": "PocetOC",
+                        "Header": "Počet OC",
+                        "Visible": "false",
+                        "Index": "59",
+                        "Width": "59.956666666666671"
+                    },
+                    {
+                        "@columnName": "PocetVzorku",
+                        "Header": "Počet vzorků",
+                        "Visible": "false",
+                        "Index": "60",
+                        "Width": "78.61"
+                    },
+                    {
+                        "@columnName": "PoslatNaSklad",
+                        "Header": "Poslat na sklad",
+                        "Visible": "false",
+                        "Index": "61",
+                        "Width": "89.086666666666673"
+                    },
+                    {
+                        "@columnName": "PoznamkaKatalogoveCislo",
+                        "Header": "Poznámka",
+                        "Visible": "false",
+                        "Index": "62",
+                        "Width": "65.036666666666662"
+                    },
+                    {
+                        "@columnName": "ProdejnePouzeJakoCelek",
+                        "Header": "Prod. pouze jako celek",
+                        "Visible": "false",
+                        "Index": "63",
+                        "Width": "130"
+                    },
+                    {
+                        "@columnName": "PrepisovatSkladby",
+                        "Header": "Přepisovat podle snímků",
+                        "Visible": "false",
+                        "Index": "64",
+                        "Width": "140.96"
+                    },
+                    {
+                        "@columnName": "PridruzeneSnimky",
+                        "Header": "Přidružené snímky",
+                        "Visible": "false",
+                        "Index": "65",
+                        "Width": "107.78333333333335"
+                    },
+                    {
+                        "@columnName": "RoleKatalogoveCislo",
+                        "Header": "Role kč",
+                        "Visible": "false",
+                        "Index": "66",
+                        "Width": "48.833333333333336"
+                    },
+                    {
+                        "@columnName": "Slozka",
+                        "Header": "Složky",
+                        "Visible": "false",
+                        "Index": "67",
+                        "Width": "44.506666666666668"
+                    },
+                    {
+                        "@columnName": "Smlouva",
+                        "Header": "Smlouvy",
+                        "Visible": "false",
+                        "Index": "68",
+                        "Width": "55.99"
+                    },
+                    {
+                        "@columnName": "StezejniAutori",
+                        "Header": "Stěžejní autoři",
+                        "Visible": "false",
+                        "Index": "69",
+                        "Width": "85.99666666666667"
+                    },
+                    {
+                        "@columnName": "StezejniInterpreti",
+                        "Header": "Stěžejní interpreti",
+                        "Visible": "false",
+                        "Index": "70",
+                        "Width": "103.61333333333334"
+                    },
+                    {
+                        "@columnName": "StopazKatalogoveCislo",
+                        "Header": "Stopáž",
+                        "Visible": "false",
+                        "Index": "71",
+                        "Width": "46.67"
+                    },
+                    {
+                        "@columnName": "StreamingZakazan",
+                        "Header": "Streaming zakázán",
+                        "Visible": "false",
+                        "Index": "72",
+                        "Width": "109.92333333333335"
+                    },
+                    {
+                        "@columnName": "TrackyADP",
+                        "Header": "Tracky v ADP",
+                        "Visible": "false",
+                        "Index": "73",
+                        "Width": "79.03"
+                    },
+                    {
+                        "@columnName": "NazevKatalogoveCisloTyp",
+                        "Header": "Typ",
+                        "Visible": "false",
+                        "Index": "74",
+                        "Width": "29.486666666666668"
+                    },
+                    {
+                        "@columnName": "TypProdejeKatalogoveCislo",
+                        "Header": "Typ prodeje kč",
+                        "Visible": "false",
+                        "Index": "75",
+                        "Width": "88.350000000000009"
+                    },
+                    {
+                        "@columnName": "DatUvedeniDigitalniTrh",
+                        "Header": "Uvedení na digi trh",
+                        "Visible": "false",
+                        "Index": "76",
+                        "Width": "112.04"
+                    },
+                    {
+                        "@columnName": "DatUvedeniFyzickyTrh",
+                        "Header": "Uvedení na fyzický trh",
+                        "Visible": "false",
+                        "Index": "77",
+                        "Width": "127.30333333333334"
+                    },
+                    {
+                        "@columnName": "Verze",
+                        "Header": "Verze",
+                        "Visible": "false",
+                        "Index": "78",
+                        "Width": "39.843333333333334"
+                    },
+                    {
+                        "@columnName": "VlastniciObrazu",
+                        "Header": "Vlastníci obrazu",
+                        "Visible": "false",
+                        "Index": "79",
+                        "Width": "94.64"
+                    },
+                    {
+                        "@columnName": "VlastniciZvuku",
+                        "Header": "Vlastníci zvuku",
+                        "Visible": "false",
+                        "Index": "80",
+                        "Width": "88.776666666666671"
+                    },
+                    {
+                        "@columnName": "VydavatelePuvodni",
+                        "Header": "Vyd. původní",
+                        "Visible": "false",
+                        "Index": "81",
+                        "Width": "80.596666666666678"
+                    },
+                    {
+                        "@columnName": "DatVydani",
+                        "Header": "Vydáno",
+                        "Visible": "false",
+                        "Index": "82",
+                        "Width": "51.253333333333337"
+                    },
+                    {
+                        "@columnName": "VydavatelVydalVRoce",
+                        "Header": "Vydavatel vydal v roce",
+                        "Visible": "false",
+                        "Index": "83",
+                        "Width": "128.8"
+                    },
+                    {
+                        "@columnName": "VypnoutSrazeniNosicu",
+                        "Header": "Vyp. srážení nosičů pro Believe",
+                        "Visible": "false",
+                        "Index": "84",
+                        "Width": "173.51333333333335"
+                    },
+                    {
+                        "@columnName": "ZajmovyNaklad",
+                        "Header": "Zájmový náklad",
+                        "Visible": "false",
+                        "Index": "85",
+                        "Width": "94.003333333333345"
+                    },
+                    {
+                        "@columnName": "ZkratkaZakladniZanr",
+                        "Header": "Základní žánr",
+                        "Visible": "false",
+                        "Index": "86",
+                        "Width": "81.473333333333343"
+                    },
+                    {
+                        "@columnName": "NazevZanrProExport",
+                        "Header": "Žánr export",
+                        "Visible": "false",
+                        "Index": "87",
+                        "Width": "72.306666666666672"
+                    },
+                    {
+                        "@columnName": "NazevZanrKatalogoveCislo",
+                        "Header": "Žánr KČ",
+                        "Visible": "false",
+                        "Index": "88",
+                        "Width": "52.063333333333333"
+                    },
+                    {
+                        "@columnName": "ZkratkaZanrKatalogoveCislo",
+                        "Header": "Žánr KČ kód",
+                        "Visible": "false",
+                        "Index": "89",
+                        "Width": "75.410000000000011"
+                    }
+                ]
+            }
+        ]
+    }
+}

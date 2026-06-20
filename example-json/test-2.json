@@ -10,25 +10,25 @@
         "appSettings": {
             "add": [
                 {
-                    "@key": "ChartImageHandler",
-                    "@value": "Storage=file;Timeout=20;Url=~/Account/Admin/tempImages/;"
-                },
+                "@key": "ChartImageHandler",
+                "@value": "Storage=file;Timeout=20;Url=~/Account/Admin/tempImages/;"
+            },
                 {
-                    "@key": "DatabaseName",
-                    "@value": "ekonservissy"
-                },
+                "@key": "DatabaseName",
+                "@value": "ekonservissy"
+            },
                 {
-                    "@key": "host",
-                    "@value": "smtp.zoner.com"
-                },
+                "@key": "host",
+                "@value": "smtp.zoner.com"
+            },
                 {
-                    "@key": "hostMail",
-                    "@value": "robot@ekonservis.cz"
-                },
+                "@key": "hostMail",
+                "@value": "robot@ekonservis.cz"
+            },
                 {
-                    "@key": "hostPass",
-                    "@value": "balbalbla"
-                }
+                "@key": "hostPass",
+                "@value": "balbalbla"
+            }
             ]
         },
         "connectionStrings": {
@@ -45,11 +45,11 @@
                 "assemblies": {
                     "add": [
                         {
-                            "@assembly": "System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"
-                        },
+                        "@assembly": "System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"
+                    },
                         {
-                            "@assembly": "System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"
-                        }
+                        "@assembly": "System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35"
+                    }
                     ]
                 }
             },
@@ -120,15 +120,15 @@
                 "controls": {
                     "add": [
                         {
-                            "@tagPrefix": "asp",
-                            "@namespace": "System.Web.UI.DataVisualization.Charting",
-                            "@assembly": "System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
-                        },
+                        "@tagPrefix": "asp",
+                        "@namespace": "System.Web.UI.DataVisualization.Charting",
+                        "@assembly": "System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+                    },
                         {
-                            "@tagPrefix": "ajaxToolkit",
-                            "@assembly": "AjaxControlToolkit",
-                            "@namespace": "AjaxControlToolkit"
-                        }
+                        "@tagPrefix": "ajaxToolkit",
+                        "@assembly": "AjaxControlToolkit",
+                        "@namespace": "AjaxControlToolkit"
+                    }
                     ]
                 }
             },
@@ -163,60 +163,60 @@
             "services": {
                 "service": [
                     {
-                        "@name": "InsuranceWebAssistant.Services.SystemOnlineTestService",
-                        "@behaviorConfiguration": "CommonBehaviors",
-                        "endpoint": {
-                            "@name": "SystemOnlineTestEndpoint",
-                            "@address": "/Services/SystemOnlineTestService",
-                            "@binding": "wsHttpBinding",
-                            "@bindingConfiguration": "CommonBinding",
-                            "@contract": "InsuranceWebAssistant.Services.ISystemOnlineTestService"
-                        }
-                    },
-                    {
-                        "@name": "InsuranceWebAssistant.Services.ErrorLogService",
-                        "@behaviorConfiguration": "CommonBehaviors",
-                        "endpoint": {
-                            "@name": "ErrorLogEndpoint",
-                            "@address": "/Services/ErrorLogService",
-                            "@binding": "wsHttpBinding",
-                            "@bindingConfiguration": "CommonBinding",
-                            "@contract": "InsuranceWebAssistant.Services.IErrorLogService"
-                        }
-                    },
-                    {
-                        "@name": "InsuranceWebAssistant.Services.MapTasksService",
-                        "@behaviorConfiguration": "CommonBehaviors",
-                        "endpoint": {
-                            "@name": "MapTasksEndpoint",
-                            "@address": "/Services/MapTasksService",
-                            "@binding": "wsHttpBinding",
-                            "@bindingConfiguration": "CommonBinding",
-                            "@contract": "InsuranceWebAssistant.Services.IMapTasksService"
-                        }
-                    },
-                    {
-                        "@name": "InsuranceWebAssistant.Services.CompanyExpensesService",
-                        "@behaviorConfiguration": "CommonBehaviors",
-                        "endpoint": {
-                            "@name": "CompanyExpensesEndpoint",
-                            "@address": "/Services/CompanyExpensesService",
-                            "@binding": "wsHttpBinding",
-                            "@bindingConfiguration": "CommonBinding",
-                            "@contract": "InsuranceWebAssistant.Services.ICompanyExpensesService"
-                        }
-                    },
-                    {
-                        "@name": "InsuranceWebAssistant.Services.CompanyBillingService",
-                        "@behaviorConfiguration": "CommonBehaviors",
-                        "endpoint": {
-                            "@name": "CompanyBillingEndpoint",
-                            "@address": "/Services/CompanyBillingService",
-                            "@binding": "wsHttpBinding",
-                            "@bindingConfiguration": "CommonBinding",
-                            "@contract": "InsuranceWebAssistant.Services.ICompanyBillingService"
-                        }
+                    "@name": "InsuranceWebAssistant.Services.SystemOnlineTestService",
+                    "@behaviorConfiguration": "CommonBehaviors",
+                    "endpoint": {
+                        "@name": "SystemOnlineTestEndpoint",
+                        "@address": "/Services/SystemOnlineTestService",
+                        "@binding": "wsHttpBinding",
+                        "@bindingConfiguration": "CommonBinding",
+                        "@contract": "InsuranceWebAssistant.Services.ISystemOnlineTestService"
                     }
+                },
+                    {
+                    "@name": "InsuranceWebAssistant.Services.ErrorLogService",
+                    "@behaviorConfiguration": "CommonBehaviors",
+                    "endpoint": {
+                        "@name": "ErrorLogEndpoint",
+                        "@address": "/Services/ErrorLogService",
+                        "@binding": "wsHttpBinding",
+                        "@bindingConfiguration": "CommonBinding",
+                        "@contract": "InsuranceWebAssistant.Services.IErrorLogService"
+                    }
+                },
+                    {
+                    "@name": "InsuranceWebAssistant.Services.MapTasksService",
+                    "@behaviorConfiguration": "CommonBehaviors",
+                    "endpoint": {
+                        "@name": "MapTasksEndpoint",
+                        "@address": "/Services/MapTasksService",
+                        "@binding": "wsHttpBinding",
+                        "@bindingConfiguration": "CommonBinding",
+                        "@contract": "InsuranceWebAssistant.Services.IMapTasksService"
+                    }
+                },
+                    {
+                    "@name": "InsuranceWebAssistant.Services.CompanyExpensesService",
+                    "@behaviorConfiguration": "CommonBehaviors",
+                    "endpoint": {
+                        "@name": "CompanyExpensesEndpoint",
+                        "@address": "/Services/CompanyExpensesService",
+                        "@binding": "wsHttpBinding",
+                        "@bindingConfiguration": "CommonBinding",
+                        "@contract": "InsuranceWebAssistant.Services.ICompanyExpensesService"
+                    }
+                },
+                    {
+                    "@name": "InsuranceWebAssistant.Services.CompanyBillingService",
+                    "@behaviorConfiguration": "CommonBehaviors",
+                    "endpoint": {
+                        "@name": "CompanyBillingEndpoint",
+                        "@address": "/Services/CompanyBillingService",
+                        "@binding": "wsHttpBinding",
+                        "@bindingConfiguration": "CommonBinding",
+                        "@contract": "InsuranceWebAssistant.Services.ICompanyBillingService"
+                    }
+                }
                 ]
             },
             "bindings": {
@@ -266,115 +266,115 @@
                 "@xmlns": "urn:schemas-microsoft-com:asm.v1",
                 "dependentAssembly": [
                     {
-                        "assemblyIdentity": {
-                            "@name": "Microsoft.Data.Services",
-                            "@publicKeyToken": "31bf3856ad364e35",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-5.8.1.0",
-                            "@newVersion": "5.8.1.0"
-                        }
+                    "assemblyIdentity": {
+                        "@name": "Microsoft.Data.Services",
+                        "@publicKeyToken": "31bf3856ad364e35",
+                        "@culture": "neutral"
                     },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "Microsoft.Data.Services.Client",
-                            "@publicKeyToken": "31bf3856ad364e35",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-5.8.1.0",
-                            "@newVersion": "5.8.1.0"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "Microsoft.Data.Edm",
-                            "@publicKeyToken": "31bf3856ad364e35",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-5.8.1.0",
-                            "@newVersion": "5.8.1.0"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "System.Spatial",
-                            "@publicKeyToken": "31bf3856ad364e35",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-5.8.1.0",
-                            "@newVersion": "5.8.1.0"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "Microsoft.AI.Agent.Intercept",
-                            "@publicKeyToken": "31bf3856ad364e35",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-2.0.7.0",
-                            "@newVersion": "2.0.7.0"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "Newtonsoft.Json",
-                            "@publicKeyToken": "30ad4fe6b2a6aeed",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-13.0.0.0",
-                            "@newVersion": "13.0.0.0"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "System.Runtime.CompilerServices.Unsafe",
-                            "@publicKeyToken": "b03f5f7f11d50a3a",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-6.0.3.0",
-                            "@newVersion": "6.0.3.0"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "System.Memory",
-                            "@publicKeyToken": "cc7b13ffcd2ddd51",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-4.0.1.2",
-                            "@newVersion": "4.0.1.2"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "System.Numerics.Vectors",
-                            "@publicKeyToken": "b03f5f7f11d50a3a",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-4.1.4.0",
-                            "@newVersion": "4.1.4.0"
-                        }
-                    },
-                    {
-                        "assemblyIdentity": {
-                            "@name": "System.Buffers",
-                            "@publicKeyToken": "cc7b13ffcd2ddd51",
-                            "@culture": "neutral"
-                        },
-                        "bindingRedirect": {
-                            "@oldVersion": "0.0.0.0-4.0.3.0",
-                            "@newVersion": "4.0.3.0"
-                        }
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-5.8.1.0",
+                        "@newVersion": "5.8.1.0"
                     }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "Microsoft.Data.Services.Client",
+                        "@publicKeyToken": "31bf3856ad364e35",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-5.8.1.0",
+                        "@newVersion": "5.8.1.0"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "Microsoft.Data.Edm",
+                        "@publicKeyToken": "31bf3856ad364e35",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-5.8.1.0",
+                        "@newVersion": "5.8.1.0"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "System.Spatial",
+                        "@publicKeyToken": "31bf3856ad364e35",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-5.8.1.0",
+                        "@newVersion": "5.8.1.0"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "Microsoft.AI.Agent.Intercept",
+                        "@publicKeyToken": "31bf3856ad364e35",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-2.0.7.0",
+                        "@newVersion": "2.0.7.0"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "Newtonsoft.Json",
+                        "@publicKeyToken": "30ad4fe6b2a6aeed",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-13.0.0.0",
+                        "@newVersion": "13.0.0.0"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "System.Runtime.CompilerServices.Unsafe",
+                        "@publicKeyToken": "b03f5f7f11d50a3a",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-6.0.3.0",
+                        "@newVersion": "6.0.3.0"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "System.Memory",
+                        "@publicKeyToken": "cc7b13ffcd2ddd51",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-4.0.1.2",
+                        "@newVersion": "4.0.1.2"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "System.Numerics.Vectors",
+                        "@publicKeyToken": "b03f5f7f11d50a3a",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-4.1.4.0",
+                        "@newVersion": "4.1.4.0"
+                    }
+                },
+                    {
+                    "assemblyIdentity": {
+                        "@name": "System.Buffers",
+                        "@publicKeyToken": "cc7b13ffcd2ddd51",
+                        "@culture": "neutral"
+                    },
+                    "bindingRedirect": {
+                        "@oldVersion": "0.0.0.0-4.0.3.0",
+                        "@newVersion": "4.0.3.0"
+                    }
+                }
                 ]
             }
         }

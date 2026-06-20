@@ -5,6 +5,7 @@ mod xml_model;
 mod xml_parser;
 
 pub fn convert(xml: &str, pretty: bool) -> Result<String, String> {
+    let xml = xml.strip_prefix('\u{FEFF}').unwrap_or(xml);
     let mut lexer = xml_lexer::Lexer::new(xml);
     let tokens = lexer.tokenize()?;
     let root_node = xml_parser::Parser::new(tokens).parse()?;
