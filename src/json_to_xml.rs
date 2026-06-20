@@ -3,6 +3,7 @@ mod json_model;
 mod json_parser;
 
 pub fn convert(json: &str, pretty: bool) -> Result<String, String> {
+    let json = json.strip_prefix('\u{FEFF}').unwrap_or(json);
     let mut lexer = json_lexer::Lexer::new(json);
     let tokens = lexer.tokenize()?;
 
@@ -108,6 +109,14 @@ mod tests {
     fn pretty_mode_contains_newlines() {
         let result = convert("{\"a\": \"b\"}", true).unwrap();
         assert!(result.contains('\n'));
+    }
+
+    #[test]
+    fn utf8_bom_prefix_is_stripped() {
+        let json_with_bom = "\u{FEFF}{\"a\": \"b\"}";
+        let result = convert(json_with_bom, false);
+        assert!(result.is_ok(), "BOM should be silently stripped: {:?}", result);
+        assert!(result.unwrap().contains("<a>b</a>"));
     }
 
     #[test]

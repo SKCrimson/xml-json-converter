@@ -114,6 +114,12 @@ fn print_help(exe_name: &str) {
     println!("    XML -> JSON: attributes are prefixed with '@', text nodes with '#text'.");
     println!("    JSON -> XML: the root object becomes the <root> element.");
     println!();
+    println!("    XML -> JSON: interleaved elements of the same name are grouped into");
+    println!("    a JSON array by first occurrence, losing their relative order with");
+    println!("    other element types. Example:");
+    println!("      <root><a>1</a><b>2</b><a>3</a></root>");
+    println!("      -> {{ \"a\": [\"1\", \"3\"], \"b\": \"2\" }}  (a/b interleaving lost)");
+    println!();
     println!("ROUND-TRIP LIMITATIONS:");
     println!("    Conversion is one-way lossless within each direction, but a full");
     println!("    round-trip (XML->JSON->XML or JSON->XML->JSON) is NOT idempotent.");

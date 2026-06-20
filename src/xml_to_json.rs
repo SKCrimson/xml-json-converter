@@ -136,6 +136,14 @@ mod tests {
     }
 
     #[test]
+    fn empty_tag_name_returns_error() {
+        let result = convert("<>text</>", false);
+        assert!(result.is_err());
+        let msg = result.unwrap_err();
+        assert!(msg.to_lowercase().contains("empty tag name"), "got: {}", msg);
+    }
+
+    #[test]
     fn truncated_closing_tag_returns_error() {
         let result = convert("<root></root", false);
         assert!(result.is_err());
@@ -442,6 +450,18 @@ mod tests {
         let msg = result.unwrap_err();
         assert!(msg.contains("line 1"), "got: {}", msg);
         assert!(msg.contains("col 12"), "got: {}", msg);
+    }
+
+    #[test]
+    fn error_column_counts_chars_not_bytes() {
+        // "Яблоко" = 6 cyrillic chars (12 bytes). Opening quote " is the 14th character:
+        // < Я б л о к о   a t t r = "
+        // 1 2 3 4 5 6 7 8 9 ...    14
+        // The byte-based (broken) formula gives col 20; the char-based formula gives col 14.
+        let result = convert("<Яблоко attr=\"unclosed", false);
+        let msg = result.unwrap_err();
+        assert!(msg.contains("line 1"), "got: {}", msg);
+        assert!(msg.contains("col 14"), "got: {}", msg);
     }
 
     #[test]

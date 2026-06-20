@@ -108,7 +108,10 @@ impl<'a> Lexer<'a> {
     fn position_at(&self, byte_offset: usize) -> (usize, usize) {
         let prefix = &self.input[..byte_offset.min(self.input.len())];
         let line = prefix.bytes().filter(|&b| b == b'\n').count() + 1;
-        let col = prefix.rfind('\n').map_or(prefix.len() + 1, |i| prefix.len() - i);
+        let col = match prefix.rfind('\n') {
+            Some(i) => prefix[i + 1..].chars().count() + 1,
+            None    => prefix.chars().count() + 1,
+        };
         (line, col)
     }
 
@@ -213,6 +216,11 @@ impl<'a> Lexer<'a> {
                     .map(|i| i + 1)
                     .unwrap_or(rest.len());
                 let name = &rest[1..end];
+                if name.is_empty() {
+                    let (line, col) = self.position();
+                    self.error = Some(format!("Empty tag name at line {}, col {}", line, col));
+                    return None;
+                }
                 self.advance(end);
                 return Some(Token::TagOpen(name));
             } else {
