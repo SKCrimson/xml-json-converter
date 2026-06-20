@@ -31,11 +31,11 @@ fn main() {
 
     match params.extension.as_str() {
         "xml" => run_conversion(
-            &params.file_path, params.pretty, params.output_name.as_deref(),
+            &params.file_path, params.indent, params.output_name.as_deref(),
             "json", xml_to_json::convert,
         ),
         "json" => run_conversion(
-            &params.file_path, params.pretty, params.output_name.as_deref(),
+            &params.file_path, params.indent, params.output_name.as_deref(),
             "xml", json_to_xml::convert,
         ),
         _ => {
@@ -47,16 +47,16 @@ fn main() {
 
 fn run_conversion(
     file_path: &str,
-    pretty: bool,
+    indent: usize,
     output_name: Option<&str>,
     out_ext: &str,
-    convert: fn(&str, bool) -> Result<String, String>,
+    convert: fn(&str, usize) -> Result<String, String>,
 ) {
     let content = match utils::read_file(file_path) {
         Ok(c) => c,
         Err(e) => { eprintln!("Error: {}", e); process::exit(1); }
     };
-    let output = match convert(&content, pretty) {
+    let output = match convert(&content, indent) {
         Ok(o) => o,
         Err(e) => { eprintln!("Error: {}", e); process::exit(1); }
     };
@@ -93,9 +93,11 @@ fn print_help(exe_name: &str) {
     println!("                   Format is detected automatically from the extension.");
     println!();
     println!("OPTIONS:");
-    println!("    -p, --pretty        Format output with indentation and line breaks.");
-    println!("    -n, --name <NAME>   Custom output file name (without extension).");
-    println!("    -h, --help          Print this help message.");
+    println!("    -p, --pretty           Format output with 4-space indentation (default indent).");
+    println!("        --indent <N>       Pretty-print with N spaces per level (implies --pretty).");
+    println!("    -n, --name <NAME>      Custom output file name (without extension).");
+    println!("        --from <xml|json>  Explicitly set input format, overriding file extension.");
+    println!("    -h, --help             Print this help message.");
     println!();
     println!("OUTPUT:");
     println!("    Default: result is written next to the source file:");
